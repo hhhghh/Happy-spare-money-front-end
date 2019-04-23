@@ -11,7 +11,8 @@ import taskSearch from '@/components/taskSearch'
 import taskRelease from '@/components/taskRelease'
 import groupSearch from '@/components/groupSearch'
 import myGroup from '@/components/myGroup'
-
+import login from '@/components/login'
+import register from '@/components/register'
 
 Vue.use(Router)
 
@@ -91,7 +92,18 @@ export default new Router({
         }
       ]
     },
-  
+    {
+      path: '/login',
+      name: 'login',
+      component: login
+    },
+    {
+      path: '/register',
+      name: 'register',
+      component: register
+    }
+
+
     
   ]
 })
