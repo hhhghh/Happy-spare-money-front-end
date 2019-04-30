@@ -1,52 +1,73 @@
 <template>
-    <div class="task-detail-body">
-        <div class="drawer-btn">
-            <Button @click="drawerDisplay = true" type="info">任务完成度</Button>
-        </div>
-        <div class="detail-body">
-            <div class="detail">
-                <h1>标题 </h1>
-                <p>{{ task.title }}</p>
-                <h1>类型</h1>
-                <p>{{ task.type }} </p>
-                <h1>简介</h1>
-                <p>{{ task.intro }} </p>
-
-                <div class="tack-publisher">
-                    <h2>发布人</h2>
-                    <Avatar> </Avatar>
-                    <span>{{ task.publisher }} </span>
-                </div>
-                <div class="task-time">
-                    <h1>任务时间</h1>
-                    <div class="task-starttime"> 
-                        <span>开始时间: </span>
-                        <Time :time="task.starttime" type="datetime" />
-                    </div>
-                    <div class="task-endtime"> 
-                        <span>截止时间: </span>
-                        <Time :time="task.endtime" type="datetime" />
-                    </div>
-                </div>
-
-                <h1>奖赏</h1>
-                <span>{{task.money}}</span>
-                <Icon type="logo-yen" />
+    <div class="task-body">
+        <div class="task-detail-body">
+            <div class="drawer-btn">
+                <Button @click="drawerDisplay = true" type="info" v-show="isReleaser">任务完成度</Button>
             </div>
-    
-        </div>
-        <div class="accepted-detail-body" v-show="isAcceptor">
-            <div class="publisher-info">
-                <h2>联系方式</h2>
-                <p>手机：123456789</p>
-                <h2>具体地点</h2>
-                <p>明德666</p>
+            <h1 id="title" style="font-size: 28px">任务信息</h1>
+            <div class="detail-body">
+                <div class="detail">
+                    <div class="div-taskInfo-item">
+                        <h1>标题 </h1>
+                        <p>{{ task.title }}</p>
+                    </div>
+                    <div class="div-taskInfo-item">
+                        <h1 id="type">类型</h1>
+                        <p>{{ task.type }} </p>
+                    </div>
+                    <div class="div-taskInfo-item">
+                        <h1 id="intro">简介</h1>
+                        <p>{{ task.intro }} </p>
+                    </div>
+                    <div class="tack-releaser div-taskInfo-item">
+                        <h2 id="releaser">发布人</h2>
+                        <Avatar> </Avatar>
+                        <span>{{ task.releaser }} </span>
+                    </div>
+                    <div class="task-time div-taskInfo-item">
+                        <h1 id="time">任务时间</h1>
+                        <div class="task-starttime"> 
+                            <span>开始时间: </span>
+                            <Time :time="task.starttime" type="datetime" />
+                        </div>
+                        <div class="task-endtime"> 
+                            <span>截止时间: </span>
+                            <Time :time="task.endtime" type="datetime" />
+                        </div>
+                    </div>
+                    <div class="div-taskInfo-item" style="display: flex;">
+                        <div>
+                            <h1 id="profit">奖赏</h1>
+                            <span>{{task.money}}</span>
+                            <Icon type="logo-yen" />
+                        </div>
+                        <div style="margin-left:250px" v-show="isReleaser">
+                            <h1>数量</h1>
+                            <span>{{task.number}}</span>
+                        </div>
+                        <div style="margin-left:250px" v-show="isReleaser">
+                            <h1>接受评分要求</h1>
+                            <Rate allow-half show-text v-model="task.score" disabled>
+                                <span style="color: #f5a623;position:relative;bottom:2px;">{{ task.score }}</span>
+                            </Rate>
+                        </div>
+                    </div>
+                </div>
             </div>
-        </div>
-        <Button type="success" long v-show="!isAcceptor" @click="acceptTask()">接受任务</Button>
-        <Button type="error" long v-show="isPublisher || isAcceptor">取消任务</Button>
-       
-       
+            <div id="requirement" class="accepted-detail-body" v-show="isAcceptor">
+                <div class="releaser-info">
+                    <h2>联系方式</h2>
+                    <p>手机：123456789</p>
+                    <h2>具体地点</h2>
+                    <p>明德666</p>
+                </div>
+            </div>
+            <div style="margin-top: 20px;">
+                <Button type="success" long v-show="!isAcceptor && !isReleaser" @click="acceptTask()">接受任务</Button>
+                <Button type="error" long v-show="isReleaser || isAcceptor">取消任务</Button>
+            </div>
+        
+       </div>
         <Drawer title="完成度" width="480" :closable="false" v-model="drawerDisplay">
            <div class="table-whole">
                 <div class="div-table-body">
@@ -110,10 +131,22 @@
             </div>
 
         </Drawer>
-
-         <span>{{taskInf.login}} </span>
+        <div class="div-anchor-body">
+            <div class="div-anchor">
+                
+                <Anchor show-ink>
+                    <AnchorLink href="#title" title="标题" />
+                    <AnchorLink href="#type" title="类型" />
+                    <AnchorLink href="#intro" title="简介" />
+                    <AnchorLink href="#releaser" title="发布人" />
+                    <AnchorLink href="#time" title="任务时间" />
+                    <AnchorLink href="#profit" title="奖赏" />
+                    <AnchorLink href="#requirement" title="具体要求"/>
+                </Anchor>
+            </div>
+        </div>
     </div>
-  
+    
 
 
 </template>
@@ -123,19 +156,19 @@
 export default {
     data () {
         return {
-            isPublisher: false,     
-            isAcceptor: false,      //control the show of accepter and cancel buttons
+            isReleaser: true,     
+            isAcceptor: true,      //control the show of accepter and cancel buttons
             drawerDisplay: false,
             scoreValue: 0,
-            taskInf:[],
+            taskInfo:[],
             task: {
                 title: 'xxxxxx问卷调查',
                 intro: '可能会发生这样的情况：当一个道具在激活状态时，另一个道具与挡板发生了接触。在这种情况下我们有超过1个在当前PowerUps容器中处于激活状态的道具。然后，当这些道具中的一个被停用时，我们不应使其效果失效因为另一个相同类型的道具仍处于激活状态。出于这个原因，我们使用isOtherPowerUpActive检查是否有同类道具处于激活状态。只有当它返回false时，我们才停用这个道具的效果。这样，给定类型的道具的持续时间就可以延长至最近一次被激活后的持续时间。',
                 money: 12,
                 number: 10,
-                publisher : 'Howlyao',
+                releaser : 'Howlyao',
                 state: 'waiting for being accepted',
-                
+                score: 3.5,
                 type: 2,
                 starttime:  (new Date()).getTime() - 86400 * 3 * 1000,
                 endtime: (new Date()).getTime()
@@ -174,7 +207,7 @@ export default {
             })
             .then(function(response) {
                 //console.log(response.data);
-                vm.taskInf = response.data;
+                vm.taskInfo = response.data;
                 this.setCharactor(); 
             })
             .catch(function (error) {
@@ -185,9 +218,9 @@ export default {
 
         setCharactor: function() {
            var vm = this; 
-           var inf = vm.taskInf;
-           if (inf.login == this.task.publisher) {
-               isPublisher = true;
+           var inf = vm.taskInfo;
+           if (inf.login == this.task.releaser) {
+               isReleaser = true;
            } else {
                //http请求
                //找到登陆用户是否有接受过该任务
@@ -203,7 +236,7 @@ export default {
             //添加接受者与任务的联系
             this.$axios.post(url, {
                user: username,
-               taskid: taskInf.id
+               taskid: taskInfo.id
             
             })
             .then(function(response) {
@@ -223,7 +256,7 @@ export default {
             //删除接受者与任务的联系
             this.$axios.post(url, {
                user: username,
-               taskid: taskInf.id
+               taskid: taskInfo.id
             
             })
             .then(function(response) {
@@ -243,7 +276,7 @@ export default {
             //删除任务
             this.$axios.post(url, {
                user: username,
-               taskid: taskInf.id
+               taskid: taskInfo.id
             
             })
             .then(function(response) {
@@ -281,18 +314,38 @@ h1 {
 
 
 
-.task-detail-body {
-   
-    text-align: left;
-    padding: 10px;
+.task-body {
+    padding: 20px;
+    position:relative;
+    min-width: 960px;
+    overflow: hidden;
+    background-color: #f8f8f9;
+    display: flex;
 }
 
+.task-detail-body {
+    width: 80%;
+    text-align: left;
+    
+}
 
+.detail-body {
+    position:relative;
+    margin-top: 10px;
+    margin-bottom: 10px;
+}
+
+.div-taskInfo-item {
+    margin-top: 30px;
+    
+}
 
 .accepted-detail-body {
     border: 1px solid #dcdee2;
-    margin-top:50px;
+    border-radius: 5px;
+    margin-top:20px;
     margin-bottom: 20px;
+    padding: 10px;
 }
 
 .drawer-btn {
@@ -349,5 +402,14 @@ h1 {
 .span-score {
     position:relative;
     top: 2px;
+}
+
+.div-anchor-body {
+    position: relative;
+}
+.div-anchor {
+   position: fixed;
+   margin-left: 50px;
+
 }
 </style>

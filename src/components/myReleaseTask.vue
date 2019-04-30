@@ -256,7 +256,7 @@ div {
     border: 1px solid #5cadff;
     box-shadow: 5px 5px 5px #5cadff;
     float: left;
-    width:20%;
+    width:28%;
     height: 100px;
     position: relative;
 }
