@@ -22,21 +22,6 @@ export default new Router({
       name: 'HelloWorld',
       component: HelloWorld
     },
-    // {
-    //   path: '/taskDetail/:id',
-    //   name: 'taskDetail',
-    //   component: taskDetail
-    // },
-    // {
-    //   path: '/myReleaseTask',
-    //   name: 'myReleaseTask',
-    //   component: myReleaseTask
-    // },
-    // {
-    //   path: '/myAcceptTask',
-    //   name: 'myAcceptTask',
-    //   component: myAcceptTask
-    // },
     {
       path: '/MainPage',
       name: 'MainPage',
