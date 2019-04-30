@@ -1,6 +1,6 @@
 <template>
   <div class="hello">
-    <router-link to="/taskDetail"><Button>to</Button></router-link>
+    <router-link to="/MainPage"><Button>to</Button></router-link>
     <h1>{{ msg }}</h1>
     <h2>Essential Links</h2>
     <ul>

@@ -4,33 +4,25 @@
 
 
 <template>
-    <div class="task-body">
+    <div class="content-body">
         <div class="content">
-            <div class="content-selector-block">
-                <div class="div-selectors">
-                    <div class="selector">
-                        <span class="selector-span">任务类型</span>
-                        <Select v-model="typeSelect" style="width:100px;margin-right:5px" @on-change="getAcceptTask(typeSelect,rangeSelect,stateSelect)">
-                            <Option v-for="item in taskType" :value="item.value" :key="item.value">{{ item.label }}</Option>
-                        </Select>
-                    </div>
-                    <div class="selector">
-                    <span class="selector-span">任务发布范围</span>
-                        <Select v-model="rangeSelect" style="width:100px;margin-right:5px" @on-change="getAcceptTask(typeSelect,rangeSelect,stateSelect)">
-                            <Option v-for="item in rangeType" :value="item.value" :key="item.value">{{ item.label }}</Option>
-                        </Select>
-                    </div>
-                    <div class="selector">
-                    <span class="selector-span">任务状态</span>
-                        <Select v-model="stateSelect" style="width:100px;margin-right:5px" @on-change="getAcceptTask(typeSelect,rangeSelect,stateSelect)">
-                            <Option v-for="item in stateType" :value="item.value" :key="item.value">{{ item.label }}</Option>
-                        </Select>
-                    </div>
+            <div class="content-selector-block" >
+                <div class="selector">
+                    <span>任务类型</span>
+                    <Select v-model="taskClass" style="width:100px" label="全部">
+                        <Option v-for="item in taskList" :value="item.value" :key="item.value">{{ item.label }}</Option>
+                    </Select>
                 </div>
+                <div class="selector">
+                    <span>任务发布范围</span>
+                    <Select v-model="range" style="width:100px" label="全部">
+                        <Option v-for="item in rangeList" :value="item.value" :key="item.value">{{ item.label }}</Option>
+                    </Select>
+                </div>
+                <Divider>Task</Divider>
             </div>
-            <Divider></Divider>
             <div class="task-content">
-                <div v-for="item in items">
+                <div v-for="item in items" v-bind:key="item.id">
                     <div v-bind:class="{'task-card':true,'task-card-mouseenter': enterid == item.id, 'task-card-mouseleave':!(enterid == item.id)}"
                     v-on:mouseenter="enterid = item.id" v-on:mouseleave="enterid = 0" @click="getTaskItem(item.id)">
                         <div class="task-title">
@@ -116,74 +108,27 @@ export default {
 </script>
 
 <style scoped>
-.task-body {
-    padding: 20px;
-    position:relative;
-    min-width: 800px;
-    overflow: hidden;
-    background-color: #f8f8f9;
+span {
+    margin:10px;
 }
+
+
 
 .content {
     background:#f8f8f9;
-    
+    padding:15px;
+}
+.content-body {
+    background-color: #f8f8f9;
+}
+.selector {
+    float:left;
+    margin: 10px;
 }
 
 .content-selector-block {
     position:relative;
-    margin-bottom: 10px;
-    padding-left: 10px;
-}
-
-.div-selectors {
-    position:relative;
-    display:flex;
-}
-
-
-.selector {
-    position:relative;
-    margin-right: 30px;
-   
-}
-
-.selector-span {
-    margin-right: 15px;
-    
-}
-
-
-.state-type-hint {
-    position: relative;
-    top: 10px;
-}
-
-.div-box {
-    display: flex;
-    margin-top: 10px;
-    margin-right: 10px;
-}
-.box {
-    width:15px;
-    height:15px;
-    border-radius: 2px;
-    margin-right: 5px;
-    box-shadow: 2px 2px 2px #c5c8ce;
-}
-
-.green-state-box {
-    background: #19ff6b;
-    
-   
-}
-
-.yellow-state-box {
-    background: #ffcc00;
-   
-}
-
-.blue-state-box {
-    background: #5cadff;
+    z-index: 999;
 }
 
 .task-content {

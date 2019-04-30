@@ -1,27 +1,19 @@
 <template>
     <div class="task-body">
         <div class="content" >
-            <div class="content-selector-block">
-                <div class="div-selectors">
-                    <div class="selector">
-                        <span class="selector-span">任务类型</span>
-                        <Select v-model="typeSelect" style="width:100px;margin-right:5px" @on-change="getAcceptTask(typeSelect,rangeSelect,stateSelect)">
-                            <Option v-for="item in taskType" :value="item.value" :key="item.value">{{ item.label }}</Option>
-                        </Select>
-                    </div>
-                    <div class="selector">
-                    <span class="selector-span">任务发布范围</span>
-                        <Select v-model="rangeSelect" style="width:100px;margin-right:5px" @on-change="getAcceptTask(typeSelect,rangeSelect,stateSelect)">
-                            <Option v-for="item in rangeType" :value="item.value" :key="item.value">{{ item.label }}</Option>
-                        </Select>
-                    </div>
-                    <div class="selector">
-                    <span class="selector-span">任务状态</span>
-                        <Select v-model="stateSelect" style="width:100px;margin-right:5px" @on-change="getAcceptTask(typeSelect,rangeSelect,stateSelect)">
-                            <Option v-for="item in stateType" :value="item.value" :key="item.value">{{ item.label }}</Option>
-                        </Select>
-                    </div>
-                </div>
+            <div class="task-selector">
+                <span class="selector-span">任务类型</span>
+                <Select v-model="typeSelect" style="width:100px;margin-right:5px" @on-change="getAcceptTask(typeSelect,rangeSelect,stateSelect)">
+                    <Option v-for="item in taskType" :value="item.value" :key="item.value">{{ item.label }}</Option>
+                </Select>
+                <span class="selector-span">任务发布范围</span>
+                <Select v-model="rangeSelect" style="width:100px;margin-right:5px" @on-change="getAcceptTask(typeSelect,rangeSelect,stateSelect)">
+                    <Option v-for="item in rangeType" :value="item.value" :key="item.value">{{ item.label }}</Option>
+                </Select>
+                <span class="selector-span">任务状态</span>
+                <Select v-model="stateSelect" style="width:100px;margin-right:5px" @on-change="getAcceptTask(typeSelect,rangeSelect,stateSelect)">
+                    <Option v-for="item in stateType" :value="item.value" :key="item.value">{{ item.label }}</Option>
+                </Select>
                 <div class="state-type-hint" style="display:flex">
                     <div class="div-box">
                         <div class="box green-state-box"></div>
@@ -187,35 +179,21 @@ h2 {
 .task-body {
     padding: 20px;
     position:relative;
-    min-width: 960px;
+    min-width: 800px;
     height: 1000px;
     overflow: hidden;
     background-color: #f8f8f9;
 }
 
-.content-selector-block {
+.task-selector {
     position:relative;
     margin-bottom: 10px;
-    padding-left: 10px;
-}
-
-.div-selectors {
-    position:relative;
-    display:flex;
-}
-
-
-.selector {
-    position:relative;
-    margin-right: 30px;
    
 }
-
 .selector-span {
-    margin-right: 15px;
+    margin-right: 10px;
     
 }
-
 
 .state-type-hint {
     position: relative;
@@ -264,7 +242,7 @@ h2 {
     border: 1px solid #5cadff;
     box-shadow: 5px 5px 5px #5cadff;
     float: left;
-    width:28%;
+    width:20%;
     height: 100px;
     position:relative;
 }
@@ -288,6 +266,13 @@ h2 {
     width:20px;
     height:20px;
 
+}
+
+.div-number {
+    margin: 5px;
+    position: absolute;
+    right:45%;
+    bottom:0px;
 }
 
 

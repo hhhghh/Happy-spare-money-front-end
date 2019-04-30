@@ -233,7 +233,7 @@ h1,h2,h3 {
 }
 
 .div-profile {
-    width: 75%;
+    width: 66.66%;
     padding: 10px;
     min-width: 500px;
     overflow:hidden;
@@ -305,7 +305,7 @@ h1,h2,h3 {
     margin: 10px;
     text-align: left;
     position:relative;
-    width:25%;
+    width:33.33%;
     
 }
 

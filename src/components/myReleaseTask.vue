@@ -1,49 +1,34 @@
 <template>
     <div class="task-body">
         <div class="content">
-            <div class="content-selector-block">
-                <div class="div-selectors">
-                    <div class="selector">
-                        <span class="selector-span">任务类型</span>
-                        <Select v-model="typeSelect" style="width:100px;margin-right:5px" @on-change="getAcceptTask(typeSelect,rangeSelect,stateSelect)">
-                            <Option v-for="item in taskType" :value="item.value" :key="item.value">{{ item.label }}</Option>
-                        </Select>
-                    </div>
-                    <div class="selector">
-                    <span class="selector-span">任务发布范围</span>
-                        <Select v-model="rangeSelect" style="width:100px;margin-right:5px" @on-change="getAcceptTask(typeSelect,rangeSelect,stateSelect)">
-                            <Option v-for="item in rangeType" :value="item.value" :key="item.value">{{ item.label }}</Option>
-                        </Select>
-                    </div>
-                    <div class="selector">
-                    <span class="selector-span">任务状态</span>
-                        <Select v-model="stateSelect" style="width:100px;margin-right:5px" @on-change="getAcceptTask(typeSelect,rangeSelect,stateSelect)">
-                            <Option v-for="item in stateType" :value="item.value" :key="item.value">{{ item.label }}</Option>
-                        </Select>
-                    </div>
-                </div>
-                <div class="state-type-hint" style="display:flex">
+            <div class="task-selector">
+                <span class="selector-span">任务类型</span>
+                <Select v-model="typeSelect" style="width:100px;margin-right:5px" @on-change="getReleaseTask(typeSelect,rangeSelect,stateSelect)">
+                    <Option v-for="item in taskType" :value="item.value" :key="item.value">{{ item.label }}</Option>
+                </Select>
+                <span class="selector-span">任务范围</span>
+                <Select v-model="rangeSelect" style="width:100px;margin-right:5px" @on-change="getReleaseTask(typeSelect,rangeSelect,stateSelect)">
+                    <Option v-for="item in rangeType" :value="item.value" :key="item.value">{{ item.label }}</Option>
+                </Select>
+                <span class="selector-span">任务状态</span>
+                <Select v-model="stateSelect" style="width:100px;margin-right:5px" @on-change="getReleaseTask(typeSelect,rangeSelect,stateSelect)">
+                    <Option v-for="item in stateType" :value="item.value" :key="item.value">{{ item.label }}</Option>
+                </Select>
+            </div>
+            <div class="state-type-hint" style="display:flex">
                     <div class="div-box">
                         <div class="box green-state-box"></div>
                         <span>已完成</span>
                     </div>
                     <div class="div-box">
-                        <div class="box yellow-state-box"></div>
-                        <span>正在做</span>
-                    </div>
-                    <div class="div-box">
                         <div class="box blue-state-box"></div>
-                        <span>待审核</span>
+                        <span>未完成</span>
                     </div>
                 </div>
-            </div>
             <Divider></Divider>
             <div class="task-content">
-               <div class="task-item" v-for="item in taskItem" v-bind:class="{ 'completed': isComplete(item.state), 
-                'completed-mouseenter':isEnter(item.id) && isComplete(item.state), 
-                'waiting': isWaiting(item.state),
-                'waiting-mouseenter':isEnter(item.id) && isWaiting(item.state),
-                'item-mouseenter': isEnter(item.id)}"
+                <div class="task-item" v-for="item in taskItem" v-bind:class="{ 'completed': isComplete(item.state), 
+                'completed-mouseenter':isEnter(item.id) && isComplete(item.state), 'item-mouseenter': isEnter(item.id)}"
                 @mouseenter="enterItemId = item.id" @mouseleave="enterItemId = ''" @click="jumpToTaskDetail(item.id)">
                     <h2>{{item.title}}</h2>
                     <span>类型：{{item.type}} </span>
@@ -123,14 +108,6 @@ export default {
                     state: 'completed',
                     type: '取快递',
                     number: 1
-                },
-                {
-                    id: 3,
-                    title: 'xxx取快递',
-                    money: 2,
-                    type: '取快递',
-                    state: 'waiting',
-                    number: 1
                 }
             ]
 
@@ -147,9 +124,6 @@ export default {
     methods: {
         isComplete: function(state) {
             return state == 'completed';
-        },
-        isWaiting: function (state) {
-            return state == 'waiting';
         },
         isEnter: function(id) {
             return id == this.enterItemId;
@@ -179,41 +153,19 @@ div {
 .task-body {
     padding: 20px;
     position:relative;
-    min-width: 960px;
+    min-width: 800px;
     overflow: hidden;
     background-color: #f8f8f9;
 }
 
-
-.content-selector-block {
-    position:relative;
-    margin-bottom: 10px;
-    padding-left: 10px;
-}
-
-.div-selectors {
-    position:relative;
-    display:flex;
-}
-
-
-.selector {
-    position:relative;
-    margin-right: 30px;
-   
-}
-
 .selector-span {
-    margin-right: 15px;
-    
+    margin-right: 10px;
 }
-
 
 .state-type-hint {
     position: relative;
     top: 10px;
 }
-
 .div-box {
     display: flex;
     margin-top: 10px;
@@ -233,23 +185,11 @@ div {
    
 }
 
-.yellow-state-box {
-    background: #ffcc00;
-   
-}
 
 .blue-state-box {
     background: #5cadff;
 }
 
-
-
-.task-content {
-    position: relative;
-    width: 100%;
-    min-width: 800px;
-    height: 100%;
-}
 .task-item {
     margin: 20px;
     padding: 5px;
@@ -257,7 +197,7 @@ div {
     box-shadow: 5px 5px 5px #5cadff;
     float: left;
     width:20%;
-    height: 100px;
+    height: 80px;
     position: relative;
 }
 
@@ -283,6 +223,11 @@ div {
     bottom:0px;
 }
 
+.task-content {
+    position: relative;
+    width: 100%;
+    min-width: 800px;
+}
 
 .item-mouseenter {
     box-shadow: 3px 3px 5px #2b85e4;
@@ -298,13 +243,4 @@ div {
     box-shadow: 3px 3px 5px #19be6b;
 }
 
-.waiting {
-    border: 1px solid #ffcc00;
-    box-shadow: 5px 5px 5px #ffcc00;
-
-}
-
-.waiting-mouseenter {
-    box-shadow: 3px 3px 5px #ff9900;
-}
 </style>

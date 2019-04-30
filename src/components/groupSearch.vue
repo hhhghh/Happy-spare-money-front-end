@@ -1,4 +1,283 @@
 /* eslint-disable */
+
+<template>
+    <div class="content-body">
+        <div class="content">
+            <div class="content-selector-block">
+                <div class="selector">
+                    <Input v-model="input" placeholder="Search Group">
+                        <Select v-model="groupAttribute" slot="prepend" style="width:80px" label="小组ID">
+                            <Option v-for="item in groupAttributeList" :value="item.value" :key="item.value">{{ item.label }}</Option>
+                        </Select>
+                        <Button slot="append" icon="ios-search" @click="searchGroup"></Button>
+                    </Input>
+                </div>
+            </div>
+
+            <Divider>Group</Divider>
+
+            <div v-if="teams.length != 0" class="group-content">
+                <div class="div-flex" v-for="item in teams" v-bind:key="item.id">
+                    <div v-bind:class="{'group-card':true,'group-card-mouseenter': enterid == item.team_id, 'group-card-mouseleave':!(enterid == item.team_id)}"
+                    v-on:mouseenter="enterid = item.team_id" v-on:mouseleave="enterid = 0" @click="getGroupItem(item.team_id)" >
+                        <div class="top-block">
+                            <div class="group-image" style="display: inline">
+                                <Avatar :src="item.logo" > U</Avatar>
+                            </div>
+                            <div class="group-name" style="display: inline">
+                                <span>{{item.team_name}}</span>
+                            </div>
+                        </div>
+                        <div class="middle-block">
+                            <div class="group-description">
+                                <span>{{item.description}}</span>
+                            </div>
+                        </div>
+                        <div class="bottom-block">
+                            <div class="group-tags" style="display: inline">
+                                <Icon type="md-pricetags" />
+                                <Tag type="border" class="tags" v-for="item in item.teamlabels" :key="item.label" :name="item.label">{{ item.label }}</Tag>
+                            </div>
+                            <div class="group-members" style="display: inline">
+                                <Icon type="md-person" />
+                                <span>{{item.members.length}}</span>
+                            </div>
+                        </div>
+                        
+                        <div class="group-simpleinfo"> 
+                            <span>{{item.simpleinfo}} </span>
+                        </div>
+                        
+                        <Drawer 
+                            width="50" 
+                            :mask-closable="false" 
+                            :closable="false" 
+                            :transfer="false" 
+                            :inner="true" 
+                            :scrollable="false"
+                            :value="showDrawer == item.team_id"
+                        >
+                            <div class="applyJoin-block">
+                                <Button type="primary" @click="applyJoinGroup(item.team_id)">申请进群</Button>
+                            </div>
+                        </Drawer>
+                    </div>
+                </div>
+            </div>        
+            <div v-else class="group-content">
+                <div class="search-result">
+                    <span v-if="first">请输入想搜索的小组的条件</span>
+                    <span v-else>抱歉，没有找到符合条件的小组，请查看{{groupAttribute}}是否填写正确</span>
+                </div>
+            </div>
+        </div>
+    </div>
+</template>
+
+<script>
+export default {
+    data() {
+        return {
+            groupAttributeList: [
+                {
+                    value: 'group_id,',
+                    label: '小组ID'
+                },
+                {
+                    value: 'group_name',
+                    label: '小组名字'
+                },
+                {
+                    value: 'group_tag',
+                    label: '小组标签'
+                }
+            ],
+            groupAttribute: 'group_id',
+
+            input: '',
+
+            btn_show: false,
+            enterid: 0,
+
+            first: true,
+
+            value1: false,
+
+            default_teams: [
+                {   
+                    team_id: 1,
+                    team_name: 'group1', 
+                    leader: 'hhyx',
+                    logo: 'https://timgsa.baidu.com/timg?image&quality=80&size=b9999_10000&sec=1556460005123&di=70167f3e40d02f2764db7079522fc646&imgtype=0&src=http%3A%2F%2Fbpic.588ku.com%2Felement_origin_min_pic%2F16%2F09%2F11%2F2157d55a32f1e7f.jpg',
+                    createAt: '2019-04-28 00:00:00',
+                    description: 'This is group1',
+                    limit: 0,
+                    teamlabels: [
+                        {
+                            label: '羽毛球'
+                        },
+                        {
+                            label: '足球'
+                        }
+                    ],
+                    members: [
+                        {
+                            member_username: 'hhyx'
+                        },
+                        {
+                            member_username: 'hzhh'
+                        },
+                        {
+                            member_username: 'HeChX'
+                        },
+                        {
+                            member_username: 'Howlyao'
+                        },
+                    ],
+        
+
+                },
+                {   
+                    team_id: 2,
+                    team_name: 'group2',
+                    leader: 'HeChX',
+                    logo: 'https://ss1.bdstatic.com/70cFuXSh_Q1YnxGkpoWK1HF6hhy/it/u=2605489307,3834536344&fm=26&gp=0.jpg',
+                    createAt: '2019-04-28 00:00:00',
+                    description: 'This is group2',
+                    limit: 0,
+                    teamlabels: [
+                        {
+                            label: '乒乓球'
+                        }
+                    ],
+                    members: [
+                        {
+                            member_username: 'HeChX'
+                        },
+                        {
+                            member_username: 'hzhh'
+                        },
+                        {
+                            member_username: 'Howlyao'
+                        },
+                    ],
+
+                },
+                {   
+                    team_id: 3,
+                    team_name: 'group3', 
+                    leader: 'hzhh',
+                    logo: 'https://timgsa.baidu.com/timg?image&quality=80&size=b9999_10000&sec=1556460204895&di=7617f2b558b0aa0fa511b000830eee0f&imgtype=0&src=http%3A%2F%2Fpic.51yuansu.com%2Fpic3%2Fcover%2F02%2F75%2F16%2F5a33804002831_610.jpg',
+                    createAt: '2019-04-28 00:00:00',
+                    description: 'This is group3',
+                    limit: 0,
+                    teamlabels: [
+                        {
+                            label: '羽毛球'
+                        }
+                    ],
+                    members: [
+                        {
+                            member_username: 'hzhh'
+                        },
+                        {
+                            member_username: 'HeChX'
+                        },
+                        {
+                            member_username: 'Howlyao'
+                        },
+                        {
+                            member_username: 'user1'
+                        },
+                        {
+                            member_username: 'user2'
+                        },
+                    ],
+
+                },
+            ],
+
+            teams: [],
+
+            tags: ['sport'],
+
+            showDrawer: -1,
+        };
+    },
+    methods: {
+        getGroupItem(id_) {
+            // this.$router.push({
+            //     name: 'groupDetail',
+            //     params: {
+            //     id:id_
+            //     }
+            // });
+
+            if (this.showDrawer != id_) this.showDrawer = id_;
+            else this.showDrawer = -1;
+            
+        },
+
+        searchGroup() {
+            if (this.input === "") {
+                console.log("Please input the group info");
+            } else {
+                this.teams = [];
+                if (this.first) this.first = false;
+                if (this.groupAttribute === "group_id") {
+                    let flag = 0;
+                    for (let i = 0, len = this.default_teams.length; i < len; i++) {
+                        if (this.input == this.default_teams[i].team_id) {
+                            this.teams.push(this.default_teams[i]);
+                            flag++;
+                        }
+                    }
+                    if (flag == 0) {
+                        
+                    }
+                } else if (this.groupAttribute === "group_name") {
+                    let flag = 0;
+                    for (let i = 0, len = this.default_teams.length; i < len; i++) {
+                        if (this.input == this.default_teams[i].team_name) {
+                            this.teams.push(this.default_teams[i]);
+                            flag++;
+                        }
+                    }
+                    if (flag == 0) {
+                        
+                    }
+                } else if (this.groupAttribute === "group_tag") {
+                    let flag = 0;
+                    for (let i = 0, len = this.default_teams.length; i < len; i++) {
+                        for (let j = 0, len2 = this.default_teams[i].teamlabels.length; j < len2; j++) {
+                            if (this.input == this.default_teams[i].teamlabels[j].label) {
+                                this.teams.push(this.default_teams[i]);
+                                flag++;
+                            }
+                        }
+                    }
+                    if (flag == 0) {
+                        
+                    }
+                }
+                
+            }
+        },
+
+        applyJoinGroup(id_) {
+            console.log(id_);
+        }
+    },
+    mounted: function() {
+        // for (let i = 0, len = this.default_teams.length; i < len; i++) {
+        //     this.default_teams[i]['showDrawer'] = false;
+        // }
+    }
+
+
+}
+</script>
+
 <style scoped>
 span {
     margin:3px;
@@ -21,17 +300,24 @@ span {
 }
 
 .group-content {
+    display: flex;
+    flex-wrap: wrap;
     position: relative;
     width:100%;
     
 }
 
+.div-flex {
+    flex-basis: 25%;
+}
+
 .group-card {
     position:relative;
     border: 1px solid #2d8cf0;
+    border-radius: 5px;
     height: 160px;
-    width: 20%;
-    margin: 30px;
+    width: 90%;
+    margin: 15px;
     float: left;  
 }
 
@@ -62,66 +348,48 @@ span {
 
 }
 
-</style>
-
-<template>
-    <div class="content-body">
-        <div class="content">
-            <div class="group-content">
-                <div v-for="item in items">
-                    <div v-bind:class="{'group-card':true,'group-card-mouseenter': enterid == item.id, 'group-card-mouseleave':!(enterid == item.id)}"
-                    v-on:mouseenter="enterid = item.id" v-on:mouseleave="enterid = 0" @click="getGroupItem(item.id)">
-                        <div class="group-image">
-                            <Avatar src="https://i.loli.net/2017/08/21/599a521472424.jpg" > U</Avatar>
-                        </div>
-                        <div class="group-name">
-                            <span>{{item.name}}</span>
-                        </div>
-                        <div class="group-simpleinfo"> 
-                            <span>{{item.simpleinfo}} </span>
-                        </div>
-                        <div class="group-detail">
-                            <Icon type="md-person" />
-                            <span>{{item.count}}</span>
-                        </div>
-                    </div>
-                </div>
-            </div>        
-        </div>
-    </div>
-</template>
-
-<script>
-export default {
-    data() {
-        return {
-            btn_show: false,
-            enterid: 0,
-            items: [
-                {   
-                    id: 1,
-                    name: 'group1', 
-        
-                    creator: 'user1',
-                    count:10
-
-                },
-                {id: 2,title:'title2'}
-            ]
-        };
-    },
-    methods: {
-        getGroupItem(id_) {
-            this.$router.push({
-                name: 'groupDetail',
-                params: {
-                id:id_
-                }
-            });
-
-        }
-    }
-
-
+.top-block {
+    height: 30%;
+    overflow: hidden;
 }
-</script>
+
+.middle-block {
+    height: 50%;
+}
+
+.bottom-block {
+    height: 20%;
+    position: relative;
+}
+
+.group-name {
+    vertical-align: middle;
+}
+
+.group-tags {
+    position: absolute;
+    left: 5px;
+    bottom: 0px;
+}
+
+.tags {
+    vertical-align: middle;
+}
+
+.group-members {
+    position: absolute;
+    right: 5px;
+    bottom: 5px;
+}
+
+.applyJoin-block {
+    margin: 45px 0;
+    text-align: center;
+}
+
+.search-result {
+    margin: auto;
+    font-size: 12pt;
+}
+
+</style>

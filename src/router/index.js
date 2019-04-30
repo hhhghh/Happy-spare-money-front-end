@@ -11,9 +11,11 @@ import taskSearch from '@/components/taskSearch'
 import taskRelease from '@/components/taskRelease'
 import groupSearch from '@/components/groupSearch'
 import myGroup from '@/components/myGroup'
+import createGroup from '@/components/createGroup'
+import groupDetail from '@/components/groupDetail'
+import modifyGroupInfo from '@/components/modifyGroupInfo'
 import login from '@/components/login'
 import register from '@/components/register'
-import  userInfo from '@/components/userInfo'
 
 Vue.use(Router)
 
@@ -72,12 +74,27 @@ export default new Router({
         {
           path: '/MainPage/myGroup',
           name: 'myGroup',
-          component: myGroup
+          component: myGroup,
+        },
+        {
+          path: '/MainPage/createGroup',
+          name: 'createGroup',
+          component: createGroup
         },
         {
           path: '/MainPage/taskDetail/:id',
           name: 'taskDetail',
           component: taskDetail
+        },
+        {
+          path: '/MainPage/groupDetail/:id',
+          name: 'groupDetail',
+          component: groupDetail
+        },
+        {
+          path: '/MainPage/groupDetail/:id/modifyInfo',
+          name: 'modifyGroupInfo',
+          component: modifyGroupInfo
         }
       ]
     },
@@ -103,13 +120,7 @@ export default new Router({
       name: 'register',
       component: register
     },
-    {
-      path: '/:username',
-      name: 'userInfo',
-      component: userInfo
-    }
-
-
+  
     
   ]
 })
