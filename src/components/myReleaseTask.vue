@@ -39,7 +39,7 @@
             </div>
             <Divider></Divider>
             <div class="task-content">
-                <div class="task-item" v-for="item in taskItem" v-bind:class="{ 'completed': isComplete(item.state), 
+               <div class="task-item" v-for="item in taskItem" v-bind:class="{ 'completed': isComplete(item.state), 
                 'completed-mouseenter':isEnter(item.id) && isComplete(item.state), 
                 'waiting': isWaiting(item.state),
                 'waiting-mouseenter':isEnter(item.id) && isWaiting(item.state),
