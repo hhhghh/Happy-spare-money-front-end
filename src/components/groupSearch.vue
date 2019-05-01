@@ -80,7 +80,7 @@ export default {
         return {
             groupAttributeList: [
                 {
-                    value: 'group_id,',
+                    value: 'group_id',
                     label: '小组ID'
                 },
                 {
