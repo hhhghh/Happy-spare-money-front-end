@@ -14,7 +14,7 @@
                             <Icon type="ios-arrow-down" size="24" style="color:#2d8cf0" v-on:click="isLogin = !isLogin"/>
                         </a>
                         <DropdownMenu slot="list">
-                            <DropdownItem><div @click="jumpToPersonalPage()">个人信息</div></DropdownItem>
+                            <DropdownItem><div @click="jumpToPersonalPage()">{{ msg }}</div></DropdownItem>
                             <DropdownItem><div @click="jumpToMainPage()">主页</div></DropdownItem>
                             <DropdownItem><div @click="jumpToLoginPage()">注销</div></DropdownItem>
                         </DropdownMenu>
@@ -31,7 +31,7 @@
                                 <span>任务管理</span>
                             </template>
                             <router-link to="/MainPage/taskSearch">
-                                <MenuItem name="1-1">
+                                <MenuItem name="1-1" v-show="isUser">
                                     <Icon type="ios-search" />
                                     <span>任务搜索</span>
                                 </MenuItem>
@@ -48,7 +48,7 @@
                                     <Icon type="ios-paper" />
                                     <span>我的任务</span>
                                 </template>
-                                <router-link to="/MainPage/myAcceptTask">
+                                <router-link to="/MainPage/myAcceptTask" v-show="isUser">
                                      <MenuItem name="1-3-1">接受任务</MenuItem>
                                 </router-link>
                                 <router-link to="/MainPage/myReleaseTask">
@@ -103,6 +103,13 @@
 export default {
     data() {
         return {
+            user: {	
+                nickname: 'Name',	
+                acount_state: 0	
+            },	
+            	
+            isUser: false,	
+            msg: '',
             show: false,
             isLogin: false,
             taskList: [
@@ -137,10 +144,16 @@ export default {
 
         };
     },
-
+    mounted() {	
+        this.isUser = (this.user.acount_state == 0)	
+        this.msg = this.isUser ? '个人信息' : '机构信息'	
+    },
     methods: {
         jumpToPersonalPage: function () {
-            this.$router.push({path: `/personalPage/userInf`})
+            if (this.isUser)
+                this.$router.push({path: `/personalPage/userInf`})	
+            else 	
+                this.$router.push({path: `/personalPage/organizationInf`})
         },
         jumpToMainPage: function() {
             this.$router.push({path: `/MainPage/taskSearch`})
@@ -174,11 +187,14 @@ a {
 }
 
 .layout-bottom{
-    position:relative;
+    position:absolute;
     top:70px;
-    width:auto;
-    overflow:hidden;
-    min-height: 640px;
+    bottom:0px;
+    left:0px;
+    right:0px;
+    height:auto;	
+    over-flow:hidden;	
+    min-width: 960px;
     background-color: #f8f8f9;    
 }
 
