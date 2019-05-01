@@ -8,13 +8,13 @@
             <div class="userInf-body">
                 <div class="div-profile">
                     <div class="div-profile-content div-margin"> 
-                        <h2 class="text-class">Username</h2>
+                        <h2 id="username" class="text-class">Username</h2>
                         <Input v-model="userData.username" disabled  style="min-width: 400px"/>
-                        <h2 class="text-class">Password</h2>
+                        <h2 id="password" class="text-class">Password</h2>
                         <Button type="primary" @click="display = !display; isModifyPassword = !isModifyPassword">Modify</Button>
-                        
+                    
                         <transition name="fade">
-                            <div class="div-password" v-show="display">
+                            <div class="div-password" v-if="display">
                                 <h3>Old Password</h3>
                                 <Input placeholder="Enter old password" type="password" prop="passwd" clearable/>
                                 <h3>New Password</h3>
@@ -26,12 +26,12 @@
                             </div>
                         </transition>
                         <div class="div-basicInf">
-                            <h1 class="div-border-bottom">Basic Information</h1>
-                            <h2 class="text-class">Real Name</h2>
+                            <h1 id="basicInfo" class="div-border-bottom">Basic Information</h1>
+                            <h2 id="realname" class="text-class">Real Name</h2>
                             <Input v-model="userData.realname" placeholder="Enter realname.." clearable  />
                             <div class="div-schoolInf">
                                 <div class="div-schoolselect">
-                                    <span class="text-class" style="font-weight: bold">School</span>
+                                    <span id="school" class="text-class" style="font-weight: bold">School</span>
                                     <AutoComplete
                                         v-model="formItem.school"
                                         :data="schoolData"
@@ -51,32 +51,34 @@
                            
                         </div>
                         <div class="div-otherInf">
-                            
-                            <h1 class="div-border-bottom">Other Information</h1>
-                            <h2 class="text-class">Name</h2>
+                            <h1 id="ohterInfo" class="div-border-bottom">Other Information</h1>
+                            <h2 id="nickname" class="text-class">Name</h2>
                             <Input v-model="userData.nickname" placeholder="Enter nickname.." clearable  />
-                            <h2 class="text-class">Phone Number</h2>
+                            <h2 id="phonenumber" class="text-class">Phone Number</h2>
                             <Input v-model="userData.phonenumber" placeholder="Enter phonenumber.." clearable  />
-                            <h2 class="text-class">Wechat</h2>
+                            <h2 id="wechat" class="text-class">Wechat</h2>
                             <Input v-model="userData.wechat" placeholder="Enter webchat.." clearable  />
-                            <h2 class="text-class">QQ</h2>
+                            <h2 id="QQ" class="text-class">QQ</h2>
                             <Input v-model="userData.QQ" placeholder="Enter QQ.." clearable  />
                         </div>
                     </div>
                     <Button type="success" style="margin: 5px 0px 5px 0px" @click="" long>Submit</Button>
                 </div>
                 <div class="div-avatar" v-bind:class="{'avatar-minWidth': screenWidth < 840}">
-                    <p class="p-avatar">Avatar</p>
-                    <div class="div-image">
-                        <img class="avatar" src="https://i.loli.net/2017/08/21/599a521472424.jpg"/>
-                        <div class="div-edit-avatar">
-                            <Icon type="md-create" />
-                            Edit
+                    <div class="div-avatar-fixed">
+                        <p class="p-avatar">Avatar</p>
+                        <div class="div-image">
+                            <img class="avatar" src="https://i.loli.net/2017/08/21/599a521472424.jpg"/>
+                            <div class="div-edit-avatar">
+                                <Icon type="md-create" />
+                                Edit
+                            </div>
                         </div>
+                        <Rate allow-half show-text v-model="userData.score" disabled>
+                            <span style="color: #f5a623;position:relative;bottom:2px;">{{ userData.score }}</span>
+                        </Rate>
+
                     </div>
-                    <Rate allow-half show-text v-model="userData.score" disabled>
-                        <span style="color: #f5a623">{{ userData.score }}</span>
-                    </Rate>
                 </div>
                 
             </div>
@@ -222,6 +224,7 @@ h1,h2,h3 {
 .userInf-body {
     display:flex;
     position:relative;
+    top: -15px;
 }
 
 
@@ -233,8 +236,9 @@ h1,h2,h3 {
 }
 
 .div-profile {
-    width: 66.66%;
-    padding: 10px;
+    width: 75%;
+    padding-left: 10px;
+    padding-right: 10px;
     min-width: 500px;
     overflow:hidden;
 }
@@ -309,6 +313,10 @@ h1,h2,h3 {
     
 }
 
+.div-avatar-fixed {
+    position:fixed;
+
+}
 .avatar-minWidth {
     display: none;
 }
@@ -322,6 +330,7 @@ h1,h2,h3 {
     height: 200px;
     position: relative;
 }
+
 
 
 .div-edit-avatar {
