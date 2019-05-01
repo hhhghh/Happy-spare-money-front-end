@@ -309,7 +309,7 @@ h1,h2,h3 {
     margin: 10px;
     text-align: left;
     position:relative;
-    width:33.33%;
+    width:25%;
     
 }
 
