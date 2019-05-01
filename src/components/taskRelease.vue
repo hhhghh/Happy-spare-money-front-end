@@ -1,6 +1,7 @@
 <style scoped>
 .content-body {
     padding: 15px;
+    background-color: #f8f8f9;
 }
 .task-header {
     position: relative;
