@@ -74,6 +74,12 @@
                                     <span>我的小组</span>
                                 </MenuItem>
                             </router-link>
+                            <router-link to="/MainPage/createGroup">
+                                <MenuItem name="2-3">
+                                    <Icon type="ios-create-outline" />
+                                    <span>创建小组</span>
+                                </MenuItem>
+                            </router-link>
                            
                         </Submenu>
                     </Menu>
@@ -97,12 +103,12 @@
 export default {
     data() {
         return {
-            user: {
-                nickname: 'Name',
-                acount_state: 0
-            },
-            
-            isUser: false,
+            user: {	
+                nickname: 'Name',	
+                acount_state: 0	
+            },	
+            	
+            isUser: false,	
             msg: '',
             show: false,
             isLogin: false,
@@ -138,15 +144,15 @@ export default {
 
         };
     },
-    mounted() {
-        this.isUser = (this.user.acount_state == 0)
-        this.msg = this.isUser ? '个人信息' : '机构信息'
+    mounted() {	
+        this.isUser = (this.user.acount_state == 0)	
+        this.msg = this.isUser ? '个人信息' : '机构信息'	
     },
     methods: {
         jumpToPersonalPage: function () {
             if (this.isUser)
-                this.$router.push({path: `/personalPage/userInf`})
-            else 
+                this.$router.push({path: `/personalPage/userInf`})	
+            else 	
                 this.$router.push({path: `/personalPage/organizationInf`})
         },
         jumpToMainPage: function() {
@@ -175,7 +181,6 @@ a {
 }
 
 .layout{
-    #border: 1px solid #d7dde4;
     border-radius: 4px;
     background-color: #f8f8f9;
     height:auto;
@@ -187,11 +192,10 @@ a {
     bottom:0px;
     left:0px;
     right:0px;
-    height:auto;
-    over-flow:hidden;
+    height:auto;	
+    over-flow:hidden;	
     min-width: 960px;
     background-color: #f8f8f9;    
-    
 }
 
 .layout-header{

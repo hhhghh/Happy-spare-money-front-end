@@ -21,63 +21,63 @@
                     </div>
                 </Header>
             </div>
-            <Layout class="layout-bottom">
-                <Sider class="layout-sider">
-                    <Menu active-name="1-1" theme="dark" width="auto" >
-                        <MenuItem name="1-1">
-                            <span>个人信息</span>
-                        </MenuItem>
-                        <MenuItem name="1-2">
-                            <span>充值</span>
-                        </MenuItem>
-                        <MenuItem name="1-3">
-                            <span>提现</span>
-                        </MenuItem>
-                    </Menu>
-                </Sider>
-                    <div class="content">
-                    <router-view></router-view>
-                </div>
+                <Layout class="layout-bottom">
+                    <Sider class="layout-sider">
+                        <Menu active-name="1-1" theme="dark" width="auto" >
+                            <MenuItem name="1-1">
+                                <span>个人信息</span>
+                            </MenuItem>
+                            <MenuItem name="1-2">
+                                <span>充值</span>
+                            </MenuItem>
+                            <MenuItem name="1-3">
+                                <span>提现</span>
+                            </MenuItem>
+                        </Menu>
+                    </Sider>
+                        <div class="content">
+                        <router-view></router-view>
+                    </div>
+                </Layout>
             </Layout>
-        </Layout>  
     </div>
 </template>
-
+    
 <script>
 export default {
-    data() {
-        return {
-            user: {
-                name: 'Name',
-                acount_state : 0
-            },
-            isUser: True,
-            msg: ''
-        }
-
-    },
-    
-    mounted() {
-        this.isUser = (this.user.acount_state == 0)
-        this.msg = this.isUser ? '个人信息': '机构信息'
-    },
-    methods: {
-        jumpToPersonalPage: function () {
-            if (this.isUser)
-                this.$router.push({path: `/personalPage/userInf`})
-            else 
-                this.$router.push({path: `/personalPage/organizationInf`})
-        },
-        jumpToMainPage: function() {
-            this.$router.push({path: `/MainPage/taskSearch`})
-        },
-        jumpToLoginPage: function() {
-            this.$router.push({path: `/login`})
-        }
-
-    }
-
-
+    data() {	
+        return {	
+            user: {	
+                name: 'Name',	
+                acount_state : 0	
+            },	
+            isUser: True,	
+            msg: ''	
+        }	
+        
+     },	
+    	
+    mounted() {	
+        this.isUser = (this.user.acount_state == 0)	
+        this.msg = this.isUser ? '个人信息': '机构信息'	
+    },	
+    methods: {	
+        jumpToPersonalPage: function () {	
+            if (this.isUser)	
+                this.$router.push({path: `/personalPage/userInf`})	
+            else 	
+                this.$router.push({path: `/personalPage/organizationInf`})	
+        },	
+        jumpToMainPage: function() {	
+            this.$router.push({path: `/MainPage/taskSearch`})	
+        },	
+        jumpToLoginPage: function() {	
+            this.$router.push({path: `/login`})	
+        }	
+        
+     }
+     
+     
 }
 </script>
 
@@ -92,8 +92,8 @@ div {
     padding: 0px;
 }
 
-.div-header {
-    border-bottom: 1px solid #000000;
+.div-header {	
+    border-bottom: 1px solid #000000;	
 }
 
 .layout-header{

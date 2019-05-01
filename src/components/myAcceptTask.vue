@@ -208,7 +208,7 @@ h2 {
 .selector {
     position:relative;
     margin-right: 30px;
-   
+    
 }
 
 .selector-span {

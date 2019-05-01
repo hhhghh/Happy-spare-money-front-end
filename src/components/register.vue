@@ -59,9 +59,6 @@
                 <FormItem label="qq" prop="qq">
                   <Input v-model="userInfo.qq" placeholder="qq"></Input>
                 </FormItem>
-<!--                <FormItem label="个性签名" prop="hsign">-->
-<!--                  <Input v-model="userInfo.hsign" type="textarea" :autosize="{minRows: 2,maxRows: 5}" placeholder="Enter something..."></Input>-->
-<!--                </FormItem>-->
                 <FormItem>
                   <Button type="primary">Submit</Button>
                   <Button style="margin-left: 8px">Reset</Button>
@@ -124,7 +121,6 @@
           phone: '',
           weChat: '',
           qq: ''
-          // hsign: ''
         },
         orgInfo: {
 

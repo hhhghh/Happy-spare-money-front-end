@@ -301,7 +301,7 @@ div {
 .waiting {
     border: 1px solid #ffcc00;
     box-shadow: 5px 5px 5px #ffcc00;
-
+    
 }
 
 .waiting-mouseenter {
