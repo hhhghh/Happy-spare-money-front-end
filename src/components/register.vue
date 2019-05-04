@@ -86,8 +86,6 @@
 <script>
   export default {
     data() {
-
-
       const validateUserPassConf = (rule, value, callback) => {
         if (value === '') {
           callback(new Error('请再次输入您的密码'));
@@ -97,7 +95,6 @@
           callback();
         }
       };
-
 
       return {
         userRuleValidate: {
