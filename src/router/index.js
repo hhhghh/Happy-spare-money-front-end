@@ -16,7 +16,7 @@ import groupDetail from '@/components/groupDetail'
 import modifyGroupInfo from '@/components/modifyGroupInfo'
 import login from '@/components/login'
 import register from '@/components/register'
-import  userInfo from '@/components/userInfo'
+import userInfo from '@/components/userInfo'
 
 Vue.use(Router)
 
@@ -107,11 +107,10 @@ export default new Router({
       component: register
     },
     {	
-      path: '/:username',	
+      path: '/user/:username',
       name: 'userInfo',	
       component: userInfo	
     }
-  
     
   ]
 })

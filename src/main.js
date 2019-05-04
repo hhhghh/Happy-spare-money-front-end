@@ -5,7 +5,7 @@ import App from './App'
 import router from './router'
 import iView from 'iview'
 import 'iview/dist/styles/iview.css'
-import axios from '../node_modules/axios' 
+import axios from 'axios'
 Vue.config.productionTip = false
 Vue.prototype.$axios = axios;
 /* eslint-disable no-new */
