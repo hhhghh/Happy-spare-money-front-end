@@ -18,37 +18,106 @@
                 </a>
                 <DropdownMenu slot="list">
                   <DropdownItem>加入黑名单</DropdownItem>
-                  <DropdownItem>举报</DropdownItem>
                 </DropdownMenu>
               </Dropdown>
             </div>
           </div>
-          <div class="info">
-            <h2>个人信息</h2>
-            <div class="info-row">性名： <span>张三</span></div>
-            <div class="info-row">学校： <span>中山大学</span></div>
-            <div class="info-row">年级： <span>大三</span></div>
-            <div class="info-row">电话： <span>123456789</span></div>
-            <div class="info-row">微信： <span>123456789</span></div>
-            <div class="info-row">qq： <span>123456789</span></div>
-          </div>
-          <div class="history">
-            <h2>历史任务</h2>
-            <ul>
-              <li>
-                <h3>xxxxxx问卷调查</h3>
-                <div>2019-04-26 13:17:10</div>
-                <Rate allow-half v-model="valueHalf" />
-                <Divider />
-              </li>
-              <li>
-                <h3>xxxxxx问卷调查</h3>
-                <div>2019-04-26 13:17:10</div>
-                <Rate allow-half v-model="valueHalf" />
-                <Divider />
-              </li>
-            </ul>
-          </div>
+
+
+          <Tabs value="info">
+            <TabPane label="个人信息" name="info">
+              <div class="info">
+                <h2>个人信息</h2>
+                <div class="info-row">性名： <span>张三</span></div>
+                <div class="info-row">学校： <span>中山大学</span></div>
+                <div class="info-row">年级： <span>大三</span></div>
+                <div class="info-row">电话： <span>123456789</span></div>
+                <div class="info-row">微信： <span>123456789</span></div>
+                <div class="info-row">qq： <span>123456789</span></div>
+              </div>
+            </TabPane>
+
+            <TabPane label="正在发布的任务" name="waitedTask">
+              <ul>
+                <li v-for="task in waitedTasks">
+                  <Row class="history">
+                    <Col span="16">
+                      <h2>历史任务</h2>
+                      <h3 style="margin-bottom: 5px;">
+                        {{task.title}}
+                        <span style="color:#ed4014; margin-left: 10px;">
+                            {{task.money}}￥
+                          </span>
+                      </h3>
+                      <p>{{task.introduction}}</p>
+                    </Col>
+                    <Col span="8" style="text-align: center; position: absolute; right: 0; bottom: 10px;">
+                      <p>{{task.starttime}} ~</p>
+                      <p>{{task.endtime}} </p>
+                      <Rate allow-half show-text disabled v-model="task.score">
+                        <span style="color: #f5a623">{{task.score}}</span>
+                      </Rate>
+                    </Col>
+                  </Row>
+                </li>
+              </ul>
+            </TabPane>
+
+            <TabPane label="发布过的任务" name="publishedFinishedTask">
+              <ul>
+                <li v-for="task in publishedFinishedTasks">
+                  <Row class="history">
+                    <Col span="16">
+                      <h2>历史任务</h2>
+                      <h3 style="margin-bottom: 5px;">
+                        {{task.title}}
+                        <span style="color:#ed4014; margin-left: 10px;">
+                            {{task.money}}￥
+                          </span>
+                      </h3>
+                      <p>{{task.introduction}}</p>
+                    </Col>
+                    <Col span="8" style="text-align: center; position: absolute; right: 0; bottom: 10px;">
+                      <p>{{task.starttime}} ~</p>
+                      <p>{{task.endtime}} </p>
+                      <Rate allow-half show-text disabled v-model="task.score">
+                        <span style="color: #f5a623">{{task.score}}</span>
+                      </Rate>
+                    </Col>
+                  </Row>
+                </li>
+              </ul>
+            </TabPane>
+
+            <TabPane label="已完成的任务" name="finishedTask">
+                <ul>
+                  <li v-for="task in finishedTasks">
+                    <Row class="history">
+                      <Col span="16">
+                        <h2>历史任务</h2>
+                        <h3 style="margin-bottom: 5px;">
+                          {{task.title}}
+                          <span style="color:#ed4014; margin-left: 10px;">
+                            {{task.money}}￥
+                          </span>
+                        </h3>
+                        <p>{{task.introduction}}</p>
+                      </Col>
+                      <Col span="8" style="text-align: center; position: absolute; right: 0; bottom: 10px;">
+                        <p>{{task.starttime}} ~</p>
+                        <p>{{task.endtime}} </p>
+                        <Rate allow-half show-text disabled v-model="task.score">
+                          <span style="color: #f5a623">{{task.score}}</span>
+                        </Rate>
+                      </Col>
+                    </Row>
+                  </li>
+                </ul>
+            </TabPane>
+          </Tabs>
+
+
+
         </div>
       </Content>
     </Layout>
@@ -59,8 +128,45 @@
   export default {
     data() {
       return {
+        waitedTasks: [
+          {
+            "title": "问卷调查",
+            "introduction": "可能会发生这样的情况：当一个道具在激活状态时，另一个道具与挡板发生了接触。在这种情况下我们有超过1个在当前PowerUps容器中处于激活状态的道具。然后，当这些道具中的一个被停用时，我们不应使其效果失效因为另一个相同类型的道具仍处于激活状态。出于这个原因，我们使用isOtherPowerUpActive检查是否有同类道具处于激活状态。只有当它返回false时，我们才停用这个道具的效果。这样，给定类型的道具的持续时间就可以延长至最近一次被激活后的持续时间。",
+            "starttime": "2019-05-01 00:00:00",
+            "endtime": "2019-05-02 00:00:00",
+            "score": 3.5,
+            "money": 12
+          },
+          {
+            "title": "问卷调查",
+            "introduction": "",
+            "starttime": "2019-05-01 00:00:00",
+            "endtime": "2019-05-02 00:00:00",
+            "score": 3.5,
+            "money": 12
+          }
+        ],
+        publishedFinishedTasks: [
+          {
+            "title": "问卷调查",
+            "introduction": "",
+            "starttime": "2019-05-01 00:00:00",
+            "endtime": "2019-05-02 00:00:00",
+            "score": 3.5,
+            "money": 12
+          }
+        ],
 
-
+        finishedTasks: [
+          {
+            "title": "问卷调查",
+            "introduction": "",
+            "starttime": "2019-05-01 00:00:00",
+            "endtime": "2019-05-02 00:00:00",
+            "score": 3.5,
+            "money": 12
+          }
+        ]
       };
     },
     methods: {
@@ -150,5 +256,18 @@
 
 ul {
   list-style: none;
+}
+
+li {
+  position: relative;
+}
+
+
+</style>
+
+<style>
+.ivu-tabs-bar {
+  margin-bottom: 0;
+  margin-top: 16px;
 }
 </style>
