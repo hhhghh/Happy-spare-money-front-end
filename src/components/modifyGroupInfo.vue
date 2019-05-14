@@ -20,7 +20,7 @@
                 <div class="basic-informations">
                     <Form :label-width="120" style="margin-top:20px">
                         <FormItem label="Name">
-                            <Input v-model="group.team_name" class="input-style" placeholder="Enter Group Name" disabled></Input>
+                            <Input v-model="group.team_name" class="input-style" placeholder="Enter Group Name"></Input>
                         </FormItem>
                         <FormItem label="Description">
                             <Input v-model="group.description" class="input-style" placeholder="Enter Group Description" type="textarea" :rows="4"></Input>
@@ -119,10 +119,19 @@ export default {
         },
 
         modifyInfo() {
-            console.log(this.group.limit)
             let logo = document.getElementById('logo');
             this.group.logo = logo.src;
-            this.$router.push({name: 'groupDetail', params: {id: this.team_id, group: this.group}})
+            console.log(this.group);
+            
+            this.$axios.put('team', this.group)
+                .then((res) => {
+                    console.log(res.data);
+                })
+                .catch((err) => {
+                    console.log(err);
+                })
+
+            //this.$router.push({name: 'groupDetail', params: {id: this.team_id, group: this.group}})
         }
     },
     mounted: function() {

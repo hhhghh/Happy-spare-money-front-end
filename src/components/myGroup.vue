@@ -14,7 +14,7 @@
             <Divider></Divider>
 
             <div class="group-content">
-                <div class="div-flex" v-for="item in teams" v-bind:key="item.id">
+                <div class="div-flex" v-for="item in teams" v-bind:key="item.team_id">
                     <div v-bind:class="{'group-card':true,'group-card-mouseenter': enterid == item.team_id, 'group-card-mouseleave':!(enterid == item.team_id)}"
                     v-on:mouseenter="enterid = item.team_id" v-on:mouseleave="enterid = 0" @click="jumpToGroupDetail(item)" >
                         <div class="top-block">
@@ -68,11 +68,8 @@ export default {
             ],
             groupAttribute: '',
 
-            input: '',
-
-            btn_show: false,
             enterid: 0,
-            teams: [
+            defaultTeams: [
                 {   
                     team_id: 1,
                     team_name: 'group1', 
@@ -166,21 +163,42 @@ export default {
                 },
             ],
 
-            tags: ['sport', 'music']
+            teams: [
+                
+            ],
+
+            tags: ['sport', 'music'],
+
+            loginUser: 'hyx',
         };
     },
     methods: {
+        getAllGroupJoined() {
+            let t = this;
+            t.teams = [];
+            t.$axios.get('/team/MemberName?member_username=' + t.loginUser)
+                .then(function (response) {
+                    console.log(response.data);
+                    if (response.data.code == 200) {
+                        let data = response.data.data;
+                        for (let i = 0, len = data.length; i < len; i++) {
+                            t.teams.push(data[i]);
+                        }
+                    }
+                })
+                .catch(function(error) {
+                    console.log(error)
+                })
+        },
 
         jumpToGroupDetail: function(item) {
-            // this.$router.push({path: `/MainPage/groupDetail/${id}`})
-            // for (let item in this.items) {
-            //     console.log(item.id);
-            // }
             this.$router.push({name: 'groupDetail', params: {id: item.team_id, group: item}})
         }
 
+    },
+    mounted: function() {
+        this.getAllGroupJoined();
     }
-
 
 }
 </script>
@@ -191,7 +209,6 @@ span {
 }
 
 .content {
-    height: 2800px;
     background:#f8f8f9;
     padding:15px;
 }

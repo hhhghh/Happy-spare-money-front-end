@@ -67,7 +67,7 @@
             <div v-else class="group-content">
                 <div class="search-result">
                     <span v-if="first">请输入想搜索的小组的条件</span>
-                    <span v-else>抱歉，没有找到符合条件的小组，请查看{{groupAttribute}}是否填写正确</span>
+                    <span v-else>{{errorMessage}}</span>
                 </div>
             </div>
         </div>
@@ -94,14 +94,13 @@ export default {
             ],
             groupAttribute: 'group_id',
 
+            errorMessage: '',
+
             input: '',
 
-            btn_show: false,
             enterid: 0,
 
             first: true,
-
-            value1: false,
 
             default_teams: [
                 {   
@@ -202,70 +201,109 @@ export default {
             tags: ['sport'],
 
             showDrawer: -1,
+
+            getGroupURLParams: '',
+
+            loginUser: 'bbb',
         };
     },
     methods: {
         getGroupItem(id_) {
-            // this.$router.push({
-            //     name: 'groupDetail',
-            //     params: {
-            //     id:id_
-            //     }
-            // });
-
             if (this.showDrawer != id_) this.showDrawer = id_;
             else this.showDrawer = -1;
-            
         },
 
         searchGroup() {
-            if (this.input === "") {
-                console.log("Please input the group info");
-            } else {
-                this.teams = [];
-                if (this.first) this.first = false;
-                if (this.groupAttribute === "group_id") {
-                    let flag = 0;
-                    for (let i = 0, len = this.default_teams.length; i < len; i++) {
-                        if (this.input == this.default_teams[i].team_id) {
-                            this.teams.push(this.default_teams[i]);
-                            flag++;
-                        }
-                    }
-                    if (flag == 0) {
-                        
-                    }
-                } else if (this.groupAttribute === "group_name") {
-                    let flag = 0;
-                    for (let i = 0, len = this.default_teams.length; i < len; i++) {
-                        if (this.input == this.default_teams[i].team_name) {
-                            this.teams.push(this.default_teams[i]);
-                            flag++;
-                        }
-                    }
-                    if (flag == 0) {
-                        
-                    }
-                } else if (this.groupAttribute === "group_tag") {
-                    let flag = 0;
-                    for (let i = 0, len = this.default_teams.length; i < len; i++) {
-                        for (let j = 0, len2 = this.default_teams[i].teamlabels.length; j < len2; j++) {
-                            if (this.input == this.default_teams[i].teamlabels[j].label) {
-                                this.teams.push(this.default_teams[i]);
-                                flag++;
-                            }
-                        }
-                    }
-                    if (flag == 0) {
-                        
-                    }
-                }
+            if (this.input != "") {
+                console.log(this.groupAttribute);
                 
+                if (this.first) this.first = false;
+
+                let searchType = '';
+                switch(this.groupAttribute) {
+                    case 'group_id': this.getGroupURLParams = '/Id?team_id=' + this.input; searchType = '小组ID'; break;
+                    case 'group_name': this.getGroupURLParams = '/Name?team_name=' + this.input; searchType = '小组名字'; break;
+                    case 'group_tag': this.getGroupURLParams = '/Label?label=' + this.input; searchType = '小组标签'; break;
+                    default: break;
+                }
+
+                let t = this;
+                t.teams = [];
+                this.$axios.get('/team' + this.getGroupURLParams)
+                    .then(function (response) {
+                        console.log(response.data);
+                        let data = response.data.data;
+                        for (let i = 0, len = data.length; i < len; i++) {
+                            t.teams.push(data[i]);
+                        }
+                        
+                    })
+                    .catch((error) => {
+                        console.log(error);
+                        if (error.response) {
+                            console.log(error.response.status);
+                            if (error.response.status == 413) {
+                                this.errorMessage = '抱歉，没有找到符合条件(' + this.groupAttribute + ' = ' + this.input + ')的小组，请确认' + searchType + '是否正确';
+                                console.log(this.errorMessage);
+                            }
+                        } else if (error.request) {
+                            console.log(error.request);
+                        }
+                    })
             }
         },
 
         applyJoinGroup(id_) {
             console.log(id_);
+            let inGroup = false;
+            for (let i = 0, len = this.teams.length; i < len; i++) {
+                if (id_ == this.teams[i].team_id) {
+                    for (let j = 0, len2 = this.teams[i].members.length; j < len2; j++) {
+                        if (this.loginUser == this.teams[i].members[j].member_username) {
+                            inGroup = true;
+                            break;
+                        }
+                    }
+                    break;
+                }
+            }
+
+            let content = '';
+            if (!inGroup) {
+                this.$axios.post('/team/Member/Addition', {team_id: id_, username: this.loginUser})
+                    .then((res) => {
+                        console.log(res.data);
+                        if (res.data.code == 200) {
+                            this.$Modal.success({
+                                title: '提示',
+                                content: '<p>申请成功</p><p>你已经成功加入该小组</p>'
+                            })
+                        }
+                    })
+                    .catch((err) => {
+                        console.log(err);
+                        if (err.response) {
+                            if (err.response.status == 413) {
+                                this.$Modal.info({
+                                    title: '提示',
+                                    content: '<p>申请已发送</p><p>等待小组组长审核</p>'
+                                })
+                            } else if (err.response.status == 414) {
+                                this.$Modal.error({
+                                    title: '提示',
+                                    content: '<p>申请失败</p><p>该小组禁止所有人加入</p>'
+                                })
+                            }
+                        } else if (err.request) {
+
+                        }
+                    })
+            } else {
+                this.$Modal.info({
+                    title: '提示',
+                    content: '<p>你已经在该小组中了</p><p>不能再次加入</P>'
+                })
+            }
         }
     },
     mounted: function() {
@@ -284,7 +322,6 @@ span {
 }
 
 .content {
-    height: 2800px;
     background:#f8f8f9;
     padding:15px;
 }
@@ -330,7 +367,7 @@ span {
 }
 
 .group-name{
-    font-size: 24px;
+    font-size: 20px;
     margin: 10px;
 }
 
