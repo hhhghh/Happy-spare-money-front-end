@@ -205,25 +205,23 @@
               }
             }
 
-            $.ajax({
-              url: '/api/user/create',
-              type: 'POST',
+            this.$axios({
+              method: 'post',
+              url: 'http://127.0.0.1:3000/user/create',
               data: formData,
-              dataType: 'JSON',
-              cache: false,
-              processData: false,
-              contentType: false,
-              success: msg => {
-                if (msg.msg == 'success') {
-                  this.$Message.success('Success!');
-                }
-                else {
-                  this.$Message.error(msg.msg);
-                }
-              },
-              error: err => {
-                this.$Message.error(err.statusText);
+              config: {headers: {'Content-Type': 'multipart/form-data'}}
+            })
+            .then(msg => {
+              if (msg.msg == 'success') {
+                this.$Message.success('Success!');
               }
+              else {
+                this.$Message.error(msg.msg);
+              }
+            })
+            .catch(err => {
+              console.log(err);
+              this.$Message.error('Fail!');
             });
           }
           else {

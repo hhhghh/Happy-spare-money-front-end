@@ -78,7 +78,7 @@
                     </Col>
                     <Col span="8" style="text-align: center; position: absolute; right: 0; bottom: 10px;">
                       <p>{{task.endtime}} </p>
-                      <Rate allow-half show-text v-model="task.score" @on-change="sendRate(task, task.score)">
+                      <Rate allow-half show-text disabled v-model="task.score">
                         <span style="color: #f5a623">{{task.score}}</span>
                       </Rate>
                     </Col>
@@ -172,53 +172,28 @@
     },
 
     methods: {
-      sendRate(task, rate) {
-        let data = {taskId: task.taskId, rate};
-        data = JSON.stringify(data);
-        $.ajax({
-          type: "POST",
-          url: "/api/user/setRate",
-          data: data,
-          dataType: "json",
-          contentType: "application/json;charset=utf-8",
-          success: msg => {
-            if (msg.data) {
-              task.score = parseFloat(msg.data);
-            }
-          }
-        });
-      }
+
     },
 
     created() {
-      $.ajax({
-        url: '/api/user/getAcceptedFinishedTasks?username='+ this.$route.params.username,
-        type: 'GET',
-        dataType: 'JSON',
-        success: msg => {
-          if (msg.msg == 'success') {
-            this.finishedTasks = JSON.parse(msg.data);
-          }
+      this.$axios.get('/api/user/getAcceptedFinishedTasks?username='+ this.$route.params.username)
+      .then(msg => {
+        if (msg.msg == 'success') {
+          this.finishedTasks = JSON.parse(msg.data);
         }
       });
-      $.ajax({
-        url: '/api/user/getPublishedFinishedTasks?username='+ this.$route.params.username,
-        type: 'GET',
-        dataType: 'JSON',
-        success: msg => {
-          if (msg.msg == 'success') {
-            this.publishedFinishedTasks = JSON.parse(msg.data);
-          }
+
+      this.$axios.get('/api/user/getPublishedFinishedTasks?username='+ this.$route.params.username)
+      .then(msg => {
+        if (msg.msg == 'success') {
+          this.publishedFinishedTasks = JSON.parse(msg.data);
         }
       });
-      $.ajax({
-        url: '/api/user/getPublishedWaitedTasks?username='+ this.$route.params.username,
-        type: 'GET',
-        dataType: 'JSON',
-        success: msg => {
-          if (msg.msg == 'success') {
-            this.waitedTasks = JSON.parse(msg.data);
-          }
+
+      this.$axios.get('/api/user/getPublishedWaitedTasks?username='+ this.$route.params.username)
+      .then(msg => {
+        if (msg.msg == 'success') {
+          this.waitedTasks = JSON.parse(msg.data);
         }
       });
     },

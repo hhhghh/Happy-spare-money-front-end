@@ -67,30 +67,28 @@
       login(name, type) {
         this.$refs[name].validate((valid) => {
           if (valid) {
-            let data = {
-              type: type,
-              username: this.userLoginInfo.username,
-              password: this.userLoginInfo.password
-            };
-            data=JSON.stringify(data);
-            $.ajax({
-              type: "POST",
-              url: "/api/user/login",
-              data: data,
-              dataType: "json",
-              contentType: "application/json;charset=utf-8",
-              success: msg => {
-                if (msg.msg == 'success') {
-                  this.$Message.success('Success!');
-                  this.$router.push({name: 'MainPage'});
-                }
-                else {
-                  this.$Message.error(msg.msg);
-                }
-              },
-              error: err => {
-                this.$Message.error(err.statusText);
+            this.$axios({
+              method: 'post',
+              url: "http://127.0.0.1:3000/user/login",
+              data: {
+                type: type,
+                username: this.userLoginInfo.username,
+                password: this.userLoginInfo.password
               }
+            })
+            .then(msg => {
+              if (msg.msg == 'success') {
+                this.$Message.success('Success!');
+                this.$router.push({name: 'MainPage'});
+              }
+              else {
+                this.$Message.error(msg.msg);
+              }
+            })
+            .catch(err => {
+              console.log(err);
+              this.$Message.error('Fail!');
+
             });
           }
           else {
