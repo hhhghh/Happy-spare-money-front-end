@@ -13,7 +13,7 @@
 
             <Divider></Divider>
 
-            <div class="group-content">
+            <div v-if="teams.length != 0" class="group-content">
                 <div class="div-flex" v-for="item in teams" v-bind:key="item.team_id">
                     <div v-bind:class="{'group-card':true,'group-card-mouseenter': enterid == item.team_id, 'group-card-mouseleave':!(enterid == item.team_id)}"
                     v-on:mouseenter="enterid = item.team_id" v-on:mouseleave="enterid = 0" @click="jumpToGroupDetail(item)" >
@@ -42,6 +42,11 @@
                         </div>
                         
                     </div>
+                </div>
+            </div>
+            <div v-else class="group-content">
+                <div class="no-group">
+                    你还没有加入小组，赶紧去加入吧！
                 </div>
             </div>        
         </div>
@@ -326,6 +331,11 @@ span {
     position: absolute;
     right: 5px;
     bottom: 5px;
+}
+
+.no-group {
+    margin: auto;
+    font-size: 12pt;
 }
 
 </style>

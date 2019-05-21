@@ -204,7 +204,7 @@ export default {
 
             getGroupURLParams: '',
 
-            loginUser: 'bbb',
+            loginUser: 'abc',
         };
     },
     methods: {
@@ -230,11 +230,18 @@ export default {
                 let t = this;
                 t.teams = [];
                 this.$axios.get('/team' + this.getGroupURLParams)
-                    .then(function (response) {
+                    .then((response) => {
                         console.log(response.data);
-                        let data = response.data.data;
-                        for (let i = 0, len = data.length; i < len; i++) {
-                            t.teams.push(data[i]);
+                        switch(response.data.code) {
+                            case 200:
+                                let data = response.data.data;
+                                for (let i = 0, len = data.length; i < len; i++) {
+                                    t.teams.push(data[i]);
+                                };
+                                break;
+                            case 213:
+                                this.errorMessage = '抱歉，没有找到符合条件(' + this.groupAttribute + ' = ' + this.input + ')的小组，请确认' + searchType + '是否正确';
+                                break;
                         }
                         
                     })
@@ -273,30 +280,71 @@ export default {
                 this.$axios.post('/team/Member/Addition', {team_id: id_, username: this.loginUser})
                     .then((res) => {
                         console.log(res.data);
-                        if (res.data.code == 200) {
-                            this.$Modal.success({
-                                title: '提示',
-                                content: '<p>申请成功</p><p>你已经成功加入该小组</p>'
-                            })
-                        }
-                    })
-                    .catch((err) => {
-                        console.log(err);
-                        if (err.response) {
-                            if (err.response.status == 413) {
+                        switch (res.data.code) {
+                            case 200: 
+                                this.$Modal.success({
+                                    title: '提示',
+                                    content: '<p>申请成功</p><p>你已经成功加入该小组</p>',
+                                    onOk: () => {
+                                        this.$router.push({name: 'groupDetail', params: {id: id_}});
+                                    }
+                                });
+                                break;
+                            case 210:
+                                this.$Modal.error({
+                                    title: '提示',
+                                    content: '<p>申请失败</p><p>用户不存在</p>'
+                                });
+                                break;
+                            case 211:
+                                this.$Modal.info({
+                                    title: '提示',
+                                    content: '<p>你已经在该小组中了</p><p>不能再次加入</P>'
+                                });
+                                break;
+                            case 213:
+                                this.$Modal.error({
+                                    title: '提示',
+                                    content: '<p>申请失败</p><p>小组不存在</p>'
+                                });
+                                break;
+                            case 214:
                                 this.$Modal.info({
                                     title: '提示',
                                     content: '<p>申请已发送</p><p>等待小组组长审核</p>'
-                                })
-                            } else if (err.response.status == 414) {
-                                this.$Modal.error({
+                                });
+                                break;
+                            case 215:
+                                this.$Modal.info({
                                     title: '提示',
                                     content: '<p>申请失败</p><p>该小组禁止所有人加入</p>'
-                                })
-                            }
-                        } else if (err.request) {
-
+                                });
+                                break;
                         }
+                        // if (res.data.code == 200) {
+                        //     this.$Modal.success({
+                        //         title: '提示',
+                        //         content: '<p>申请成功</p><p>你已经成功加入该小组</p>'
+                        //     })
+                        // }
+                    })
+                    .catch((err) => {
+                        console.log(err);
+                        // if (err.response) {
+                        //     if (err.response.status == 413) {
+                        //         this.$Modal.info({
+                        //             title: '提示',
+                        //             content: '<p>申请已发送</p><p>等待小组组长审核</p>'
+                        //         })
+                        //     } else if (err.response.status == 414) {
+                        //         this.$Modal.error({
+                        //             title: '提示',
+                        //             content: '<p>申请失败</p><p>该小组禁止所有人加入</p>'
+                        //         })
+                        //     }
+                        // } else if (err.request) {
+
+                        // }
                     })
             } else {
                 this.$Modal.info({

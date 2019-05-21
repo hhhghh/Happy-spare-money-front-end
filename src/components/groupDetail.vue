@@ -134,7 +134,7 @@
                                     </div>
                                 </Scroll>
                                 <div class="withdraw">
-                                    <Button class="invite-button" type="dashed" long icon="ios-add" @click="showDrawer=true">Add members</Button>
+                                    <Button class="invite-button" type="dashed" long icon="ios-add" @click="showDrawer=true">Invite members</Button>
                                     <Button v-bind:class="{'withdraw-button': true, 'hidden': !isLeader}" type="primary" long @click="showTransferDrawer=true; selectMember=''">转让该小组</Button>
                                 </div>
                                 <Drawer 
@@ -397,14 +397,28 @@ export default {
 
         dislodge(username) {
             if (this.isLeader) {
-                let param = {team_id: this.team_id, leader: this.loginUser, username: username};
-                this.$axios.delete('/team/Member/Dislodge', {params: param})
-                    .then((res) => {
-                        console.log(res.data);
+                if (this.loginUser != username) {
+                    this.$Modal.confirm({
+                        title: '确认',
+                        content: '<p>是否确认移出用户' + username + '</p>',
+                        onOk: () => {
+                            let param = {team_id: this.team_id, leader: this.loginUser, username: username};
+                            this.$axios.delete('/team/Member/Dislodge', {params: param})
+                                .then((res) => {
+                                    console.log(res.data);
+                                })
+                                .catch((err) => {
+                                    console.log(err);
+                                })
+                        }
                     })
-                    .catch((err) => {
-                        console.log(err);
+                } else {
+                    this.$Modal.info({
+                        title: '提示',
+                        content: '不能移除自己'
                     })
+                }
+                
             }
         },
 
@@ -418,15 +432,22 @@ export default {
 
         transferMembersComplete(username) {
             console.log(username);
-            if (this.isLeader) {
+            if (username != '' && this.isLeader) {
                 if (this.loginUser != username) {
-                    this.$axios.post('/team/Leader', {team_id: this.team_id, leader: this.loginUser, username: username})
-                        .then((res) => {
-                            console.log(res.data);
-                        })
-                        .catch((err) => {
-                            console.log(err);
-                        })
+                    this.$Modal.confirm({
+                        title: '确认',
+                        content: '<p>是否确认将该小组组长转让给' + username + '</p>',
+                        onOk: () => {
+                            this.$axios.post('/team/Leader', {team_id: this.team_id, leader: this.loginUser, username: username})
+                                .then((res) => {
+                                    console.log(res.data);
+                                })
+                                .catch((err) => {
+                                    console.log(err);
+                                })
+                        }
+                    })
+                    
                 } else {
                     this.$Modal.warning({
                         title: '提示',
@@ -434,6 +455,8 @@ export default {
                     })
                 }
                 this.showTransferDrawer = false;
+            } else if (username == '') {
+
             }
         }, 
 
@@ -443,37 +466,62 @@ export default {
 
         withdrawGroup() {
             if (!this.isLeader) {
-                let param = {team_id: this.team_id, username: this.loginUser};
-                this.$axios.delete('/team/Member/Departure', {params: param})
-                    .then((res) => {
-                        console.log(res.data);
-                        if (res.data.code == 200) {
-                            this.$router.push({
-                                name: 'myGroup'
+                this.$Modal.confirm({
+                    title: '确认',
+                    content: '<p>确认退出该小组？</p>',
+                    onOk: () => {
+                        let param = {team_id: this.team_id, username: this.loginUser};
+                        this.$axios.delete('/team/Member/Departure', {params: param})
+                            .then((res) => {
+                                console.log(res.data);
+                                if (res.data.code == 200) {
+                                    this.$router.push({
+                                        name: 'myGroup'
+                                    })
+                                }
                             })
-                        }
-                    })
-                    .catch((err) => {
-                        console.log(err);
-                    })
+                            .catch((err) => {
+                                console.log(err);
+                            })
+                    }
+                })
+                // let param = {team_id: this.team_id, username: this.loginUser};
+                // this.$axios.delete('/team/Member/Departure', {params: param})
+                //     .then((res) => {
+                //         console.log(res.data);
+                //         if (res.data.code == 200) {
+                //             this.$router.push({
+                //                 name: 'myGroup'
+                //             })
+                //         }
+                //     })
+                //     .catch((err) => {
+                //         console.log(err);
+                //     })
             }
         },
 
         dissolveGroup() {
             if (this.isLeader) {
-                let param = {team_id: this.team_id, leader: this.loginUser};
-                this.$axios.delete('/team', {params: param})
-                    .then((res) => {
-                        console.log(res.data);
-                        if (res.data.code == 200) {
-                            this.$router.push({
-                                name: 'myGroup'
+                this.$Modal.confirm({
+                    title: '确认',
+                    content: '<p>是否确认解散该小组？</p><p>（解散后不可恢复！）</p>',
+                    onOk: () => {
+                        let param = {team_id: this.team_id, leader: this.loginUser};
+                        this.$axios.delete('/team', {params: param})
+                            .then((res) => {
+                                console.log(res.data);
+                                if (res.data.code == 200) {
+                                    this.$router.push({
+                                        name: 'myGroup'
+                                    })
+                                }
                             })
-                        }
-                    })
-                    .catch((err) => {
-                        console.log(err);
-                    })
+                            .catch((err) => {
+                                console.log(err);
+                            })
+                    }
+                })
             }
         },
     },

@@ -21,16 +21,14 @@
                                 <Radio label=2 style="width:80px">禁止所有人</Radio>
                             </RadioGroup>
                         </FormItem>
-                        <FormItem label="Tags" prop="teamlabels">
-                            <CheckboxGroup class="margin-left" v-model="group.teamlabels">
-                                <Checkbox label="Music"></Checkbox>
-                                <Checkbox label="Dance"></Checkbox>
-                                <Checkbox label="Sports"></Checkbox>
-                                <Checkbox label="Study"></Checkbox>
-                            </CheckboxGroup>
-                        </FormItem>
-                        <FormItem label="Tags2">
-                            <Cascader class="margin-left" style="width: 90%" :data="defaultLabels" v-model="teamlabels" :render-format="cascaderFormat" trigger="hover"></Cascader>
+                        <FormItem label="Tags">
+                            <div class="div-flex" >
+                                <Cascader style="width: 90%; margin-right: 10px" :data="defaultLabels" v-model="currentTeamLabel" :render-format="cascaderFormat" trigger="hover"></Cascader>
+                                <Button icon="md-add" @click="addTeamLabels">Add</Button>
+                            </div>
+                            <Row>
+                                <Tag type="border" color="primary" class="margin-left" v-for="item in teamlabels" :key="item" :name="item" closable @on-close="handleCloseLabels">{{ item }}</Tag>
+                            </Row>
                         </FormItem>
                         <FormItem label="Invited Members" prop="invMem">
                             <div class="div-flex" >
@@ -38,7 +36,7 @@
                                 <Button icon="md-add" @click="addInvitedMember">Add</Button>
                             </div>
                             <Row>
-                                <Tag type="border" color="primary" class="margin-left" v-for="item in InvitedMemberList" :key="item.member_username" :name="item.member_username" closable @on-close="handleClose">用户{{ item.member_username }}</Tag>
+                                <Tag type="border" color="primary" class="margin-left" v-for="item in InvitedMemberList" :key="item.member_username" :name="item.member_username" closable @on-close="handleCloseMembers">用户{{ item.member_username }}</Tag>
                             </Row>
                         </FormItem>
                     </Form>
@@ -49,17 +47,10 @@
                     <div class="logo-block">
                         <img class="logo-image" id="logo" :src="logoUrl" alt="Group Logo">
                         <div class="upload-block">
-                            <Upload
-                                ref="upload"
-                                :format="['jpg','jpeg','png']"
-                                :before-upload="handleBeforeUpload"
-                                type="drag"
-                                action="https://sm.ms/api/upload"
-                                style="display: inline-block;width:58px;">
-                                <div style="width: 58px;height:58px;line-height: 58px;">
-                                    <Icon type="ios-camera" size="20"></Icon>
-                                </div>
-                            </Upload>
+                            <input type="file" id="upload-input" multiple="false" accept="image/*" @change="previewImage">
+                            <label for="upload-input" class="upload-box">
+                                <Icon type="ios-camera" size="20"></Icon>
+                            </label>
                         </div>
                     </div>
                 </div>
@@ -81,7 +72,7 @@ export default {
 
             InvitedMemberList: [],
 
-            logoUrl: 'https://i.loli.net/2017/08/21/599a521472424.jpg',
+            logoUrl: 'http://139.196.79.193:3000/awesomeface.png',
 
             group: {
                 team_name: '',
@@ -93,93 +84,95 @@ export default {
                 members: []
             },
 
+            logoFile: '',
+
             defaultLabels: [
                 {
-                    value: 'sports',
+                    value: '体育',
                     label: '体育',
                     children: [
                         {
-                            value: 'football',
+                            value: '足球',
                             label: '足球'
                         },
                         {
-                            value: 'tennis',
+                            value: '网球',
                             label: '网球'
                         },
                         {
-                            value: 'tabeltennis',
+                            value: '乒乓球',
                             label: '乒乓球'
                         },
                         {
-                            value: 'basketball',
+                            value: '篮球',
                             label: '篮球'
                         },
                         {
-                            value: 'volleyball',
+                            value: '排球',
                             label: '排球'
                         },
                         {
-                            value: 'swimming',
+                            value: '游泳',
                             label: '游泳'
                         },
                         {
-                            value: 'taiji',
+                            value: '太极',
                             label: '太极'
                         },
                         {
-                            value: 'dragonboat',
+                            value: '龙舟',
                             label: '龙舟'
                         },
                         {
-                            value: 'baseball',
+                            value: '棒球',
                             label: '棒球'
                         },
                         {
-                            value: 'taekwondo',
+                            value: '跆拳道',
                             label: '跆拳道'
                         },
                         {
-                            value: 'aerobics',
+                            value: '健美操',
                             label: '健美操'
                         },
                     ]
                 },
                 {
-                    value: 'study',
+                    value: '学习',
                     label: '学习',
                     children: [
                         {
-                            value: 'major',
+                            value: '专业',
                             label: '专业',
                             children: [
                                 {
-                                    value: 'computer',
+                                    value: '计算机类',
                                     label: '计算机类'
                                 },
                                 {
-                                    value: 'softwareengine',
+                                    value: '软件工程',
                                     label: '软件工程'
                                 },
                                 {
-                                    value: 'othermajor',
+                                    value: '其他专业',
                                     label: '其他专业'
                                 },
                             ]
                         },
                         {
-                            value: 'curriculum',
+                            value: '课程',
                             label: '课程',
                             children: [
                                 {
-                                    value: 'highermathematics',
+                                    value: '高等数学',
                                     label: '高等数学'
                                 },
                                 {
-                                    value: 'linearalgebra',
+                                    value: '线性代数',
                                     label: '线性代数'
                                 },
                                 {
-                                    value: 'othercurriculum',
+                                    value: '其他课程',
                                     label: '其他课程'
                                 },
                             ]
@@ -187,28 +180,30 @@ export default {
                     ]
                 },
                 {
-                    value: 'interest',
+                    value: '兴趣',
                     label: '兴趣',
                     children: [
                         {
-                            value: 'dance',
+                            value: '舞蹈',
                             label: '舞蹈'
                         },
                         {
-                            value: 'music',
+                            value: '音乐',
                             label: '音乐'
                         },
                         {
-                            value: 'piano',
+                            value: '钢琴',
                             label: '钢琴'
                         },
                         {
-                            value: 'guitar',
+                            value: '吉他',
                             label: '吉他'
                         },
                     ]
                 }
             ],
+
+            currentTeamLabel: [],
 
             teamlabels: [],
 
@@ -223,7 +218,7 @@ export default {
                         { required: true, message: 'Please select the limit', trigger: 'change'}
                     ],
                     teamlabels: [
-                        { required: true, type: 'array', min: 1, message: 'Choose at least one tag', trigger: 'change'}
+                        { required: false, type: 'array', min: 1, message: 'Choose at least one tag', trigger: 'change'}
                     ],
                     invMem: [
                         { required: false }
@@ -234,15 +229,44 @@ export default {
     methods: {
         addInvitedMember() {
             if (this.currentInvitedMember !== '') {
-                if (-1 == this.InvitedMemberList.indexOf(this.currentInvitedMember))
-                    //this.InvitedMemberList.push(this.currentInvitedMember);
-                    this.InvitedMemberList.push({member_username: this.currentInvitedMember});
+                let index = -1;
+                for (let i = 0, len = this.InvitedMemberList.length; i < len; i++) {
+                    if (this.currentInvitedMember == this.InvitedMemberList[i]['member_username']) {
+                        index = i;
+                        break;
+                    }
+                }
+                if (-1 == index) this.InvitedMemberList.push({member_username: this.currentInvitedMember});
             }
         },
 
-        handleClose(event, name) {
-            const index = this.InvitedMemberList.indexOf(name);
-            this.InvitedMemberList.splice(index, 1);
+        handleCloseMembers(event, name) {
+            let index = -1;
+            for (let i = 0, len = this.InvitedMemberList.length; i < len; i++) {
+                if (name == this.InvitedMemberList[i]['member_username']) {
+                    index = i;
+                    break;
+                }
+            }
+            if (index != -1) this.InvitedMemberList.splice(index, 1);
+        },
+
+        addTeamLabels() {
+            console.log(this.currentTeamLabel);
+            let len;
+            if ((len = this.currentTeamLabel.length) != 0) {
+                if (-1 == this.teamlabels.indexOf(this.currentTeamLabel[len - 1])) {
+                    this.teamlabels.push(this.currentTeamLabel[len - 1]);
+                    this.currentTeamLabel = [];
+                }
+            }
+        },
+
+        handleCloseLabels(event, name) {
+            console.log(name);
+            const index = this.teamlabels.indexOf(name);
+            console.log(index);
+            this.teamlabels.splice(index, 1);
         },
             
         handleBeforeUpload (file) {
@@ -261,31 +285,92 @@ export default {
             return false;
         },
 
+        previewImage(e) {
+            this.logoFile = e.target.files[0];
+            if (!typeof FileReader != 'undefine') {
+                let fr = new FileReader();
+                fr.readAsDataURL(this.logoFile);
+                fr.onload = (e) => {
+                    this.logoUrl = fr.result;
+                }
+            }
+        },
+
+        uploadLogoImage() {
+            let form = new FormData();
+            form.append('file', this.logoFile);
+            let p = new Promise((resolve, reject) => {
+                this.$axios.post('/file/TeamLogo', form, {
+                    headers: {
+                        'Content-Type': 'multipart/form-data'
+                    }
+                }).then((res) => {
+                    console.log(res.data);
+                    resolve(res.data.data);
+                }).catch((err) => {
+                    reject(err);
+                })
+            })
+
+            return p;
+        },
+
+        uploadGroupInfo(logoUrl) {
+            this.group.leader = "hyx";
+            this.group.logo = logoUrl;
+            this.group.members.push({member_username: this.group.leader});
+            for (let i = 0, len = this.InvitedMemberList.length; i < len; i++) {
+                this.group.members.push(this.InvitedMemberList[i]);
+            }
+            let len = this.teamlabels.length
+            for (let i = 0; i < len; i++) {
+                this.group.teamlabels.push({label: this.teamlabels[i]});
+            }
+            console.log(this.group);
+
+            let p = new Promise((resolve, reject) => {
+                this.$axios.post('/team', this.group)
+                    .then(function(res) {
+                        resolve(res.data);
+                    })
+                    .catch(function(error) {
+                        reject(error);
+                    });
+            })
+
+            return p;
+        },
+
         createGroup(name) {
             this.$refs[name].validate((valid) => {
                 if (valid) {
-                    console.log('create success');
-                    this.group.leader = "hyx";
-                    this.group.members.push({member_username: 'hyx'});
-                    for (let i = 0, len = this.InvitedMemberList.length; i < len; i++) {
-                        this.group.members.push(this.InvitedMemberList[i]);
-                    }
-                    let len = this.group.teamlabels.length
-                    for (let i = 0; i < len; i++) {
-                        this.group.teamlabels.push({label: this.group.teamlabels[i]});
-                    }
-                    for (let i = 0; i < len; i++) {
-                        this.group.teamlabels.shift();
-                    }
-                    console.log(this.group);
+                    console.log('Begin to upload');
                     
-                    this.$axios.post('/team', this.group)
-                        .then(function(res) {
-                            console.log(res.data);
-                        })
-                        .catch(function(error) {
-                            console.log(error);
-                        });
+                    if (this.logoFile != '') {
+                        this.uploadLogoImage()
+                            .then((data) => {
+                                return this.uploadGroupInfo('http://' + data.imgUrl);
+                            })
+                            .then((data) => {
+                                console.log(data);
+                                console.log('Create a new group successfully');
+                                this.$router.push({name: 'groupDetail', params: {id: data.data.team_id}});
+                            })
+                            .catch((err) => {
+                                console.log(err);
+                            })
+                    } else {
+                        this.uploadGroupInfo(this.logoUrl)
+                            .then((data) => {
+                                console.log(data);
+                                console.log('Create a new group successfully');
+                                this.$router.push({name: 'groupDetail', params: {id: data.data.team_id}});
+                            })
+                            .catch((err) => {
+                                console.log(err);
+                            })
+                    }
+                    
                 } else {
                     this.$message.error('Fail!');
                 }
@@ -382,10 +467,30 @@ span {
     width: 100%;
     height: 100%;
     border-radius: 5px;
+    margin: 10px 0;
 }
 
 .upload-block {
     text-align: center;
+}
+
+.upload-box {
+    width: 58px;
+    height: 58px;
+    line-height: 58px;
+    border: 1px dashed #dcdee2;
+    border-radius: 5px;
+    display: inline-block;
+    background: #ffffff;
+    cursor: pointer;
+}
+
+.upload-box:hover {
+    border-color: #2d8cf0;
+}
+
+#upload-input {
+    display: none;
 }
 
 </style>
