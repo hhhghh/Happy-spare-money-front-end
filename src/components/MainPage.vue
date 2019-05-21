@@ -7,7 +7,7 @@
                 <div class="layout-header-right">
                     <Avatar class="avatar" icon="ios-person" />
                     <a href="javascript:void(0)" v-show="!isLogin" v-on:click="isLogin = !isLogin" >
-                        <span class="uniform-fontsize" style="margin: 7px; color:#2d8cf0;position: relative;top: 2px">登陆</span>
+                        <span class="uniform-fontsize" style="margin: 7px; color:#2d8cf0;position: relative;top: 2px">登录</span>
                     </a>
                     <Dropdown v-show="isLogin">
                         <a href="javascript:void(0)" style="margin: 7px; ">
@@ -151,7 +151,7 @@ export default {
     methods: {
         jumpToPersonalPage: function () {
             if (this.isUser)
-                this.$router.push({path: `/personalPage/userInf`})	
+                this.$router.push({path: `/personalPage/personalInfo`})
             else 	
                 this.$router.push({path: `/personalPage/organizationInf`})
         },

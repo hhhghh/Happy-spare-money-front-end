@@ -5,17 +5,11 @@
                 <Header class="layout-header" >
                     <div class="layout-header-right">
                         <Avatar class="avatar" icon="ios-person"  />
-                        <a href="javascript:void(0)" v-show="!isLogin" v-on:click="isLogin = !isLogin" >
-                            <span class="uniform-fontsize" style="margin: 7px; color:#2d8cf0;position: relative;top: 2px">登陆</span>
-                        </a>
-                        <Dropdown v-show="isLogin">
-                            <a href="javascript:void(0)" style="margin: 7px;">
-                                <Icon type="ios-arrow-down" size="24" style="color:#2d8cf0" v-on:click="isLogin = !isLogin"/>
-                            </a>
+                        <Dropdown>
+                            <Icon type="ios-arrow-down" size="24" style="margin: 7px; color:#2d8cf0"/>
                             <DropdownMenu slot="list">
-                                <DropdownItem><div @click="jumpToPersonalPage()">{{ msg }}</div></DropdownItem>
-                                <DropdownItem><div @click="jumpToMainPage()">主页</div></DropdownItem>
-                                <DropdownItem><div @click="jumpToLoginPage()">注销</div></DropdownItem>
+                                <DropdownItem><div @click="jumpToMainPage()">主站</div></DropdownItem>
+                                <DropdownItem><div @click="jumpToLoginPage()">退出</div></DropdownItem>
                             </DropdownMenu>
                         </Dropdown>
                     </div>
@@ -24,20 +18,20 @@
                 <Layout class="layout-bottom">
                     <Sider class="layout-sider">
                         <Menu active-name="1-1" theme="dark" width="auto" >
-                            <MenuItem name="1-1">
-                                <span>个人信息</span>
-                            </MenuItem>
-                            <MenuItem name="1-2">
-                                <span>充值</span>
-                            </MenuItem>
-                            <MenuItem name="1-3">
-                                <span>提现</span>
-                            </MenuItem>
+                          <router-link to="/personalPage/personalInfo">
+                            <MenuItem name="1-1">个人信息</MenuItem>
+                          </router-link>
+                          <router-link to="/personalPage/deposit">
+                            <MenuItem name="1-2">充值</MenuItem>
+                          </router-link>
+                          <router-link to="/personalPage/withdraw">
+                            <MenuItem name="1-3">提现</MenuItem>
+                          </router-link>
                         </Menu>
                     </Sider>
                         <div class="content">
-                        <router-view></router-view>
-                    </div>
+                          <router-view></router-view>
+                        </div>
                 </Layout>
             </Layout>
     </div>
@@ -47,32 +41,21 @@
 export default {
     data() {	
         return {	
-            user: {	
-                name: 'Name',	
-                acount_state : 0	
-            },	
-            isUser: True,	
-            msg: ''	
+
         }	
         
      },	
     	
-    mounted() {	
-        this.isUser = (this.user.acount_state == 0)	
-        this.msg = this.isUser ? '个人信息': '机构信息'	
-    },	
-    methods: {	
-        jumpToPersonalPage: function () {	
-            if (this.isUser)	
-                this.$router.push({path: `/personalPage/userInf`})	
-            else 	
-                this.$router.push({path: `/personalPage/organizationInf`})	
-        },	
+    mounted() {
+
+    },
+
+    methods: {
         jumpToMainPage: function() {	
-            this.$router.push({path: `/MainPage/taskSearch`})	
+            this.$router.push({path: `/MainPage`});
         },	
         jumpToLoginPage: function() {	
-            this.$router.push({path: `/login`})	
+            this.$router.push({path: `/login`});
         }	
         
      }

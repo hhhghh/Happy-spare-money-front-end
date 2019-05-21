@@ -4,7 +4,7 @@ import HelloWorld from '@/components/HelloWorld'
 import taskDetail from '@/components/taskDetail'
 import myReleaseTask from '@/components/myReleaseTask'
 import myAcceptTask from '@/components/myAcceptTask'
-import userInf from '@/components/userInf'
+import personalInfo from '@/components/personalInfo'
 import personalPage from '@/components/personalPage'
 import MainPage from '@/components/MainPage'
 import taskSearch from '@/components/taskSearch'
@@ -16,7 +16,10 @@ import groupDetail from '@/components/groupDetail'
 import modifyGroupInfo from '@/components/modifyGroupInfo'
 import login from '@/components/login'
 import register from '@/components/register'
-import  userInfo from '@/components/userInfo'
+import userInfo from '@/components/userInfo'
+import deposit from '@/components/deposit'
+import withdraw from '@/components/withdraw'
+
 
 Vue.use(Router)
 
@@ -90,9 +93,19 @@ export default new Router({
       component: personalPage,
       children:[
         {
-          path: '/personalPage/userInf',
-          name: 'userInf',
-          component: userInf,
+          path: '/personalPage/personalInfo',
+          name: 'personalInfo',
+          component: personalInfo
+        },
+        {
+          path: '/personalPage/deposit',
+          name: 'deposit',
+          component: deposit
+        },
+        {
+          path: '/personalPage/withdraw',
+          name: 'withdraw',
+          component: withdraw
         }
       ]
     },
@@ -107,11 +120,10 @@ export default new Router({
       component: register
     },
     {	
-      path: '/:username',	
+      path: '/user/:username',
       name: 'userInfo',	
       component: userInfo	
     }
-  
     
   ]
 })

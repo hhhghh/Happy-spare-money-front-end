@@ -8,37 +8,30 @@
       </Header>
       <Content>
         <div class="login-contain">
-          <!--          <div class="login-head">登录</div>-->
           <Tabs>
             <TabPane label="用户登录">
-              <Form :rules="ruleValidate" :model="formValidate">
+              <Form ref="userLoginForm" :rules="ruleValidate" :model="userLoginInfo">
                 <FormItem prop="username">
-                  <Input v-model="formValidate.username" prefix="ios-contact" placeholder="username"/>
+                  <Input v-model="userLoginInfo.username" prefix="ios-contact" placeholder="username"/>
                 </FormItem>
                 <FormItem prop="password">
-                  <Input v-model="formValidate.password" type="password" prefix="ios-lock" placeholder="password"/>
+                  <Input v-model="userLoginInfo.password" type="password" prefix="ios-lock" placeholder="password"/>
                 </FormItem>
-<!--                <FormItem style="text-align: center;">-->
-<!--                  <RadioGroup v-model="formValidate.userType">-->
-<!--                    <Radio label='0'>user</Radio>-->
-<!--                    <Radio label='1'>organization</Radio>-->
-<!--                  </RadioGroup>-->
-<!--                </FormItem>-->
                 <FormItem>
-                  <Button @click="loginSubmit" type="primary" long>登录</Button>
+                  <Button @click="login('userLoginForm', '0')" type="primary" long>登录</Button>
                 </FormItem>
               </Form>
             </TabPane>
             <TabPane label="机构登录">
-              <Form :rules="ruleValidate" :model="formValidate">
+              <Form ref="orLoginForm" :rules="ruleValidate" :model="userLoginInfo">
                 <FormItem prop="username">
-                  <Input v-model="formValidate.username" prefix="ios-contacts" placeholder="username"/>
+                  <Input v-model="userLoginInfo.username" prefix="ios-contacts" placeholder="username"/>
                 </FormItem>
                 <FormItem prop="password">
-                  <Input v-model="formValidate.password" type="password" prefix="ios-lock" placeholder="password"/>
+                  <Input v-model="userLoginInfo.password" type="password" prefix="ios-lock" placeholder="password"/>
                 </FormItem>
                 <FormItem>
-                  <Button @click="loginSubmit" type="primary" long>登录</Button>
+                  <Button @click="login('orLoginForm', '1')" type="primary" long>登录</Button>
                 </FormItem>
               </Form>
             </TabPane>
@@ -56,26 +49,52 @@
       return {
         ruleValidate: {
           username: [
-            {required: true, message: 'The username cannot be empty',  trigger: 'blur'}
+            {required: true, message: '请输入您的用户名',  trigger: 'blur'}
           ],
           password: [
-            {required: true, message: 'The password cannot be empty',  trigger: 'blur'}
+            {required: true, message: '请输入您的密码',  trigger: 'blur'}
           ],
         },
 
-        formValidate: {
+        userLoginInfo: {
           username: '',
           password: '',
-          userType: '0'
-
         }
 
       };
     },
     methods: {
-      loginSubmit() {
-        this.$Message.success('Success!');
-        this.$Message.error('Fail!');
+      login(name, type) {
+        this.$refs[name].validate((valid) => {
+          if (valid) {
+            this.$axios({
+              method: 'post',
+              url: "http://127.0.0.1:3000/user/login",
+              data: {
+                type: type,
+                username: this.userLoginInfo.username,
+                password: this.userLoginInfo.password
+              }
+            })
+            .then(msg => {
+              if (msg.msg == 'success') {
+                this.$Message.success('Success!');
+                this.$router.push({name: 'MainPage'});
+              }
+              else {
+                this.$Message.error(msg.msg);
+              }
+            })
+            .catch(err => {
+              console.log(err);
+              this.$Message.error('Fail!');
+
+            });
+          }
+          else {
+            this.$Message.error('Fail!');
+          }
+        })
       }
     }
   }
