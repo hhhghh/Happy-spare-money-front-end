@@ -207,7 +207,7 @@
 
             this.$axios({
               method: 'post',
-              url: 'http://127.0.0.1:3000/user/create',
+              url: '/user/create',
               data: formData,
               config: {headers: {'Content-Type': 'multipart/form-data'}}
             })

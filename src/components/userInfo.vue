@@ -9,8 +9,8 @@
       <Content>
         <div class="content">
           <div class="h">
-            <img src="https://i.loli.net/2017/08/21/599a521472424.jpg" alt="">
-            <div class="username">昵称</div>
+            <img :src="userInfo.avatar" alt="">
+            <div class="username">{{userInfo.username}}</div>
             <div class="action">
               <Dropdown>
                 <a href="javascript:void(0)">
@@ -28,12 +28,12 @@
             <TabPane label="个人信息" name="info">
               <div class="info">
                 <h2>个人信息</h2>
-                <div class="info-row">性名： <span>张三</span></div>
-                <div class="info-row">学校： <span>中山大学</span></div>
-                <div class="info-row">年级： <span>大三</span></div>
-                <div class="info-row">电话： <span>123456789</span></div>
-                <div class="info-row">微信： <span>123456789</span></div>
-                <div class="info-row">qq： <span>123456789</span></div>
+                <div class="info-row">性名： <span>{{userInfo.name}}</span></div>
+                <div class="info-row">学校： <span>{{userInfo.school}}</span></div>
+                <div class="info-row">年级： <span>{{userInfo.grade}}</span></div>
+                <div class="info-row">电话： <span>{{userInfo.phone}}</span></div>
+                <div class="info-row">微信： <span>{{userInfo.wechat}}</span></div>
+                <div class="info-row">qq： <span>{{userInfo.qq}}</span></div>
               </div>
             </TabPane>
 
@@ -125,6 +125,18 @@
   export default {
     data() {
       return {
+        userInfo: {
+          username: 'hjj',
+          name: 'huangjj',
+          school: '中山大学',
+          grade: '3',
+          phone: '123',
+          wechat: '456',
+          qq: '789',
+          avatar: 'https://i.loli.net/2017/08/21/599a521472424.jpg',
+          score: 3.3,
+        },
+
         waitedTasks: [
           {
             "taskId": 1,
@@ -176,24 +188,33 @@
     },
 
     created() {
-      this.$axios.get('/api/user/getAcceptedFinishedTasks?username='+ this.$route.params.username)
+      this.$axios.get('/user/getAcceptedFinishedTasks?username='+ this.$route.params.username)
       .then(msg => {
         if (msg.msg == 'success') {
           this.finishedTasks = JSON.parse(msg.data);
         }
       });
 
-      this.$axios.get('/api/user/getPublishedFinishedTasks?username='+ this.$route.params.username)
+      this.$axios.get('/user/getPublishedFinishedTasks?username='+ this.$route.params.username)
       .then(msg => {
         if (msg.msg == 'success') {
           this.publishedFinishedTasks = JSON.parse(msg.data);
         }
       });
 
-      this.$axios.get('/api/user/getPublishedWaitedTasks?username='+ this.$route.params.username)
+      this.$axios.get('/user/getPublishedWaitedTasks?username='+ this.$route.params.username)
       .then(msg => {
         if (msg.msg == 'success') {
           this.waitedTasks = JSON.parse(msg.data);
+        }
+      });
+
+      this.$axios.get('/user/getuser?username='+ this.$route.params.username)
+      .then(msg => {
+        if (msg.data.code == 200) {
+          console.log(msg.data.data)
+          this.userInfo = msg.data.data;
+          console.log(this.userInfo )
         }
       });
     },
