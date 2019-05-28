@@ -1,54 +1,46 @@
 /* eslint-disable */
-
-
-
-
 <template>
     <div class="task-body">
         <div class="content">
             <div class="content-selector-block">
-                <div class="div-selectors">
+                <div class="div-selectors" style="z-index:">
                     <div class="selector">
                         <span class="selector-span">任务类型</span>
-                        <Select v-model="typeSelect" style="width:100px;margin-right:5px" @on-change="getAcceptTask(typeSelect,rangeSelect,stateSelect)">
+                        <Select v-model="typeSelect" style="width:100px;margin-right:5px" @on-change="getTasks(typeSelect,rangeSelect)">
                             <Option v-for="item in taskType" :value="item.value" :key="item.value">{{ item.label }}</Option>
                         </Select>
                     </div>
                     <div class="selector">
                     <span class="selector-span">任务发布范围</span>
-                        <Select v-model="rangeSelect" style="width:100px;margin-right:5px" @on-change="getAcceptTask(typeSelect,rangeSelect,stateSelect)">
+                        <Select v-model="rangeSelect" style="width:100px;margin-right:5px" @on-change="getTasks(typeSelect,rangeSelect)">
                             <Option v-for="item in rangeType" :value="item.value" :key="item.value">{{ item.label }}</Option>
-                        </Select>
-                    </div>
-                    <div class="selector">
-                    <span class="selector-span">任务状态</span>
-                        <Select v-model="stateSelect" style="width:100px;margin-right:5px" @on-change="getAcceptTask(typeSelect,rangeSelect,stateSelect)">
-                            <Option v-for="item in stateType" :value="item.value" :key="item.value">{{ item.label }}</Option>
                         </Select>
                     </div>
                 </div>
             </div>
             <Divider></Divider>
             <div class="task-content">
-                <div v-for="item in items">
-                    <div v-bind:class="{'task-card':true,'task-card-mouseenter': enterid == item.id, 'task-card-mouseleave':!(enterid == item.id)}"
-                    v-on:mouseenter="enterid = item.id" v-on:mouseleave="enterid = 0" @click="getTaskItem(item.id)">
+                <div v-for="item in taskItems">
+                    <div v-bind:class="{'task-card':true,'task-card-mouseenter': enterItemId == item.id, 'task-card-mouseleave':!(enterItemId == item.id)}"
+                    v-on:mouseenter="enterItemId = item.id" v-on:mouseleave="enterItemId = ''" @click="jumpToTaskDetail(item.task_id)">
                         <div class="task-title">
-                            <span>{{item.id}}</span>
+                            <span>{{item.title}}</span>
                         </div>
-                        <div class="task-simpleinfo"> 
-                            <span>{{item.simpleinfo}} </span>
+                        <div class="task-intro"> 
+                            <span>{{item.introduction}} </span>
                         </div>
-                        <div class="task-profit"> 
-                            <span>{{item.profit}}</span>
+                        <div class="task-type">
+                            <span style="font-weight: bold">任务类型:</span>
+                            <span>{{item.type}} </span>
                         </div>
-                        <div class="task-detail">
-                            <span>数量:{{item.count}}</span>
-                            <span>发布人: {{item.releaser}}</span>
+                        <div class="task-money"> 
+                            <img class="coin" src="../assets/coin.jpg"/>
+                            <span class="span-money">{{ item.money }}</span>
                         </div>
+                         <Avatar class="avatar" :src="item.user.avatar"></Avatar>
                     </div>
                 </div>
-            </div>        
+            </div>          
         </div>
     </div>
 </template>
@@ -57,57 +49,176 @@
 export default {
     data() {
         return {
-            taskList: [
+            username:'yao',
+            taskType: [
                 {
-                    value: 'All',
+                    value: 'all',
                     label: '全部'
                 },
                 {
-                    value: 'Questionaire',
+                    value: 1,
                     label: '问卷调查'
                 },
                 {
-                    value: 'Express',
-                    label: '取快递'
-                },
-               
+                    value: 2,
+                    label: '跑腿'
+                }
             ],
-
-            rangeList: [
+            rangeType: [
                 {
-                    value: 'All',
+                    value: 'all',
                     label: '全部'
                 },
-                {
-                    value: 'Group1',
-                    label: '小组1'
-                },
+    
             ],
-            taskClass: '',
-            range: '',
-            enterid: 0,
-            items: [
-                {   
-                    id: 1,
-                    title: 'title1', 
-                    simpleinfo: '简介',
-                    profit: '10',
-                    releaser: 'user1',
-                    count: '10'
+            typeSelect: 'all',
+            rangeSelect: 'all',
+            enterItemId: '',
+
+            taskItems: [
+                {
+                    task_id : 1,
+                    title: 'xxx问卷调查',
+                    introduction: '关于xxxxxxx的问卷调查',
+                    money: 1,
+                    state: 'doing',
+                    type: '问卷调查',
+                    max_accepter_number: 2,
+                    user: {
+                        username: 'yao',
+                        avatar: 'http://139.196.79.193:3000/awesomeface.png'
+                    }
+                    
                 },
-                {id: 2,title:'title2'}
-            ]
+                {
+                    task_id: 2,
+                    title: 'xxx取快递',
+                    intro: '在xxxxxxxxx范围内取快递',
+                    money: 2,
+                    type: '取快递',
+                    state: 'completed',
+                    max_accepter_number: 1,
+                    user: {
+                        username: 'yao',
+                        avatar: 'http://139.196.79.193:3000/awesomeface.png'
+                    }
+                },
+                {
+                    task_id: 3,
+                    title: 'xxx取快递',
+                    intro: '在xxxxxxxxx范围内取快递',
+                    money: 2,
+                    type: '取快递',
+                    state: 'waiting',
+                    max_accepter_number: 1,
+                    user: {
+                        username: 'yao',
+                        avatar: 'http://139.196.79.193:3000/awesomeface.png'
+                    }
+                }
+            ],
+
+            
         };
     },
+
+    mounted() {
+        this.getGroup();
+        this.getTasks(this.typeSelect, this.rangeSelect);
+        // this.login();
+    },
+
     methods: {
-        getTaskItem(id_) {
-            this.$router.push({
-                name: '/MainPage/taskDetail',
-                params: {
-                id:id_
+        login:function() {
+            let vm = this;
+            let url = '/api/v1/user/login';
+            //异步
+            this.$axios.post(url, {
+                type : 0,
+                username: 'hyx',
+                password: '123456',
+                headers: {
+                   "Access-Control-Allow-credentials": true, 
+                   "Access-Control-Allow-Origin": "*"
                 }
+               
+            
+            })
+            .then(function(response) {
+                console.log(response.headers);
+            
+            })
+            .catch(function (error) {
+                console.log('Fail to request');
+            });
+        },
+        
+        getGroup: function() {
+            let vm = this;
+            let url = '/api/v1/team/MemberName';
+            //异步
+            this.$axios.get(url, {
+               params: {
+                   member_username : vm.username
+               }
+            
+            })
+            .then(function(response) {
+                let data = response.data;
+                if (data.code == 200) {
+                    let teamDatas = data.data;
+                    for(let i = 0;i < teamDatas.length;i ++) {
+                        vm.rangeType.push({value: teamDatas[i].team_id, label: teamDatas[i].team_name + '--' + teamDatas[i].leader});
+                    }
+                    // console.log(vm.rangeType);
+                } 
+            
+            })
+            .catch(function (error) {
+                console.log('Fail to request');
+            });
+        },
+
+        getTasks: function(typeSelect, rangeSelect) {
+            let vm = this;
+            let url = '/api/v1/task';
+            //异步
+            this.$axios.get(url, {
+               params: {
+                   type: typeSelect,
+                   range: rangeSelect,
+                   username: vm.username
+               }
+            
+            })
+            .then(function(response) {
+        
+                let data = response.data;
+                if (data.code == 200) {
+                    let tasks = data.data;
+                    vm.taskItems = [];
+                    for (let i = 0;i < tasks.length;i ++) {
+                         if (tasks[i].trs.length >= tasks[i].max_accepter_number)
+                            continue;
+                        if (tasks[i].type == 1) {
+                            tasks[i].type = '问卷调查';
+                        } else if (tasks[i].type == 2){
+                            tasks[i].type = '跑腿';
+                        }
+                        vm.taskItems.push(tasks[i]);
+                    }
+                    //console.log(vm.taskItems[0].user.avatar);
+                } 
+            
+            })
+            .catch(function (error) {
+
             });
 
+        },
+
+        jumpToTaskDetail: function(id) {
+            this.$router.push({path: `/MainPage/taskDetail/${id}`})
         }
     }
 
@@ -122,6 +233,7 @@ export default {
     min-width: 800px;
     overflow: hidden;
     background-color: #f8f8f9;
+    min-height: 200px;
 }
 
 .content {
@@ -214,25 +326,44 @@ export default {
     margin: 10px;
 }
 
-.task-simpleinfo {
+.task-intro {
     font-size: 18px;
     margin:10px;
 }
 
-.task-profit {
+.task-type {
+    font-size: 14px;
+    margin:10px;
+}
+
+.task-money {
     font-size: 12px;
     position:absolute;
     bottom: 0px;
     left: 0px;
-    margin: 10px;
+    margin: 5px;
+    margin-left:10px;
    
 }
 
-.task-detail {
-    position:absolute;
-    right:0px;
-    bottom:0px;
-    margin:10px;
+.span-money{
+    position:relative;
+    bottom: 4px;
+}
 
+.coin {
+    width:20px;
+    height:20px;
+
+}
+
+
+
+.avatar {
+    position: absolute;
+    bottom: 0px;
+    right:0px;
+    margin:5px 5px 5px 5px;4
+    margin-right:10px;
 }
 </style>

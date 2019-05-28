@@ -1,23 +1,23 @@
 <template>
     <div class="task-body">
-        <div class="content">
+        <div class="content" >
             <div class="content-selector-block">
                 <div class="div-selectors">
                     <div class="selector">
                         <span class="selector-span">任务类型</span>
-                        <Select v-model="typeSelect" style="width:100px;margin-right:5px" @on-change="getAcceptTask(typeSelect,rangeSelect,stateSelect)">
+                        <Select v-model="typeSelect" style="width:100px;margin-right:5px" @on-change="getReleaseTask(typeSelect,rangeSelect,stateSelect)">
                             <Option v-for="item in taskType" :value="item.value" :key="item.value">{{ item.label }}</Option>
                         </Select>
                     </div>
                     <div class="selector">
                     <span class="selector-span">任务发布范围</span>
-                        <Select v-model="rangeSelect" style="width:100px;margin-right:5px" @on-change="getAcceptTask(typeSelect,rangeSelect,stateSelect)">
+                        <Select v-model="rangeSelect" style="width:100px;margin-right:5px" @on-change="getReleaseTask(typeSelect,rangeSelect,stateSelect)">
                             <Option v-for="item in rangeType" :value="item.value" :key="item.value">{{ item.label }}</Option>
                         </Select>
                     </div>
                     <div class="selector">
                     <span class="selector-span">任务状态</span>
-                        <Select v-model="stateSelect" style="width:100px;margin-right:5px" @on-change="getAcceptTask(typeSelect,rangeSelect,stateSelect)">
+                        <Select v-model="stateSelect" style="width:100px;margin-right:5px" @on-change="getReleaseTask(typeSelect,rangeSelect,stateSelect)">
                             <Option v-for="item in stateType" :value="item.value" :key="item.value">{{ item.label }}</Option>
                         </Select>
                     </div>
@@ -29,32 +29,43 @@
                     </div>
                     <div class="div-box">
                         <div class="box yellow-state-box"></div>
-                        <span>正在做</span>
+                        <span>待审核</span>
                     </div>
                     <div class="div-box">
                         <div class="box blue-state-box"></div>
-                        <span>待审核</span>
+                        <span>正在做</span>
                     </div>
                 </div>
             </div>
             <Divider></Divider>
             <div class="task-content">
-               <div class="task-item" v-for="item in taskItem" v-bind:class="{ 'completed': isComplete(item.state), 
-                'completed-mouseenter':isEnter(item.id) && isComplete(item.state), 
+                <div class="task-item" v-for="item in taskItems" v-bind:class="{ 'completed': isComplete(item.state), 
+                'completed-mouseenter':isEnter(item.task_id) && isComplete(item.state), 
                 'waiting': isWaiting(item.state),
-                'waiting-mouseenter':isEnter(item.id) && isWaiting(item.state),
-                'item-mouseenter': isEnter(item.id)}"
-                @mouseenter="enterItemId = item.id" @mouseleave="enterItemId = ''" @click="jumpToTaskDetail(item.id)">
-                    <h2>{{item.title}}</h2>
-                    <span>类型：{{item.type}} </span>
-                    <div class="div-money">
+                'waiting-mouseenter':isEnter(item.task_id) && isWaiting(item.state),
+                'item-mouseenter': isEnter(item.task_id)}"
+                @mouseenter="enterItemId = item.task_id" @mouseleave="enterItemId = ''" @click="jumpToTaskDetail(item.task_id)"
+                v-show="isShow(stateSelect, item.state)">
+                    
+                    <div class="task-title">
+                        <span>{{item.title}}</span>
+                    </div>
+                    <div class="task-type">
+                        <span style="font-weight: bold">任务类型:</span>
+                        <span>{{item.type}} </span>
+                    </div>
+                    <div class="task-endtime">
+                        <span style="font-weight: bold">截止时间:</span>
+                        <span>{{item.endtime}} </span>
+                    </div>
+                    <div class="task-money"> 
                         <img class="coin" src="../assets/coin.jpg"/>
-                        <span class="span-number">{{ item.money }}</span>
+                        <span class="span-money">{{ item.money }}</span>
                     </div>
-                    <div class="div-number">
+                    <div class="task-number">
                         <Icon type="ios-copy" size="18" />
-                        <span>{{ item.number }}</span>
-                    </div>
+                        <span>{{ item.max_accepter_number }}</span>
+                    </div>    
                 </div>
             </div>
         </div>
@@ -65,18 +76,19 @@
 export default {
     data() {
         return {
+            username: 'yao',
             taskType: [
                 {
                     value: 'all',
                     label: '全部'
                 },
                 {
-                    value: 'questionaire',
+                    value: 1,
                     label: '问卷调查'
                 },
                 {
-                    value: 'express',
-                    label: '取快递'
+                    value: 2,
+                    label: '跑腿'
                 }
             ],
             rangeType: [
@@ -84,10 +96,6 @@ export default {
                     value: 'all',
                     label: '全部'
                 },
-                {
-                    value: 'group1',
-                    label: '小组1'
-                }
             ],
             stateType: [
                 {
@@ -95,44 +103,52 @@ export default {
                     label: '全部'
                 },
                 {
-                    value: 'completed',
-                    label: '已完成'
+                    value: 0,
+                    label: '正在做'
                 },
                 {
-                    value: 'uncompleted',
-                    label: '未完成'
+                    value: 1,
+                    label: '等待核实'
+                },
+                {
+                    value: 3,
+                    label: '已完成'
                 }
             ],
             typeSelect: 'all',
             rangeSelect: 'all',
             stateSelect:'all',
             enterItemId: '',
-            taskItem: [
-                {
-                    id : 1,
-                    title: 'xxxx问卷调查',
-                    money: 1,
-                    state: 'waiting',
-                    type: '问卷调查',
-                    number: 2
-                },
-                {
-                    id: 2,
-                    title: 'xxxx取快递',
-                    money: 2,
-                    state: 'completed',
-                    type: '取快递',
-                    number: 1
-                },
-                {
-                    id: 3,
-                    title: 'xxx取快递',
-                    money: 2,
-                    type: '取快递',
-                    state: 'waiting',
-                    number: 1
-                }
-            ]
+            taskItems: [
+                // {
+                //     id : 1,
+                //     title: 'xxx问卷调查',
+                //     endtime: '2019-05-01 23:00',
+                //     money: 1,
+                //     state: 0,
+                //     type: '问卷调查',
+                //     number: 2
+                // },
+                // {
+                //     id: 2,
+                //     title: 'xxx取快递',
+                //     endtime: '2019-05-01 23:00',
+                //     money: 2,
+                //     type: '取快递',
+                //     state: 2,
+                //     number: 1
+                // },
+                // {
+                //     id: 3,
+                //     title: 'xxx取快递',
+                //     endtime: '2019-05-01 23:00',
+                //     money: 2,
+                //     type: '取快递',
+                //     state: 1,
+                //     number: 1
+                // }
+            ],
+         
 
         }
 
@@ -142,27 +158,116 @@ export default {
     mounted() {
         //http.get my release task
         //this.getReleaseTask(this.typeSelect, this.rangeSelect, this.stateSelect);
+        this.getGroup();
+        this.getReleaseTask(this.typeSelect, this.rangeSelect, this.stateSelect);
     },
 
     methods: {
-        isComplete: function(state) {
-            return state == 'completed';
+        isComplete(state) {
+            return state == 2;
         },
-        isWaiting: function (state) {
-            return state == 'waiting';
+
+        isWaiting (state) {
+            return state == 1;
         },
-        isEnter: function(id) {
+
+        isEnter(id) {
             return id == this.enterItemId;
         },
-        getReleaseTask: function(type, range, state) {
-            //http request get
+        getGroup() {
+            let vm = this;
+            let url = '/api/v1/team/MemberName'
+            //异步
+            this.$axios.get(url, {
+               params: {
+                   member_username : vm.username
+               }
             
-            this.$Message.info(type);
+            })
+            .then(function(response) {
+                let data = response.data;
+                if (data.code == 200) {
+                    let teamDatas = data.data;
+                    for(let i = 0;i < teamDatas.length;i ++) {
+                        vm.rangeType.push({value: teamDatas[i].team_id, label: teamDatas[i].team_name + '--' + teamDatas[i].leader});
+                    }
+                    // console.log(vm.rangeType);
+                } 
+            
+            })
+            .catch(function (error) {
+                console.log('Fail to request');
+            });
+        },
+
+        getReleaseTask(typeSelect, rangeSelect, stateSelect) {
+            //http request get
+            let vm = this;
+            let url = '/api/v1/task/findByPublisher';
+            //异步
+
+            let flag = false;            
+            if (stateSelect == 1 || stateSelect == 'all') {
+                stateSelect = 'all'
+                flag = true;
+            }
+            this.$axios.get(url, {
+                params: {
+                    type: typeSelect,
+                    range: rangeSelect,
+                    state: stateSelect,
+                    publisher: vm.username
+                }
+            
+            })
+            .then(function(response) {
+                
+                let data = response.data;
+                console.log(data);
+                if (data.code == 200) {
+                    let taskItems = data.data;
+                    for (let i = 0;i < taskItems.length;i ++) {
+                        if (taskItems[i].type == 1) {
+                            taskItems[i].type = '问卷调查';
+                        } else if (taskItems[i].type == 2){
+                            taskItems[i].type = '跑腿';
+                        }
+
+                        if (flag) {
+                            let trs = taskItems[i].trs;
+                            for (let j = 0;j < trs.length;j ++) {
+                                if (trs[j].state == 1) {
+                                    taskItems[i].state = 1;
+                                    break;
+                                }
+                            }        
+                        }
+                        
+                    }
+                   
+                    vm.taskItems = taskItems;
+                } 
+
+               
+              
+            })
+            .catch(function (error) {
+                console.log('error');
+            });
+            
+           
             
 
         },
-        jumpToTaskDetail: function(id) {
+
+        jumpToTaskDetail(id) {
             this.$router.push({path: `/MainPage/taskDetail/${id}`})
+        },
+        isShow(stateSelect, state) {
+            if (stateSelect != 'all') {
+                return state == stateSelect;
+            }
+            return true;
         }
     }
 
@@ -174,16 +279,22 @@ export default {
 <style scoped>
 div {
     text-align: left;
+    
+}
+
+
+h2 {
+   
 }
 
 .task-body {
     padding: 20px;
     position:relative;
     min-width: 960px;
+    min-height:200px;
     overflow: hidden;
     background-color: #f8f8f9;
 }
-
 
 .content-selector-block {
     position:relative;
@@ -242,32 +353,59 @@ div {
     background: #5cadff;
 }
 
-
-
 .task-content {
     position: relative;
     width: 100%;
     min-width: 800px;
     height: 100%;
 }
+
+
 .task-item {
     margin: 20px;
-    padding: 5px;
     border: 1px solid #5cadff;
     box-shadow: 5px 5px 5px #5cadff;
     float: left;
     width:28%;
-    height: 100px;
-    position: relative;
+    height: 160px;
+    position:relative;
 }
 
-.div-money {
+
+.task-title{
+    font-size: 24px;
+    margin: 10px;
+}
+
+.task-intro {
+    font-size: 18px;
+    margin:10px;
+}
+
+.task-type {
+    font-size: 14px;
+    margin:10px;
+}
+
+.task-endtime {
+    font-size: 14px;
+    margin:10px;
+}
+
+
+.task-money {
+    font-size: 12px;
     position:absolute;
     bottom: 0px;
+    left: 0px;
+    margin: 5px;
+    margin-left: 10px;
+   
 }
-.span-number{
+
+.span-money{
     position:relative;
-    bottom: 5px;
+    bottom: 4px;
 }
 
 .coin {
@@ -276,12 +414,14 @@ div {
 
 }
 
-.div-number {
-    margin: 5px;
-    position: absolute;
+.task-number {
+    position:absolute;
     right:0px;
     bottom:0px;
+    margin:10px;
+
 }
+
 
 
 .item-mouseenter {
@@ -301,10 +441,13 @@ div {
 .waiting {
     border: 1px solid #ffcc00;
     box-shadow: 5px 5px 5px #ffcc00;
-    
+
 }
 
 .waiting-mouseenter {
     box-shadow: 3px 3px 5px #ff9900;
 }
+
+
+
 </style>

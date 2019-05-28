@@ -86,7 +86,7 @@
                 </Sider>
                 <div class="layout-content">
                     <div> 
-                         <router-view> </router-view>   
+                         <router-view v-if="isRouterAlive"> </router-view>   
                     </div>
                      <BackTop :height="0" :bottom="30" >
                         <div v-on:mouseenter="show=true" v-on:mouseleave="show=false" v-bind:class="{'back-top-btn-show':show, 'back-top-btn': !show}">
@@ -112,6 +112,7 @@ export default {
             msg: '',
             show: false,
             isLogin: false,
+            isRouterAlive:true，
             taskList: [
                 {
                     value: 'All',
@@ -160,8 +161,20 @@ export default {
         },
         jumpToLoginPage: function() {
             this.$router.push({path: `/login`})
+        },
+
+        reload() {
+            this.isRouterAlive = false;
+            this.$nextTick(function() {
+                this.isRouterAlive = true;
+            })
         }
 
+    },
+    provide() {
+        return {
+            reload: this.reload
+        }
     }
 }
 </script>
