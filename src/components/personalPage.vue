@@ -4,10 +4,13 @@
             <div class="div-header">
                 <Header class="layout-header" >
                     <div class="layout-header-right">
-                        <Avatar class="avatar" icon="ios-person"  />
+                        <div class="avatar">
+                          <img class="avatarImg" :src="userInfo.avatar">
+                        </div>
                         <Dropdown>
                             <Icon type="ios-arrow-down" size="24" style="margin: 7px; color:#2d8cf0"/>
                             <DropdownMenu slot="list">
+                                <DropdownItem><div @click="jumpToPersonalPage()">{{userInfo.username}}</div></DropdownItem>
                                 <DropdownItem><div @click="jumpToMainPage()">主站</div></DropdownItem>
                                 <DropdownItem><div @click="jumpToLoginPage()">退出</div></DropdownItem>
                             </DropdownMenu>
@@ -40,14 +43,22 @@
 <script>
 export default {
     data() {	
-        return {	
-
+        return {
+          userInfo: {
+            username: 'hjj',
+            avatar: 'https://i.loli.net/2017/08/21/599a521472424.jpg',
+          },
         }	
         
      },	
     	
     mounted() {
-
+      this.$axios.get('/user/getuser')
+        .then(msg => {
+          if (msg.data.code == 200) {
+            this.userInfo = msg.data.data;
+          }
+        });
     },
 
     methods: {
@@ -56,7 +67,10 @@ export default {
         },	
         jumpToLoginPage: function() {	
             this.$router.push({path: `/login`});
-        }	
+        },
+        jumpToPersonalPage: function () {
+          this.$router.push({path: `/personalPage/personalInfo`});
+        }
         
      }
      
@@ -79,6 +93,20 @@ div {
     border-bottom: 1px solid #000000;	
 }
 
+.avatar {
+  width: 32px;
+  height: 32px;
+  display: inline-block;
+  vertical-align: middle;
+  overflow: hidden;
+  border-radius: 50%;
+  line-height: 32px;
+}
+
+.avatarImg {
+  width: 32px;
+}
+
 .layout-header{
     right:0px;
     left:0px;
@@ -86,9 +114,7 @@ div {
     z-index: 1000;
     vertical-align: middle;
     background: #363e4f;
-   
     height:70px;
-    
 }
 
 .layout-header-right {
@@ -121,7 +147,6 @@ div {
     position:absolute;
     left:200px;
     right:0px;
-
 }
 
 </style>

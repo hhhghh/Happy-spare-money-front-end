@@ -71,28 +71,26 @@
             this.$axios({
               method: 'post',
               url: "/user/login",
-              // withCredentials: true,
               data: {
                 type: type,
                 username: this.userLoginInfo.username,
-                // password: SHA256(this.userLoginInfo.password).toString()
-                password: this.userLoginInfo.password
+                password: SHA256(this.userLoginInfo.password).toString()
+                // password: this.userLoginInfo.password
               }
             })
             .then(msg => {
               console.log(msg);
               if (msg.data.code == 200) {
-                this.$Message.success('Success!');
+                this.$Message.success(msg.data.msg);
                 this.$router.push({name: 'MainPage'});
               }
               else {
-                this.$Message.error(msg.msg);
+                this.$Message.error(msg.data.msg);
               }
             })
             .catch(err => {
               console.log(err);
               this.$Message.error('Fail!');
-
             });
           }
           else {

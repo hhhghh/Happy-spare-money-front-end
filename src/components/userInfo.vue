@@ -190,31 +190,29 @@
     created() {
       this.$axios.get('/user/getAcceptedFinishedTasks?username='+ this.$route.params.username)
       .then(msg => {
-        if (msg.msg == 'success') {
-          this.finishedTasks = JSON.parse(msg.data);
+        if (msg.data.code == 200) {
+          this.finishedTasks = msg.data.data;
         }
       });
 
       this.$axios.get('/user/getPublishedFinishedTasks?username='+ this.$route.params.username)
       .then(msg => {
-        if (msg.msg == 'success') {
-          this.publishedFinishedTasks = JSON.parse(msg.data);
+        if (msg.data.code == 200) {
+          this.publishedFinishedTasks = msg.data.data;
         }
       });
 
       this.$axios.get('/user/getPublishedWaitedTasks?username='+ this.$route.params.username)
       .then(msg => {
-        if (msg.msg == 'success') {
-          this.waitedTasks = JSON.parse(msg.data);
+        if (msg.data.code == 200) {
+          this.waitedTasks = msg.data.data;
         }
       });
 
       this.$axios.get('/user/getuser?username='+ this.$route.params.username)
       .then(msg => {
         if (msg.data.code == 200) {
-          console.log(msg.data.data)
           this.userInfo = msg.data.data;
-          console.log(this.userInfo )
         }
       });
     },

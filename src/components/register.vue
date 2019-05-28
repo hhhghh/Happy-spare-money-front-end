@@ -84,6 +84,7 @@
 
 </template>
 <script>
+  var SHA256 = require("crypto-js/sha256");
   export default {
     data() {
       const validateUserPassConf = (rule, value, callback) => {
@@ -199,6 +200,9 @@
                   let blob = this.dataURLtoBlob(this.userInfo.authImg);
                   formData.append("authImg", blob);
                 }
+              }
+              if (key == 'password') {
+                formData.append("password", SHA256(this.userInfo.password).toString());
               }
               else {
                 formData.append(key, this.userInfo[key]);
