@@ -81,7 +81,7 @@
                         <div class="group-task-list">
                             <div v-for="item in defaultTaskList">
                                 <div v-bind:class="{'task-card':true,'task-card-mouseenter': enterid == item.task_id, 'task-card-mouseleave':!(enterid == item.task_id)}"
-                                v-on:mouseenter="enterid = item.task_id" v-on:mouseleave="enterid = 0" @click="getTaskItem(item.task_id)">
+                                v-on:mouseenter="enterid = item.task_id" v-on:mouseleave="enterid = 0"  @click="jumpToTaskDetail(item.task_id)">
                                     <div class="task-title">
                                         <span>{{item.title}}</span>
                                     </div>
@@ -96,7 +96,7 @@
                                         <span>发布人: {{item.publisher}}</span>
                                     </div>
 
-                                    <Drawer 
+                                    <!-- <Drawer 
                                         width="30" 
                                         :mask-closable="false" 
                                         :closable="false" 
@@ -109,7 +109,7 @@
                                             <Button class="drawer-button" type="primary" @click="jumpToTaskDetail(item.task_id)">任务详情</Button>
                                             <Button class="drawer-button" type="error" @click="blacklist(item.task_id)">拉黑</Button>
                                         </div>
-                                    </Drawer>
+                                    </Drawer> -->
                                 </div>
                             </div>
                         </div>
@@ -674,6 +674,10 @@ span {
     width: 90%;
     margin: 10px 30px;
     float: left;  
+}
+
+.task-card:hover {
+    cursor: pointer;
 }
 
 .task-card-mouseenter {
