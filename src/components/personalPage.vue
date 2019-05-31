@@ -53,12 +53,19 @@ export default {
      },	
     	
     mounted() {
-      this.$axios.get('/user/getuser')
-        .then(msg => {
-          if (msg.data.code == 200) {
-            this.userInfo = msg.data.data;
-          }
-        });
+      this.$axios.get('/user/getPersonalInfo')
+      .then(msg => {
+        console.log(msg.data.code);
+        if (msg.data.code == 200) {
+          this.userInfo = msg.data.data;
+        }
+      })
+      .catch(err => {
+        console.log(err);
+        if (err.response.status == 401) {
+          this.$router.push({name: 'login'});
+        }
+      });
     },
 
     methods: {

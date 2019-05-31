@@ -201,7 +201,7 @@
                   formData.append("authImg", blob);
                 }
               }
-              if (key == 'password') {
+              else if (key == 'password') {
                 formData.append("password", SHA256(this.userInfo.password).toString());
               }
               else {
@@ -216,16 +216,16 @@
               config: {headers: {'Content-Type': 'multipart/form-data'}}
             })
             .then(msg => {
-              if (msg.msg == 'success') {
+              if (msg.data.code == 200) {
                 this.$Message.success('Success!');
+                this.$router.push({name: 'login'});
               }
               else {
-                this.$Message.error(msg.msg);
+                this.$Message.error(msg.data.msg);
               }
             })
             .catch(err => {
-              console.log(err);
-              this.$Message.error('Fail!');
+              this.$Message.error(err.response.statusText);
             });
           }
           else {
