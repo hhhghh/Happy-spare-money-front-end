@@ -173,7 +173,7 @@ export default {
     inject: ['reload'],
     data () {
         return {
-            username: 'abc',
+            username: 'yao',
             task_id: '',
             isReleaser: false,     
             isAcceptor: false,      //control the show of accepter and cancel buttons

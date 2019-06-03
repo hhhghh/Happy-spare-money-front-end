@@ -601,7 +601,7 @@ export default {
             
             })
             .catch(function (error) {
-                this.$Notice.warning({
+                vm.$Notice.warning({
                     title: 'Task Release Error',
                     desc: 'Fail to Release the Task '
                 });

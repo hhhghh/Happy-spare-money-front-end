@@ -164,7 +164,7 @@ export default {
 
     methods: {
         isComplete(state) {
-            return state == 2;
+            return state == 3;
         },
 
         isWaiting (state) {
