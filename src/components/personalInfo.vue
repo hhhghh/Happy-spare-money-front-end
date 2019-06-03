@@ -24,11 +24,11 @@
       <div class="div-basicInf">
         <h1>Basic Information</h1>
         <h2>Name</h2>
-        <Input v-model="userInfo.name" placeholder="Enter realname.." clearable  />
+        <Input v-model="userInfo.name" placeholder="Enter realname.." disabled  />
 
         <div style="width: 49%; float: left;">
           <h3>School</h3>
-          <AutoComplete v-model="userInfo.school" :data="schools" :filter-method="filterMethod" placeholder="input here">
+          <AutoComplete v-model="userInfo.school" :data="schools" :filter-method="filterMethod" placeholder="input here" disabled>
           </AutoComplete>
         </div>
         <div style="width: 49%; float: right;">
@@ -49,7 +49,7 @@
         <Input v-model="userInfo.qq" placeholder="Enter QQ.." clearable  />
       </div>
 
-      <Button type="success" style="margin: 5px 0px 5px 0px" @click="" long>Submit</Button>
+      <Button type="success" style="margin: 5px 0px 5px 0px" @click="updateInfo" long>Submit</Button>
     </div>
 
     <div class="div-avatar">
@@ -70,21 +70,11 @@
 
 
 <script>
+var SHA256 = require("crypto-js/sha256");
 export default {
+  props: ['userInfo'],
   data() {
     return {
-      userInfo: {
-        username: 'hjj',
-        name: 'huangjj',
-        school: '中山大学',
-        grade: '3',
-        phone: '123',
-        weChat: '456',
-        qq: '789',
-        avatar: 'https://i.loli.net/2017/08/21/599a521472424.jpg',
-        score: 3.3,
-      },
-
       passwdItems: {
         oldPasswd: '',
         newPasswd: '',
@@ -99,19 +89,19 @@ export default {
 
       grades:[
         {
-          value: '1',
+          value: 1,
           label: '大一'
         },
         {
-          value: '2',
+          value: 2,
           label: '大二'
         },
         {
-          value: '3',
+          value: 3,
           label: '大三'
         },
         {
-          value: '4',
+          value: 4,
           label: '大四'
         },
       ]
@@ -133,6 +123,47 @@ export default {
         return option.toUpperCase().indexOf(value.toUpperCase()) !== -1;
     },
 
+
+    updateInfo() {
+      if (this.isModifyPassword && (!this.passwdItems.oldPasswd || !this.passwdItems.newPasswd)) {
+        this.$Message.error('原密码或新密码不能为空！');
+        return;
+      }
+
+      if (this.isModifyPassword && this.passwdItems.confirmPasswd != this.passwdItems.newPasswd) {
+        this.$Message.error('两次密码不一致！');
+        return;
+      }
+
+      let data = {
+        "grade": this.userInfo.grade,
+        "phone": this.userInfo.phone,
+        "wechat": this.userInfo.wechat,
+        "qq": this.userInfo.qq
+      };
+
+      if (this.isModifyPassword && this.passwdItems.confirmPasswd == this.passwdItems.newPasswd) {
+        data.oldPasswd = SHA256(this.passwdItems.oldPasswd).toString();
+        data.newPasswd = SHA256(this.passwdItems.newPasswd).toString();
+      }
+
+      this.$axios({
+        method: 'put',
+        url: "/api/v1/user/update",
+        data: data
+      })
+      .then(msg => {
+        if (msg.data.code == 200) {
+          this.$Message.success(msg.data.msg[0]);
+          if (msg.data.length > 1) {
+            this.$Message.error(msg.data.msg[1]);
+          }
+        }
+      })
+      .catch(err => {
+        this.$Message.error(err.response.data.msg);
+      });
+    }
 
   }
 }
