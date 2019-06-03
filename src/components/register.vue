@@ -211,7 +211,7 @@
 
             this.$axios({
               method: 'post',
-              url: '/user/create',
+              url: '/api/v1/user/create',
               data: formData,
               config: {headers: {'Content-Type': 'multipart/form-data'}}
             })

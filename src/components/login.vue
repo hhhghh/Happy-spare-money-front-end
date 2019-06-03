@@ -70,7 +70,7 @@
           if (valid) {
             this.$axios({
               method: 'post',
-              url: "/user/login",
+              url: "/api/v1/user/login",
               data: {
                 type: type,
                 username: this.userLoginInfo.username,
@@ -82,7 +82,7 @@
               console.log(msg);
               if (msg.data.code == 200) {
                 this.$Message.success(msg.data.msg);
-                this.$router.push({name: 'MainPage'});
+                this.$router.push({name: 'MainPage/taskSearch'});
               }
               else {
                 this.$Message.error(msg.data.msg);
