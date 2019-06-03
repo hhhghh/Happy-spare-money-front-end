@@ -274,7 +274,7 @@ export default {
             let form = new FormData();
             form.append('file', this.logoFile);
             let p = new Promise((resolve, reject) => {
-                this.$axios.post('/file/TeamLogo', form, {
+                this.$axios.post('/api/v1/file/TeamLogo', form, {
                     headers: {
                         'Content-Type': 'multipart/form-data'
                     }
@@ -299,7 +299,7 @@ export default {
             console.log(this.group);
 
             let p = new Promise((resolve, reject) => {
-                this.$axios.put('/team', this.group)
+                this.$axios.put('/api/v1/team', this.group)
                     .then(function(res) {
                         resolve(res.data);
                     })

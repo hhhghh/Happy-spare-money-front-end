@@ -85,7 +85,6 @@ export default {
             },
 
             logoFile: '',
-            logoBlob: '',
 
             defaultLabels: [
                 {
@@ -269,39 +268,21 @@ export default {
             console.log(index);
             this.teamlabels.splice(index, 1);
         },
-
-        compressImage(path, callback) {
-            let img = new Image();
-            img.src = path;
-            img.onload = function() {
-                let that = this;
-                let canvas = document.createElement('canvas');
-                let ctx = canvas.getContext('2d');
-                let width = that.width;
-                let height = that.height;
-                let quality = 0.6;
-                let anw = document.createAttribute("width");
-                anw.nodeValue = width;
-                let anh = document.createAttribute("height");
-                anh.nodeValue = height;
-                canvas.setAttributeNode(anw);
-                canvas.setAttributeNode(anh);
-                ctx.drawImage(that, 0, 0, width, height);
-
-                let base64 = canvas.toDataURL('image/jpeg', quality);
-                this.logoBlob = callback(base64);
-                console.log(this.logoBlob);
-            }
             
-        },
+        handleBeforeUpload (file) {
+            if (!typeof FileReader != 'undefined') {
+                if (/^image\/\w+/.test(file.type)) {
+                    let fr = new FileReader();
+                    fr.readAsDataURL(file);
 
-        convertBase64UrlToBlob(urlData) {
-            var arr = urlData.split(','), mime = arr[0].match(/:(.*?);/)[1],
-                bstr = atob(arr[1]), n = bstr.length, u8arr = new Uint8Array(n);
-            while(n--){
-                u8arr[n] = bstr.charCodeAt(n);
+                    fr.onload = function(e) {
+                        let logo = document.getElementById('logo');
+                        logo.src = this.result;
+                    }
+                }
             }
-            return new Blob([u8arr], {type:mime});
+
+            return false;
         },
 
         previewImage(e) {
@@ -311,18 +292,15 @@ export default {
                 fr.readAsDataURL(this.logoFile);
                 fr.onload = (e) => {
                     this.logoUrl = fr.result;
-                    let re = fr.result;
-                    this.compressImage(re, this.convertBase64UrlToBlob);
                 }
             }
         },
 
         uploadLogoImage() {
             let form = new FormData();
-            //form.append('file', this.logoFile);
-            form.append('file', this.logoBlob, this.logoFile.name);
+            form.append('file', this.logoFile);
             let p = new Promise((resolve, reject) => {
-                this.$axios.post('/file/TeamLogo', form, {
+                this.$axios.post('、api/v1/file/TeamLogo', form, {
                     headers: {
                         'Content-Type': 'multipart/form-data'
                     }
@@ -351,7 +329,7 @@ export default {
             console.log(this.group);
 
             let p = new Promise((resolve, reject) => {
-                this.$axios.post('/team', this.group)
+                this.$axios.post('/api/v1/team', this.group)
                     .then(function(res) {
                         resolve(res.data);
                     })
@@ -374,9 +352,13 @@ export default {
                                 return this.uploadGroupInfo('http://' + data.imgUrl);
                             })
                             .then((data) => {
-                                console.log(data);
-                                console.log('Create a new group successfully');
-                                this.$router.push({name: 'groupDetail', params: {id: data.data.team_id}});
+                                if (data.code == 200) {
+                                    console.log(data);
+                                    console.log('Create a new group successfully');
+                                    this.$router.push({name: 'groupDetail', params: {id: data.data.team_id}});
+                                } else if (data.code == 220) {
+                                    console.log(data);
+                                }
                             })
                             .catch((err) => {
                                 console.log(err);

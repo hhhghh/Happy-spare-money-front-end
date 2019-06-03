@@ -181,7 +181,7 @@ export default {
         getAllGroupJoined() {
             let t = this;
             t.teams = [];
-            t.$axios.get('/team/MemberName?member_username=' + t.loginUser)
+            t.$axios.get('/api/v1/team/MemberName?member_username=' + t.loginUser)
                 .then(function (response) {
                     console.log(response.data);
                     if (response.data.code == 200) {

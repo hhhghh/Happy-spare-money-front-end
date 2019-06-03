@@ -325,7 +325,7 @@ export default {
         getGroupDetail(team_id) {
 
             let p = new Promise((resolve, reject) => {
-                this.$axios.get('/team/Id?team_id=' + this.team_id)
+                this.$axios.get('/api/v1/team/Id?team_id=' + this.team_id)
                     .then((res) => {
                         resolve(res);
                     })
@@ -371,7 +371,7 @@ export default {
             for (let i = 0, len = this.inviteList.length; i < len; i++) {
                 params['user'].push({username: this.inviteList[i]});   
             }
-            this.$axios.post('/team/Member/Invitation', params)
+            this.$axios.post('/api/v1/team/Member/Invitation', params)
                 .then(function(res) {
                     console.log(res.data);
                 })
@@ -403,7 +403,7 @@ export default {
                         content: '<p>是否确认移出用户' + username + '</p>',
                         onOk: () => {
                             let param = {team_id: this.team_id, leader: this.loginUser, username: username};
-                            this.$axios.delete('/team/Member/Dislodge', {params: param})
+                            this.$axios.delete('/api/v1/team/Member/Dislodge', {params: param})
                                 .then((res) => {
                                     console.log(res.data);
                                 })
@@ -438,7 +438,7 @@ export default {
                         title: '确认',
                         content: '<p>是否确认将该小组组长转让给' + username + '</p>',
                         onOk: () => {
-                            this.$axios.post('/team/Leader', {team_id: this.team_id, leader: this.loginUser, username: username})
+                            this.$axios.post('/api/v1/team/Leader', {team_id: this.team_id, leader: this.loginUser, username: username})
                                 .then((res) => {
                                     console.log(res.data);
                                 })
@@ -471,7 +471,7 @@ export default {
                     content: '<p>确认退出该小组？</p>',
                     onOk: () => {
                         let param = {team_id: this.team_id, username: this.loginUser};
-                        this.$axios.delete('/team/Member/Departure', {params: param})
+                        this.$axios.delete('/api/v1/team/Member/Departure', {params: param})
                             .then((res) => {
                                 console.log(res.data);
                                 if (res.data.code == 200) {
@@ -508,7 +508,7 @@ export default {
                     content: '<p>是否确认解散该小组？</p><p>（解散后不可恢复！）</p>',
                     onOk: () => {
                         let param = {team_id: this.team_id, leader: this.loginUser};
-                        this.$axios.delete('/team', {params: param})
+                        this.$axios.delete('/api/v1/team', {params: param})
                             .then((res) => {
                                 console.log(res.data);
                                 if (res.data.code == 200) {
