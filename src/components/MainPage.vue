@@ -158,7 +158,7 @@
           },
         ],
         taskClass: '',
-        range: ''
+        range: '',
 
 
       };
@@ -177,6 +177,14 @@
             this.message = msg.data.data;
           }
         });
+
+     
+     
+      this.$router.push({path: `/MainPage/taskSearch`});  
+      
+      
+      
+
     },
     methods: {
       jumpToPersonalPage: function () {

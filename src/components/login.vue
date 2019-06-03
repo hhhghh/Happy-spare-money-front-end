@@ -82,7 +82,7 @@
               console.log(msg);
               if (msg.data.code == 200) {
                 this.$Message.success(msg.data.msg);
-                this.$router.push({name: 'MainPage/taskSearch'});
+                this.$router.push({name: 'MainPage'});
               }
               else {
                 this.$Message.error(msg.data.msg);
