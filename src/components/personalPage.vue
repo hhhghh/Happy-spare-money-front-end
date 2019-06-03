@@ -8,11 +8,21 @@
                           <img class="avatarImg" :src="userInfo.avatar">
                         </div>
                         <Dropdown>
+                            <span style="color: #eee;">{{userInfo.username}}</span>
                             <Icon type="ios-arrow-down" size="24" style="margin: 7px; color:#2d8cf0"/>
                             <DropdownMenu slot="list">
-                                <DropdownItem><div @click="jumpToPersonalPage()">{{userInfo.username}}</div></DropdownItem>
-                                <DropdownItem><div @click="jumpToMainPage()">主站</div></DropdownItem>
-                                <DropdownItem><div @click="jumpToLoginPage()">退出</div></DropdownItem>
+                                <DropdownItem>
+                                  <div @click="jumpToMainPage()">
+                                    <Icon type="ios-cube" />
+                                    主站
+                                  </div>
+                                </DropdownItem>
+                                <DropdownItem>
+                                  <div @click="jumpToLoginPage()">
+                                    <Icon type="ios-power" />
+                                    退出
+                                  </div>
+                                </DropdownItem>
                             </DropdownMenu>
                         </Dropdown>
                     </div>
@@ -45,7 +55,7 @@ export default {
     data() {	
         return {
           userInfo: {
-            username: 'hjj',
+            username: '',
             avatar: 'https://i.loli.net/2017/08/21/599a521472424.jpg',
           },
         }	
@@ -53,9 +63,8 @@ export default {
      },	
     	
     mounted() {
-      this.$axios.get('/user/getPersonalInfo')
+      this.$axios.get('api/v1/user/getPersonalInfo')
       .then(msg => {
-        console.log(msg.data.code);
         if (msg.data.code == 200) {
           this.userInfo = msg.data.data;
         }
@@ -64,6 +73,7 @@ export default {
         console.log(err);
         if (err.response.status == 401) {
           this.$router.push({name: 'login'});
+          this.$Message.error('请登录');
         }
       });
     },
@@ -72,12 +82,21 @@ export default {
         jumpToMainPage: function() {	
             this.$router.push({path: `/MainPage`});
         },	
-        jumpToLoginPage: function() {	
-            this.$router.push({path: `/login`});
+        jumpToLoginPage: function() {
+            this.$axios.get('api/v1/user/logout').then(msg => {
+              if (msg.data.code == 200) {
+                this.$router.push({path: `/login`});
+                this.$Message.success('退出成功！');
+              }
+              else {
+                this.$router.push({path: `/login`});
+                this.$Message.error(msg.data.msg);
+              }
+            }).catch(err => {
+              this.$Message.error(err.response.statusText);
+            });
         },
-        jumpToPersonalPage: function () {
-          this.$router.push({path: `/personalPage/personalInfo`});
-        }
+
         
      }
      

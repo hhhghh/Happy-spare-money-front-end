@@ -217,7 +217,7 @@
             })
             .then(msg => {
               if (msg.data.code == 200) {
-                this.$Message.success('Success!');
+                this.$Message.success('注册成功！');
                 this.$router.push({name: 'login'});
               }
               else {
