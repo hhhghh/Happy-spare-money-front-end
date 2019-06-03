@@ -90,7 +90,7 @@
             })
             .catch(err => {
               console.log(err);
-              this.$Message.error('Fail!');
+              this.$Message.error(err.response.statusText);
             });
           }
           else {
