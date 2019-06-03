@@ -53,7 +53,7 @@ export default {
      },	
     	
     mounted() {
-      this.$axios.get('/user/getPersonalInfo')
+      this.$axios.get('api/v1/user/getPersonalInfo')
       .then(msg => {
         console.log(msg.data.code);
         if (msg.data.code == 200) {
