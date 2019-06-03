@@ -13,9 +13,8 @@
             <span>{{user.username}}</span>
             <Icon type="ios-arrow-down" size="24" style="margin: 7px; color:#2d8cf0" />
             <DropdownMenu slot="list">
-              <DropdownItem><div @click="jumpToPersonalPage()">{{ msg }}</div></DropdownItem>
-              <DropdownItem><div @click="jumpToMainPage()">主页</div></DropdownItem>
-              <DropdownItem><div @click="jumpToLoginPage()">注销</div></DropdownItem>
+              <DropdownItem><div @click="jumpToPersonalPage()"><Icon type="md-person" /> {{ msg }}</div></DropdownItem>
+              <DropdownItem><div @click="jumpToLoginPage()"><Icon type="ios-power" /> 退出</div></DropdownItem>
             </DropdownMenu>
           </Dropdown>
         </div>
@@ -194,12 +193,19 @@
           this.$router.push({path: `/personalPage/organizationInf`})
       },
 
-      jumpToMainPage: function() {
-        this.$router.push({path: `/MainPage/taskSearch`})
-      },
-
       jumpToLoginPage: function() {
-        this.$router.push({path: `/login`})
+        this.$axios.get('api/v1/user/logout').then(msg => {
+          if (msg.data.code == 200) {
+            this.$router.push({path: `/login`});
+            this.$Message.success('退出成功！');
+          }
+          else {
+            this.$router.push({path: `/login`});
+            this.$Message.error(msg.data.msg);
+          }
+        }).catch(err => {
+          this.$Message.error(err.response.statusText);
+        });
       },
 
       deleteMsg: function(index) {
