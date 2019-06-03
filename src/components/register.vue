@@ -84,6 +84,7 @@
 
 </template>
 <script>
+  var SHA256 = require("crypto-js/sha256");
   export default {
     data() {
       const validateUserPassConf = (rule, value, callback) => {
@@ -200,6 +201,9 @@
                   formData.append("authImg", blob);
                 }
               }
+              else if (key == 'password') {
+                formData.append("password", SHA256(this.userInfo.password).toString());
+              }
               else {
                 formData.append(key, this.userInfo[key]);
               }
@@ -207,21 +211,21 @@
 
             this.$axios({
               method: 'post',
-              url: 'http://127.0.0.1:3000/user/create',
+              url: '/api/v1/user/create',
               data: formData,
               config: {headers: {'Content-Type': 'multipart/form-data'}}
             })
             .then(msg => {
-              if (msg.msg == 'success') {
+              if (msg.data.code == 200) {
                 this.$Message.success('Success!');
+                this.$router.push({name: 'login'});
               }
               else {
-                this.$Message.error(msg.msg);
+                this.$Message.error(msg.data.msg);
               }
             })
             .catch(err => {
-              console.log(err);
-              this.$Message.error('Fail!');
+              this.$Message.error(err.response.statusText);
             });
           }
           else {

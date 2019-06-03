@@ -44,6 +44,7 @@
 
 </template>
 <script>
+  var SHA256 = require("crypto-js/sha256");
   export default {
     data() {
       return {
@@ -69,26 +70,27 @@
           if (valid) {
             this.$axios({
               method: 'post',
-              url: "http://127.0.0.1:3000/user/login",
+              url: "/api/v1/user/login",
               data: {
                 type: type,
                 username: this.userLoginInfo.username,
-                password: this.userLoginInfo.password
+                password: SHA256(this.userLoginInfo.password).toString()
+                // password: this.userLoginInfo.password
               }
             })
             .then(msg => {
-              if (msg.msg == 'success') {
-                this.$Message.success('Success!');
+              console.log(msg);
+              if (msg.data.code == 200) {
+                this.$Message.success(msg.data.msg);
                 this.$router.push({name: 'MainPage'});
               }
               else {
-                this.$Message.error(msg.msg);
+                this.$Message.error(msg.data.msg);
               }
             })
             .catch(err => {
               console.log(err);
-              this.$Message.error('Fail!');
-
+              this.$Message.error(err.response.statusText);
             });
           }
           else {

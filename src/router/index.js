@@ -19,7 +19,7 @@ import register from '@/components/register'
 import userInfo from '@/components/userInfo'
 import deposit from '@/components/deposit'
 import withdraw from '@/components/withdraw'
-
+import questionnaire from '@/components/questionnaire'
 
 Vue.use(Router)
 
@@ -84,6 +84,11 @@ export default new Router({
           path: '/MainPage/groupDetail/:id/modifyInfo',
           name: 'modifyGroupInfo',
           component: modifyGroupInfo
+        },
+        {
+          path: '/MainPage/questionnaire/:url',
+          name: 'questionnaire',
+          component: questionnaire
         }
       ]
     },
