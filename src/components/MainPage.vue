@@ -112,7 +112,7 @@ export default {
             msg: '',
             show: false,
             isLogin: false,
-            isRouterAlive:true，
+            isRouterAlive:true,
             taskList: [
                 {
                     value: 'All',

@@ -125,7 +125,7 @@ export default {
     mounted() {
         this.getGroup();
         this.getTasks(this.typeSelect, this.rangeSelect);
-        // this.login();
+        this.login();
     },
 
     methods: {
@@ -137,10 +137,7 @@ export default {
                 type : 0,
                 username: 'hyx',
                 password: '123456',
-                headers: {
-                   "Access-Control-Allow-credentials": true, 
-                   "Access-Control-Allow-Origin": "*"
-                }
+                
                
             
             })
