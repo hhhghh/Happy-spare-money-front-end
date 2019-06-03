@@ -6,7 +6,7 @@
       <Input v-model="userInfo.username" disabled/>
 
       <h2>Password</h2>
-      <Button type="primary" @click="isModifyPassword = !isModifyPassword">Modify</Button>
+      <Button type="primary" @click="changeModifyPasswdShow">Modify</Button>
       <transition name="fade">
         <div class="div-password" v-if="isModifyPassword">
           <h3>Old Password</h3>
@@ -43,8 +43,8 @@
         <h1>Contact Information</h1>
         <h2>Phone Number</h2>
         <Input v-model="userInfo.phone" placeholder="Enter phonenumber.." clearable  />
-        <h2>Wechat</h2>
-        <Input v-model="userInfo.weChat" placeholder="Enter webchat.." clearable  />
+        <h2>WeChat</h2>
+        <Input v-model="userInfo.wechat" placeholder="Enter webchat.." clearable  />
         <h2>QQ</h2>
         <Input v-model="userInfo.qq" placeholder="Enter QQ.." clearable  />
       </div>
@@ -123,6 +123,21 @@ export default {
         return option.toUpperCase().indexOf(value.toUpperCase()) !== -1;
     },
 
+    clearPasswdItem() {
+      for (var key in this.passwdItems) {
+        this.passwdItems[key] = '';
+      }
+      this.isModifyPassword = false;
+    },
+
+    changeModifyPasswdShow() {
+      if (this.isModifyPassword) {
+        this.clearPasswdItem();
+      }
+      else {
+        this.isModifyPassword = true;
+      }
+    },
 
     updateInfo() {
       if (this.isModifyPassword && (!this.passwdItems.oldPasswd || !this.passwdItems.newPasswd)) {
@@ -155,12 +170,18 @@ export default {
       .then(msg => {
         if (msg.data.code == 200) {
           this.$Message.success(msg.data.msg[0]);
-          if (msg.data.length > 1) {
-            this.$Message.error(msg.data.msg[1]);
+          if (msg.data.msg.length > 1) {
+            if (msg.data.msg[1].indexOf('成功') != -1) this.$Message.success(msg.data.msg[1]);
+            else this.$Message.error(msg.data.msg[1]);
           }
         }
+        this.clearPasswdItem();
       })
       .catch(err => {
+        this.clearPasswdItem();
+        if (err.response.status == 401) {
+          this.$router.push({name: `login`});
+        }
         this.$Message.error(err.response.data.msg);
       });
     }
