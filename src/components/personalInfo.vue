@@ -55,11 +55,12 @@
     <div class="div-avatar">
       <p style="font-size: 22px;">Avatar</p>
       <div style="position: relative;">
-        <img :src="userInfo.avatar"/>
-        <div class="div-edit-avatar">
+        <img :src="avatarUrl"/>
+        <label class="div-edit-avatar" @change="avatarImgUpload" for="fileInput">
           <Icon type="md-create" />
           Edit
-        </div>
+        </label>
+        <input id="fileInput" type="file" @change="avatarImgUpload">
       </div>
       <Rate allow-half show-text v-model="userInfo.score" disabled>
         <span style="color: #f5a623;position:relative;bottom:2px;">{{ userInfo.score }}</span>
@@ -82,6 +83,8 @@ export default {
       },
 
       isModifyPassword: false,
+
+      avatarUrl: '',
 
       schools:[
         '中山大学'
@@ -110,15 +113,75 @@ export default {
 
   },
 
-  mounted() {
-
-  },
+  // mounted() {
+  //   setTimeout(()=>{
+  //     console.log(this.userInfo.avatar);
+  //     this.avatarUrl = this.userInfo.avatar;
+  //   })
+  //
+  //   this.$nextTick(function () {
+  //     console.log(this.userInfo.avatar);
+  //     this.avatarUrl = this.userInfo.avatar;
+  //   })
+  //
+  // },
 
   computed: {
 
   },
 
   methods: {
+    dataURLtoBlob(dataurl) {
+      var arr = dataurl.split(','), mime = arr[0].match(/:(.*?);/)[1],
+        bstr = atob(arr[1]), n = bstr.length, u8arr = new Uint8Array(n);
+      while(n--){
+        u8arr[n] = bstr.charCodeAt(n);
+      }
+      return new Blob([u8arr], {type:mime});
+    },
+
+    fileToDataURL(file, callback) {
+      var reader = new FileReader();
+      reader.onload = function(e) {callback(e.target.result);};
+      reader.readAsDataURL(file);
+    },
+
+    avatarImgUpload(event) {
+      var imgFile = event.target.files[0];
+      if (!imgFile) {
+        this.avatarUrl = this.userInfo.avatar;
+        return;
+      }
+
+      this.fileToDataURL(imgFile, (url) => {
+        this.avatarUrl = url;
+        let blob = this.dataURLtoBlob(this.avatarUrl)
+        let formData = new FormData();
+        formData.append("avatar", blob);
+
+        this.$axios({
+          method: 'post',
+          url: '/api/v1/user/updateAvatar',
+          data: formData,
+          config: {headers: {'Content-Type': 'multipart/form-data'}}
+        })
+        .then(msg => {
+          if (msg.data.code == 200) {
+            this.userInfo.avatar = this.avatarUrl = msg.data.data;
+            this.$Message.success(msg.data.msg);
+          }
+          else {
+            this.avatarUrl = this.userInfo.avatar;
+            this.$Message.error(msg.data.msg);
+          }
+        })
+        .catch(err => {
+          this.avatarUrl = this.userInfo.avatar;
+          this.$Message.error(err.response.data.msg);
+        });
+      });
+    },
+
     filterMethod (value, option) {
         return option.toUpperCase().indexOf(value.toUpperCase()) !== -1;
     },
@@ -258,6 +321,7 @@ h2, h3 {
   margin-left: 8px;
   margin-bottom: 8px;
   padding: 8px 4px;
+  cursor: pointer;
 }
 
 @media screen and (max-width: 800px) {
@@ -282,4 +346,9 @@ h2, h3 {
     margin-top:10px;
     margin-bottom: 10px;
 }
+
+#fileInput {
+  display: none;
+}
+
 </style>
