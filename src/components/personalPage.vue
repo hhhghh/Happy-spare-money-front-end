@@ -129,6 +129,7 @@ div {
 
 .avatarImg {
   width: 32px;
+  height: 32px;
 }
 
 .layout-header{

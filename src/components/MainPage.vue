@@ -183,10 +183,12 @@
         duration: 3
       });
 
-      this.$axios.get('/toast?username='+ this.$route.params.username)
+      this.$axios.get('/api/v1/toast')
         .then(msg => {
+          console.log(msg);
           if (msg.data.code == 200) {
             this.message = msg.data.data;
+            console.log(this.message);
           }
         });
 
@@ -332,6 +334,7 @@
 
   .avatarImg {
     width: 32px;
+    height: 32px;
   }
 
   .div-message {
