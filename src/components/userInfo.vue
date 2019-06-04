@@ -188,28 +188,28 @@
     },
 
     created() {
-      this.$axios.get('/user/getAcceptedFinishedTasks?username='+ this.$route.params.username)
+      this.$axios.get('/api/v1/user/getAcceptedFinishedTasks?username='+ this.$route.params.username)
       .then(msg => {
         if (msg.data.code == 200) {
           this.finishedTasks = msg.data.data;
         }
       });
 
-      this.$axios.get('/user/getPublishedFinishedTasks?username='+ this.$route.params.username)
+      this.$axios.get('/api/v1/user/getPublishedFinishedTasks?username='+ this.$route.params.username)
       .then(msg => {
         if (msg.data.code == 200) {
           this.publishedFinishedTasks = msg.data.data;
         }
       });
 
-      this.$axios.get('/user/getPublishedWaitedTasks?username='+ this.$route.params.username)
+      this.$axios.get('/api/v1/user/getPublishedWaitedTasks?username='+ this.$route.params.username)
       .then(msg => {
         if (msg.data.code == 200) {
           this.waitedTasks = msg.data.data;
         }
       });
 
-      this.$axios.get('/user/getuser?username='+ this.$route.params.username)
+      this.$axios.get('/api/v1/user/getuser?username='+ this.$route.params.username)
       .then(msg => {
         if (msg.data.code == 200) {
           this.userInfo = msg.data.data;
@@ -256,7 +256,7 @@
   /*background: #19be6b;*/
   overflow: hidden;
   position: relative;
-  background-image: url("http://pic41.nipic.com/20140519/18505720_094554360140_2.jpg");
+  background-image: url(http://139.196.79.193:3000/userInfobg.png);
   background-size: cover;
   box-shadow: 0 0 0 1px #eee;
   border-radius: 4px;

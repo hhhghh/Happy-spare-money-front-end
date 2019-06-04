@@ -43,7 +43,7 @@
                         </Menu>
                     </Sider>
                         <div class="content">
-                          <router-view></router-view>
+                          <router-view :userInfo="userInfo"></router-view>
                         </div>
                 </Layout>
             </Layout>
@@ -54,11 +54,8 @@
 export default {
     data() {	
         return {
-          userInfo: {
-            username: '',
-            avatar: 'https://i.loli.net/2017/08/21/599a521472424.jpg',
-          },
-        }	
+          userInfo: {}
+        }
         
      },	
     	
