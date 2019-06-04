@@ -75,11 +75,9 @@
                 type: type,
                 username: this.userLoginInfo.username,
                 password: SHA256(this.userLoginInfo.password).toString()
-                // password: this.userLoginInfo.password
               }
             })
             .then(msg => {
-              console.log(msg);
               if (msg.data.code == 200) {
                 this.$Message.success(msg.data.msg);
                 this.$router.push({name: 'MainPage'});
