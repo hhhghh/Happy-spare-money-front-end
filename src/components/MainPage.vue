@@ -190,14 +190,7 @@
             this.message = msg.data.data;
             console.log(this.message);
           }
-        });
-
-     
-     
-      this.$router.push({path: `/MainPage/taskSearch`});  
-      
-      
-      
+        });      
 
     },
     methods: {

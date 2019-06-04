@@ -125,7 +125,6 @@ export default {
     mounted() {
         this.getGroup();
         this.getTasks(this.typeSelect, this.rangeSelect);
-        this.login();
     },
 
     methods: {

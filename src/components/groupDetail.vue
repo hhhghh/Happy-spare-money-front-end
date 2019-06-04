@@ -48,40 +48,20 @@
                     </div>
 
                     <div class="modify-info">
-                        <Button class="button-modify" type="info" long :to="{name: 'modifyGroupInfo', params: {id: team_id, group: group}}">修改资料</Button>
+                        <Button class="button-modify" v-bind:class="{'hidden': !isLeader}" type="info" long :to="{name: 'modifyGroupInfo', params: {id: team_id, group: group}}">修改资料</Button>
                     </div>
                 </div>
 
 
                 <div class="middle-content">
-                    <!-- <div class="description-block">
-                        <div class="property">Description</div>
-                        <div class="description">
-                            <span class="span">{{group.description}}</span>
-                        </div>
-                    </div>
-                    <div class="limit-block">
-                        <div class="property">Limit: </div>
-                        <div class="limit">{{group.limit == 0 ? '允许所有人' : (group.limit == 1 ? '需要审核' : '禁止所有人')}}</div>
-                    </div>
-                    <div class="createAt-block">
-                        <div class="property">Create Time: </div>
-                        <div class="createAt">{{group.createdAt}}</div>
-                    </div>
-                    <div class="tags-block">
-                        <div class="property">Team Labels: </div>
-                        <div class="tags-list">
-                            <Tag type="dot" color="primary" class="tags" v-for="item in group.teamlabels" :key="item.label" :name="item.label">{{ item.label }}</Tag>
-                        </div>
-                    </div> -->
                     <div class="group-task-block">
                         <div class="group-task-title">
                             <span>组内发布的任务</span>
                         </div>
-                        <div class="group-task-list">
-                            <div v-for="item in defaultTaskList">
+                        <div v-if="taskList.length != 0" class="group-task-list">
+                            <div v-for="item in taskList">
                                 <div v-bind:class="{'task-card':true,'task-card-mouseenter': enterid == item.task_id, 'task-card-mouseleave':!(enterid == item.task_id)}"
-                                v-on:mouseenter="enterid = item.task_id" v-on:mouseleave="enterid = 0" @click="getTaskItem(item.task_id)">
+                                v-on:mouseenter="enterid = item.task_id" v-on:mouseleave="enterid = 0"  @click="jumpToTaskDetail(item.task_id)">
                                     <div class="task-title">
                                         <span>{{item.title}}</span>
                                     </div>
@@ -95,23 +75,11 @@
                                         <span>数量:{{item.max_accepter_numbert}}</span>
                                         <span>发布人: {{item.publisher}}</span>
                                     </div>
-
-                                    <Drawer 
-                                        width="30" 
-                                        :mask-closable="false" 
-                                        :closable="false" 
-                                        :transfer="false" 
-                                        :inner="true" 
-                                        :scrollable="false"
-                                        :value="showTaskDrawer == item.task_id"
-                                    >
-                                        <div>
-                                            <Button class="drawer-button" type="primary" @click="jumpToTaskDetail(item.task_id)">任务详情</Button>
-                                            <Button class="drawer-button" type="error" @click="blacklist(item.task_id)">拉黑</Button>
-                                        </div>
-                                    </Drawer>
                                 </div>
                             </div>
+                        </div>
+                        <div v-else class="group-task-title">
+                            <span style="font-size: 10pt">该小组还没有任务，赶紧去发布任务吧！</span>
                         </div>
                     </div>
                 </div>
@@ -122,9 +90,9 @@
                         <TabPane label="成员列表" name="name1">
                             <div class="member-list">
                                 <Scroll :on-reach-bottom="handleReachBottom" height="250">
-                                    <div class="member-item" v-for="item in memberList" v-bind:key="item.username">
+                                    <div class="member-item" v-for="item in group.members" v-bind:key="item.username">
                                         <div class="profile">
-                                            <Avatar :src="item.profile" size="small"/>
+                                            <Avatar :src="item.avatar" size="small"/>
                                         </div>
                                         <div class="member-username">
                                             <span class="username-span">{{item.username}}</span>
@@ -169,7 +137,7 @@
                                     :transfer="false"
                                     :inner="true"
                                 >
-                                    <div v-for="item in memberList" v-bind:key="item.username">
+                                    <div v-for="item in group.members" v-bind:key="item.username">
                                         <div
                                             v-bind:class="{
                                                 'member-item':true, 
@@ -181,7 +149,7 @@
                                             v-on:mouseleave="enterUser = ''" 
                                             @click="selectMember = item.username">
                                             <div class="profile">
-                                                <Avatar :src="item.profile" size="small"/>
+                                                <Avatar :src="item.avatar" size="small"/>
                                             </div>
                                             <div class="member-username">
                                                 <span class="username-span">{{item.username}}</span>
@@ -196,9 +164,9 @@
                             </div>
                         </TabPane>
                         <TabPane label="机构列表" name="name2">
-                            <div class="member-list">
+                            <div v-if="organizationsList.length != 0" class="member-list">
                                 <Scroll :on-reach-bottom="handleReachBottom" height="330">
-                                    <div class="member-item" v-for="item in memberList" v-bind:key="item.username">
+                                    <div class="member-item" v-for="item in organizationsList" v-bind:key="item.username">
                                         <div class="profile">
                                             <Avatar :src="item.profile" size="small"/>
                                         </div>
@@ -209,6 +177,12 @@
                                     </div>
                                 </Scroll>
                             </div>
+                            <div v-else class="member-list">
+                                <Scroll :on-reach-bottom="handleReachBottom" height="330">
+                                    <div class="no-organization">无机构</div>
+                                </Scroll>
+                            </div>
+                            
                         </TabPane>
                     </Tabs>
                     <Button v-bind:class="{'withdraw-button': true, 'hidden': isLeader}" type="error" long @click="withdrawGroup">退出该小组</Button>
@@ -244,33 +218,7 @@ export default {
             showDrawer: false,
             showTransferDrawer: false,
 
-            defaultMemberList: [
-                {
-                    username: 'hyx',
-                    profile: 'http://b-ssl.duitang.com/uploads/item/201808/25/20180825233334_echth.jpeg'
-                },
-                {
-                    username: 'hzhh',
-                    profile: 'http://www.agri35.com/UploadFiles/img_1_579671978_1166151183_26.jpg'
-                },
-                {
-                    username: 'HeChX',
-                    profile: 'http://img.52z.com/upload/news/image/20180926/20180926115213_80873.jpg'
-                },
-                {
-                    username: 'Howlyao',
-                    profile: 'http://tx.haiqq.com/uploads/allimg/170507/0341262926-2.jpg'
-                },
-                {
-                    username: 'GZQ',
-                    profile: 'http://tx.haiqq.com/uploads/allimg/170426/095911JJ-9.jpg'
-                },
-                {
-                    username: 'Huang-Junjie',
-                    profile: 'http://image.biaobaiju.com/uploads/20180928/16/1538124093-ItGcboXyAe.jpg'
-                },
-            ],
-
+            taskList: [],
             defaultTaskList: [
                 {   
                     task_id: 1,
@@ -310,7 +258,7 @@ export default {
                 },
             ],
 
-            memberList: [],
+            organizationsList: [],
 
             currentInvitedMember: '',
 
@@ -318,37 +266,141 @@ export default {
 
             showTaskDrawer: -1,
 
-            loginUser: 'hyx',
+            loginUser: 'HeChX',
         };
     },
     methods: {
         getGroupDetail(team_id) {
 
-            let p = new Promise((resolve, reject) => {
-                this.$axios.get('/team/Id?team_id=' + this.team_id)
+            let p1 = new Promise((resolve, reject) => {
+                this.$axios.get('/api/v1/team/Id?team_id=' + team_id)
+                    .then((res) => {
+                        if (res.data.code == 200 && res.data.data.length != 0) {
+                            let param = {};
+                            param['members'] = [];
+                            for (let i = 0, len = res.data.data[0].members.length; i < len; i++) {
+                                param['members'].push({username: res.data.data[0].members[i]['member_username']});
+                            }
+                            this.$axios.post('/api/v1/user/getteammembersavatat', param)
+                                .then((response) => {
+                                    if (response.data.code == 200) {
+                                        res.data.data[0].members = [];
+                                        for (let i = 0, len = response.data.data.length; i < len; i++) {
+                                            res.data.data[0].members.push(response.data.data[i]);
+                                        }
+                                        console.log(res.data.data);
+                                        resolve(res);
+                                    } else {
+                                        reject(response);
+                                    }
+                                })
+                                .catch((error) => {
+                                    reject(error);
+                                })
+                        } else {
+                            reject(res);
+                        }
+                    })
+                    .catch((err) => {
+                        reject(err);
+                    })
+            });
+
+            let p2 = new Promise((resolve, reject) => {
+                this.$axios.get('/api/v1/user/getCanPublishTasksOrg?teamId=' + team_id)
                     .then((res) => {
                         resolve(res);
                     })
                     .catch((err) => {
                         reject(err);
                     })
+                
+            });
+
+            let p3 = new Promise((resolve, reject) => {
+                this.$axios.get('/api/v1/team/Leader?team_id=' + team_id + '&leader=HeChX')
+                    .then((res) => {
+                        resolve(res);
+                    })
+                    .catch((err) => {
+                        reject(err);
+                    })
+            });
+
+            let p4 = new Promise((resolve, reject) => {
+                this.$axios.get('/api/v1/task?type=all&range=' + team_id + '&username=HeChX')
+                    .then((res) => {
+                        resolve(res);
+                    })
+                    .catch((err) => {
+                        reject(err);
+                    })
+            });
+
+            let p = Promise.all([p1, p2, p3, p4]);
+
+            return p;
+        },
+
+        getOrganization(team_id) {
+            let p = new Promise((resolve, reject) => {
+                this.$axios.get('/api/v1/user/getCanPublishTasksOrg?teamId=' + team_id)
+                    .then((res) => {
+                        resolve(res);
+                    })
+                    .catch((err) => {
+                        reject(err);
+                    })
+                
             })
 
             return p;
         },
 
-        render(data) {
-            if (data.data.data.length != 0) {
-                this.group = data.data.data[0];
-                if (this.group.leader == this.loginUser) this.isLeader = true;
-                else this.isLeader = false;
-                this.memberList = [];
-                for (let i = 0, len = this.group.members.length; i < len; i++) {
-                    this.memberList.push({username: this.group.members[i].member_username});
-                    this.memberList[i]['profile'] = 'https://i.loli.net/2017/08/21/599a521472424.jpg';
-                }
+        leader(team_id) {
+            let p = new Promise((resolve, reject) => {
+                this.$axios.get('/api/v1/team/Leader?team_id=' + team_id + '&leader=HeChX')
+                    .then((res) => {
+                        resolve(res);
+                    })
+                    .catch((err) => {
+                        reject(err);
+                    })
+            });
+
+            return p;
+        },
+
+        render(value) {
+            console.log(value);
+            if (value[0].data.code == 200 && value[0].data.data.length != 0) {
+                this.group = value[0].data.data[0];
+            }
+            if (value[1].data.code == 200) {
+                this.organizationsList = value[1].data.data;
+            }
+            if (value[2].data.code == 200) {
+                this.isLeader = true;
+            } else if (value[2].data.code == 212) {
+                this.isLeader = false;
+            }
+            if (value[3].data.code == 200) {
+                this.taskList = value[3].data.data;
             }
         },
+
+        // render(data) {
+        //     if (data.data.data.length != 0) {
+        //         this.group = data.data.data[0];
+        //         if (this.group.leader == this.loginUser) this.isLeader = true;
+        //         else this.isLeader = false;
+        //         this.memberList = [];
+        //         for (let i = 0, len = this.group.members.length; i < len; i++) {
+        //             this.memberList.push({username: this.group.members[i].member_username});
+        //             this.memberList[i]['profile'] = 'https://i.loli.net/2017/08/21/599a521472424.jpg';
+        //         }
+        //     }
+        // },
 
         addInvitedMember() {
             if (this.currentInvitedMember !== '') {
@@ -371,7 +423,7 @@ export default {
             for (let i = 0, len = this.inviteList.length; i < len; i++) {
                 params['user'].push({username: this.inviteList[i]});   
             }
-            this.$axios.post('/team/Member/Invitation', params)
+            this.$axios.post('/api/v1/team/Member/Invitation', params)
                 .then(function(res) {
                     console.log(res.data);
                 })
@@ -403,7 +455,7 @@ export default {
                         content: '<p>是否确认移出用户' + username + '</p>',
                         onOk: () => {
                             let param = {team_id: this.team_id, leader: this.loginUser, username: username};
-                            this.$axios.delete('/team/Member/Dislodge', {params: param})
+                            this.$axios.delete('/api/v1/team/Member/Dislodge', {params: param})
                                 .then((res) => {
                                     console.log(res.data);
                                 })
@@ -438,7 +490,7 @@ export default {
                         title: '确认',
                         content: '<p>是否确认将该小组组长转让给' + username + '</p>',
                         onOk: () => {
-                            this.$axios.post('/team/Leader', {team_id: this.team_id, leader: this.loginUser, username: username})
+                            this.$axios.post('/api/v1/team/Leader', {team_id: this.team_id, leader: this.loginUser, username: username})
                                 .then((res) => {
                                     console.log(res.data);
                                 })
@@ -471,7 +523,7 @@ export default {
                     content: '<p>确认退出该小组？</p>',
                     onOk: () => {
                         let param = {team_id: this.team_id, username: this.loginUser};
-                        this.$axios.delete('/team/Member/Departure', {params: param})
+                        this.$axios.delete('/api/v1/team/Member/Departure', {params: param})
                             .then((res) => {
                                 console.log(res.data);
                                 if (res.data.code == 200) {
@@ -508,7 +560,7 @@ export default {
                     content: '<p>是否确认解散该小组？</p><p>（解散后不可恢复！）</p>',
                     onOk: () => {
                         let param = {team_id: this.team_id, leader: this.loginUser};
-                        this.$axios.delete('/team', {params: param})
+                        this.$axios.delete('/api/v1/team', {params: param})
                             .then((res) => {
                                 console.log(res.data);
                                 if (res.data.code == 200) {
@@ -676,6 +728,10 @@ span {
     float: left;  
 }
 
+.task-card:hover {
+    cursor: pointer;
+}
+
 .task-card-mouseenter {
     box-shadow: 4px 4px 10px #2b85e4;
 }
@@ -804,5 +860,8 @@ span {
     margin-top: 20px;
 }
 
+.no-organization {
+    text-align: center;
+}
 
 </style>

@@ -204,7 +204,7 @@ export default {
 
             getGroupURLParams: '',
 
-            loginUser: 'abc',
+            loginUser: 'HeChX',
         };
     },
     methods: {
@@ -229,7 +229,7 @@ export default {
 
                 let t = this;
                 t.teams = [];
-                this.$axios.get('/team' + this.getGroupURLParams)
+                this.$axios.get('/api/v1/team' + this.getGroupURLParams)
                     .then((response) => {
                         console.log(response.data);
                         switch(response.data.code) {
@@ -277,7 +277,7 @@ export default {
 
             let content = '';
             if (!inGroup) {
-                this.$axios.post('/team/Member/Addition', {team_id: id_, username: this.loginUser})
+                this.$axios.post('/api/v1/team/Member/Addition', {team_id: id_, username: this.loginUser})
                     .then((res) => {
                         console.log(res.data);
                         switch (res.data.code) {
