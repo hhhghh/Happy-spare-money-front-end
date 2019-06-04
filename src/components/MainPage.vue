@@ -7,13 +7,17 @@
             <Icon @click="showMsg=!showMsg" type="ios-notifications-outline" size="26" style="cursor: pointer"></Icon>
           </Badge>
           <div class="avatar">
-            <img class="avatarImg" :src="user.avatar">
+            <img class="avatarImg" :src="userInfo.avatar">
           </div>
           <Dropdown>
-            <span>{{user.username}}</span>
+            <span>{{userInfo.username}}</span>
             <Icon type="ios-arrow-down" size="24" style="margin: 7px; color:#2d8cf0" />
             <DropdownMenu slot="list">
-              <DropdownItem><div @click="jumpToPersonalPage()"><Icon type="md-person" /> {{ msg }}</div></DropdownItem>
+              <DropdownItem>
+                <div @click="jumpToPersonalPage()">
+                  <Icon type="md-person" /> {{ isUser ? '个人信息' : '机构信息' }}
+                </div>
+              </DropdownItem>
               <DropdownItem><div @click="jumpToLoginPage()"><Icon type="ios-power" /> 退出</div></DropdownItem>
             </DropdownMenu>
           </Dropdown>
@@ -109,11 +113,7 @@
   export default {
     data() {
       return {
-        user: {
-          username: 'hjj',
-          avatar: 'https://i.loli.net/2017/08/21/599a521472424.jpg',
-          acount_state: 0
-        },
+        userInfo: {},
 
         message: [
           {id: 1, message: "你已被踢出小组 public_team"},
@@ -124,12 +124,12 @@
           {id: 2, message: "你发布的任务 可能会发生这样的情况：当一个道具在激活状态时，另一个道具与挡板发生了接触。在这种情况下我们有超过1个在当前PowerUps容器中处于激活状态的道具。然后，当这些道具中的一个被停用时，我们不应使其效果失效因为另一个相同类型的道具仍处于激活状态。出于这个原因，我们使用isOtherPowerUpActive检查是否有同类道具处于激活状态。只有当它返回false时，我们才停用这个道具的效果。这样，给定类型的道具的持续时间就可以延长至最近一次被激活后的持续时间。 已被 hyx 接受"}
         ],
 
-        showMsg: false,
 
-        isUser: false,
-        msg: '',
+        isUser: true,
+        showMsg: false,
         inBackTop: false,
         isRouterAlive:true,
+
         taskList: [
           {
             value: 'All',
@@ -163,17 +163,32 @@
       };
     },
     mounted() {
-      this.isUser = (this.user.acount_state == 0);
-      this.msg = this.isUser ? '个人信息' : '机构信息';
+      this.$axios.get('api/v1/user/getPersonalInfo')
+        .then(msg => {
+          if (msg.data.code == 200) {
+            this.userInfo = msg.data.data;
+            this.isUser = this.userInfo.type == 0;
+          }
+        })
+        .catch(err => {
+          if (err.response.status == 401) {
+            this.$router.push({name: 'login'});
+            this.$Message.error('请登录');
+          }
+        });
+
+
       this.$Notice.config({
         top: 100,
         duration: 3
       });
 
-      this.$axios.get('/toast?username='+ this.$route.params.username)
+      this.$axios.get('/api/v1/toast')
         .then(msg => {
+          console.log(msg);
           if (msg.data.code == 200) {
             this.message = msg.data.data;
+            console.log(this.message);
           }
         });
 
@@ -196,14 +211,15 @@
       jumpToLoginPage: function() {
         this.$axios.get('api/v1/user/logout').then(msg => {
           if (msg.data.code == 200) {
-            this.$router.push({path: `/login`});
+            this.$router.push({name: `login`});
             this.$Message.success('退出成功！');
           }
           else {
-            this.$router.push({path: `/login`});
+            this.$router.push({name: `login`});
             this.$Message.error(msg.data.msg);
           }
         }).catch(err => {
+          this.$router.push({name: `login`});
           this.$Message.error(err.response.statusText);
         });
       },
@@ -318,6 +334,7 @@
 
   .avatarImg {
     width: 32px;
+    height: 32px;
   }
 
   .div-message {
