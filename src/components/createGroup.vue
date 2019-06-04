@@ -300,7 +300,7 @@ export default {
             let form = new FormData();
             form.append('file', this.logoFile);
             let p = new Promise((resolve, reject) => {
-                this.$axios.post('、api/v1/file/TeamLogo', form, {
+                this.$axios.post('/api/v1/file/TeamLogo', form, {
                     headers: {
                         'Content-Type': 'multipart/form-data'
                     }
@@ -316,9 +316,10 @@ export default {
         },
 
         uploadGroupInfo(logoUrl) {
-            this.group.leader = "hyx";
+            this.group.leader = "HeChX";
             this.group.logo = logoUrl;
             this.group.members.push({member_username: this.group.leader});
+            console.log(this.InvitedMemberList);
             for (let i = 0, len = this.InvitedMemberList.length; i < len; i++) {
                 this.group.members.push(this.InvitedMemberList[i]);
             }
@@ -349,7 +350,7 @@ export default {
                     if (this.logoFile != '') {
                         this.uploadLogoImage()
                             .then((data) => {
-                                return this.uploadGroupInfo('http://' + data.imgUrl);
+                                return this.uploadGroupInfo(data.imgUrl);
                             })
                             .then((data) => {
                                 if (data.code == 200) {

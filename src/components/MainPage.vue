@@ -170,7 +170,7 @@
         duration: 3
       });
 
-      this.$axios.get('/toast?username='+ this.$route.params.username)
+      this.$axios.get('/api/v1/toast?username='+ this.$route.params.username)
         .then(msg => {
           if (msg.data.code == 200) {
             this.message = msg.data.data;
@@ -179,7 +179,7 @@
 
      
      
-      this.$router.push({path: `/MainPage/taskSearch`});  
+   
       
       
       

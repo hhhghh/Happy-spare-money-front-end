@@ -34,6 +34,7 @@ export default new Router({
       path: '/MainPage',
       name: 'MainPage',
       component: MainPage,
+      redirect: '/MainPage/taskSearch',
       children: [
         {
           path: '/MainPage/taskSearch',

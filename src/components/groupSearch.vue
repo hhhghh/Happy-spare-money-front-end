@@ -204,7 +204,7 @@ export default {
 
             getGroupURLParams: '',
 
-            loginUser: 'abc',
+            loginUser: 'HeChX',
         };
     },
     methods: {
