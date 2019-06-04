@@ -82,14 +82,15 @@ export default {
         jumpToLoginPage: function() {
             this.$axios.get('api/v1/user/logout').then(msg => {
               if (msg.data.code == 200) {
-                this.$router.push({path: `/login`});
+                this.$router.push({name: `login`});
                 this.$Message.success('退出成功！');
               }
               else {
-                this.$router.push({path: `/login`});
+                this.$router.push({name: `login`});
                 this.$Message.error(msg.data.msg);
               }
             }).catch(err => {
+              this.$router.push({name: `login`});
               this.$Message.error(err.response.statusText);
             });
         },
