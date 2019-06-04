@@ -268,22 +268,6 @@ export default {
             console.log(index);
             this.teamlabels.splice(index, 1);
         },
-            
-        handleBeforeUpload (file) {
-            if (!typeof FileReader != 'undefined') {
-                if (/^image\/\w+/.test(file.type)) {
-                    let fr = new FileReader();
-                    fr.readAsDataURL(file);
-
-                    fr.onload = function(e) {
-                        let logo = document.getElementById('logo');
-                        logo.src = this.result;
-                    }
-                }
-            }
-
-            return false;
-        },
 
         previewImage(e) {
             this.logoFile = e.target.files[0];
