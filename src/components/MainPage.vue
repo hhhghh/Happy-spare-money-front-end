@@ -6,19 +6,19 @@
           <Badge :count="message.length" style="height: 32px; line-height: 32px; margin-right: 20px;">
             <Icon @click="showMsg=!showMsg" type="ios-notifications-outline" size="26" style="cursor: pointer"></Icon>
           </Badge>
-          <div class="avatar">
+          <div class="avatar" @click="jumpToUserInfoPage">
             <img class="avatarImg" :src="userInfo.avatar">
           </div>
           <Dropdown>
             <span>{{userInfo.username}}</span>
             <Icon type="ios-arrow-down" size="24" style="margin: 7px; color:#2d8cf0" />
             <DropdownMenu slot="list">
-              <DropdownItem>
-                <div @click="jumpToPersonalPage()">
-                  <Icon type="md-person" /> {{ isUser ? '个人信息' : '机构信息' }}
-                </div>
+              <DropdownItem  @click.native="jumpToPersonalPage">
+                <Icon type="md-person" /> {{ isUser ? '个人信息' : '机构信息' }}
               </DropdownItem>
-              <DropdownItem><div @click="jumpToLoginPage()"><Icon type="ios-power" /> 退出</div></DropdownItem>
+              <DropdownItem @click.native="jumpToLoginPage">
+                <Icon type="ios-power" /> 退出
+              </DropdownItem>
             </DropdownMenu>
           </Dropdown>
         </div>
@@ -197,14 +197,18 @@
     },
 
     methods: {
-      jumpToPersonalPage: function () {
+      jumpToPersonalPage() {
         if (this.isUser)
-          this.$router.push({path: `/personalPage/personalInfo`})
+          this.$router.push({path: `/personalPage/personalInfo`});
         else
-          this.$router.push({path: `/personalPage/organizationInf`})
+          this.$router.push({path: `/personalPage/organizationInf`});
       },
 
-      jumpToLoginPage: function() {
+      jumpToUserInfoPage() {
+        this.$router.push({path: `/user/` + this.userInfo.username});
+      },
+
+      jumpToLoginPage() {
         this.$axios.get('api/v1/user/logout').then(msg => {
           if (msg.data.code == 200) {
             this.$router.push({name: `login`});
@@ -220,7 +224,7 @@
         });
       },
 
-      deleteMsg: function(index) {
+      deleteMsg(index) {
         this.$axios.delete('/api/v1/toast/Id?id='+ this.message[index].id)
           .then(msg => {
             if (msg.data.code == 200) {
@@ -329,6 +333,7 @@
     overflow: hidden;
     border-radius: 50%;
     line-height: 32px;
+    cursor: pointer;
   }
 
   .avatarImg {
