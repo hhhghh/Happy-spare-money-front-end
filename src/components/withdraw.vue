@@ -1,7 +1,7 @@
 <template>
   <div class="contain">
     <p class="p-balance">
-      账户余额：<span class="span-balance">{{balance}}</span> 元
+      账户余额：<span class="span-balance">{{userInfo.money}}</span> 元
     </p>
     <p class="p-amount">提现金额</p>
     <div style="overflow: hidden;">
@@ -16,18 +16,18 @@
       </div>
     </div>
     <p class="pay-amount">提现金额：<span>￥{{money ? money : customInputMoney}}</span></p>
-    <Button type="info" class="pay-button">立即提现</Button>
+    <Button type="info" class="pay-button" @click="withdraw">立即提现</Button>
   </div>
 </template>
 
 
 <script>
   export default {
+    props: ['userInfo'],
     data() {
       return {
         money: '1',
         customInputMoney: '',
-        balance: '36'
       }
 
     },
@@ -41,7 +41,19 @@
     },
 
     methods: {
-
+      withdraw() {
+        this.$axios.get('api/v1/user/withdraw').then(msg => {
+          if (msg.data.code == 200) {
+            this.$Message.success('提现成功！');
+            this.userInfo.money = msg.data.data;
+          }
+          else {
+            this.$Message.error(msg.data.msg);
+          }
+        }).catch(err => {
+          this.$Message.error(err.response.statusText);
+        });
+      }
 
 
     }
@@ -118,5 +130,9 @@
     height: 40px;
     border-radius: 10px;
     font-size: 16px;
+  }
+
+  input {
+    background: transparent;
   }
 </style>

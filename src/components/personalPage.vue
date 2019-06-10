@@ -11,10 +11,10 @@
                             <span style="color: #eee;">{{userInfo.username}}</span>
                             <Icon type="ios-arrow-down" size="24" style="margin: 7px; color:#2d8cf0"/>
                             <DropdownMenu slot="list">
-                                <DropdownItem class="1" @click.native="jumpToMainPage">
+                                <DropdownItem @click.native="jumpToMainPage">
                                     <Icon type="ios-cube" /> 主站
                                 </DropdownItem>
-                                <DropdownItem  @click.native="jumpToLoginPage">
+                                <DropdownItem @click.native="jumpToLoginPage">
                                     <Icon type="ios-power" /> 退出
                                 </DropdownItem>
                             </DropdownMenu>

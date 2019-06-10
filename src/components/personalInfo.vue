@@ -167,8 +167,7 @@ export default {
         })
         .then(msg => {
           if (msg.data.code == 200) {
-            this.userInfo.avatar = '';
-            this.userInfo.avatar = msg.data.data + '?t=' + new Date().getTime();
+            this.userInfo.avatar = msg.data.data;
             this.$Message.success('更改头像成功！');
           }
           else {
@@ -177,8 +176,14 @@ export default {
           }
         })
         .catch(err => {
-          this.avatarUrl = this.userInfo.avatar;
-          this.$Message.error(err.response.data.msg);
+          if (err.response.status == 401) {
+            this.$router.push({name: 'login'});
+            this.$Message.error('请登录');
+          }
+          else {
+            this.avatarUrl = this.userInfo.avatar;
+            this.$Message.error(err.response.data.msg);
+          }
         });
       });
     },
