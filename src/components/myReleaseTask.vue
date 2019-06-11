@@ -72,11 +72,11 @@
     </div>
 </template>
 
-<script>
+<script scoped>
 export default {
     data() {
         return {
-            username: 'yao',
+            username: null,
             taskType: [
                 {
                     value: 'all',
@@ -158,8 +158,7 @@ export default {
     mounted() {
         //http.get my release task
         //this.getReleaseTask(this.typeSelect, this.rangeSelect, this.stateSelect);
-        this.getGroup();
-        this.getReleaseTask(this.typeSelect, this.rangeSelect, this.stateSelect);
+        this.getUserInfo()
     },
 
     methods: {
@@ -173,6 +172,32 @@ export default {
 
         isEnter(id) {
             return id == this.enterItemId;
+        },
+        getUserInfo(){
+            let vm = this;
+            let url = '/api/v1/user/getPersonalInfo'
+            this.$axios.get(url, {
+            
+            })
+            .then(function(response) {
+                let data = response.data;
+                if (data.code == 200) {
+                    let userInfo = data.data;
+                    vm.username = userInfo.username;
+                    vm.getGroup();
+                    vm.getReleaseTask(vm.typeSelect, vm.rangeSelect, vm.stateSelect);
+                } 
+            
+            })
+            .catch(function (error) {
+                if (error.response.status == 401) {
+                    vm.$Notice.warning({
+                        title: 'Login',
+                        desc:  "Please Login first"
+                    });
+                    vm.$router.push({name: 'login'});
+                }
+            });
         },
         getGroup() {
             let vm = this;
@@ -223,7 +248,7 @@ export default {
             .then(function(response) {
                 
                 let data = response.data;
-                console.log(data);
+                // console.log(data);
                 if (data.code == 200) {
                     let taskItems = data.data;
                     for (let i = 0;i < taskItems.length;i ++) {
