@@ -3,55 +3,64 @@
         <div class="task-detail-body">
             <div class="drawer-btn">
                 <Button @click="drawerDisplay = true" type="info" v-show="isReleaser">任务完成度</Button>
+                </br>
+                <Button type="primary" style="margin-top: 10px" v-show="isReleaser && task.type == 1" @click="jumpToQuestionnaire(task.questionnaire_path, 0)">问卷内容</Button>
             </div>
             <h1 id="title" style="font-size: 28px">任务信息</h1>
             <div class="detail-body">
                 <div class="div-score" v-show="isAcceptor && isCompleted ">
                     <p style="font-size:18px; font-weight:bold;" >评分</p>
-                    <Rate v-model="trs.score" disabled></Rate>
+                    <Rate v-model="tr.score" disabled></Rate>
                 </div>
                 <div class="detail">
                     <div class="div-taskInfo-item">
-                        <h1>标题 </h1>
-                        <p>{{ task.title }}</p>
-                    </div>
-                    <div class="div-taskInfo-item">
-                        <h1 id="type">类型</h1>
-                        <p>{{ task.type }} </p>
+                        <div class="div-taskInfo-item">
+                            <h1>标题 </h1>
+                            <p>{{ task.title }}</p>
+                        </div>
+                       
                     </div>
                     <div class="div-taskInfo-item">
                         <h1 id="intro">简介</h1>
                         <p>{{ task.introduction }} </p>
                     </div>
-                    <div class="tack-releaser div-taskInfo-item">
-                        <h2 id="releaser">发布人</h2>
-                        <Avatar :src="avatar"> </Avatar>
-                        <span>{{ task.releaser }} </span>
+                    <div class="div-taskInfo-item div-flex">
+                        <div class="div-taskInfo-cell">
+                            <h1 id="type">类型</h1>
+                            <p>{{ task.type_label }} </p>
+                        </div>
+                        <div class="div-taskInfo-cell">
+                            <h1 id="releaser">发布人</h1>
+                            <Avatar :src="avatar"> </Avatar>
+                            <span style="margin-left: 10px">{{ name }} </span>
+                        </div>
                     </div>
-                    <div class="task-time div-taskInfo-item">
+                    <div class="div-taskInfo-item">
                         <h1 id="time">任务时间</h1>
-                        <div class="task-starttime"> 
-                            <span>开始时间: </span>
-                            <span>{{task.starttime}} </span>
-                            <!--Time :time="task.starttime" type="datetime" / -->
-                        </div>
-                        <div class="task-endtime"> 
-                            <span>截止时间: </span>
-                            <span>{{task.endtime}} </span>
-                            <!--Time :time="task.endtime" type="datetime" / -->
+                        <div style="display: flex">
+                            <div class="div-flex div-taskInfo-cell" > 
+                                <h2>开始时间:</h2>
+                                <span class="span-time">{{task.starttime}} </span>
+                                <!--Time :time="task.starttime" type="datetime" / -->
+                            </div>
+                            <div class="div-flex div-taskInfo-cell" > 
+                                <h2>截止时间:</h2>
+                                <span class="span-time">{{task.endtime}} </span>
+                                <!--Time :time="task.endtime" type="datetime" / -->
+                            </div>
                         </div>
                     </div>
-                    <div class="div-taskInfo-item" style="display: flex;">
-                        <div>
-                            <h1 id="profit">奖赏</h1>
+                    <div class="div-taskInfo-item div-flex">
+                        <div class="div-taskInfo-cell">
+                            <h1 id="profit" >奖赏</h1>
                             <span>{{task.money}}</span>
                             <Icon type="logo-yen" />
                         </div>
-                        <div style="margin-left:250px" v-show="isReleaser">
+                        <div class="div-taskInfo-cell" v-show="isReleaser">
                             <h1>数量</h1>
                             <span>{{task.max_accepter_number}}</span>
                         </div>
-                        <div style="margin-left:250px" v-show="isReleaser">
+                        <div class="div-taskInfo-cell" v-show="isReleaser">
                             <h1>接受评分要求</h1>
                             <Rate allow-half show-text v-model="task.score" disabled>
                                 <span style="color: #f5a623;position:relative;bottom:2px;">{{ task.score }}</span>
@@ -83,8 +92,9 @@
             </div>
         
        </div>
-        <Drawer title="完成度" width="480" :closable="false" v-model="drawerDisplay">
-           <div class="table-whole">
+        <Drawer title="完成度" width="500" :closable="false" v-model="drawerDisplay">
+            
+            <div class="table-whole" >
                 <div class="div-table-body">
                     <div class="table-header">
                         <table style="width: 470px;" border="0" cellspacing="0" cellpadding="0">
@@ -95,7 +105,7 @@
                                             <span>User</span>
                                         </div>
                                     </th>
-                                    <th  width="163">
+                                    <th  width="203">
                                         <div class="header-th">
                                             <span>State</span>
                                         </div>
@@ -103,6 +113,8 @@
                                      <th  width="120">
                                         <div class="header-th">
                                             <span>Action</span>
+                                            <!--<Checkbox @click="selectAll()" v-model="isSelectAll"></Checkbox>-->
+                                            <input type="checkbox" v-model="isSelectAll" @click="selectAll()">
                                         </div>
                                     </th>
                                 </tr>
@@ -120,22 +132,23 @@
                                             <strong>{{ item.username }}</strong>
                                         </div>
                                     </td>
-                                    <td  width="163">
+                                    <td  :width="td_width">
                                         <div class="header-th">
                                             <span>{{ item.label }}</span>
                                         </div>
                                     </td>
                                     <td width="120">
-                                        <div class="header-th" >
+                                        <div class="header-th" style="display: flex">
                                             <Poptip placement="bottom-end">
                                                  <Button type="primary" size="small" :disabled="item.state != 1">确认完成</Button>
                                                  <div class="div-evaluation" slot="content">
                                                     <span class="span-score">评分</span>
                                                     <Rate v-model="scoreValue"></Rate>
-                                                    <Button type="info" size="small" :disabled="item.state == 2" @click="confirmTaskComplement(item.username, scoreValue, index)">确认</Button>
+                                                    <Button type="info" size="small" :disabled="item.state == 2" @click="confirmTaskSingle(item.username, scoreValue, index)">确认</Button>
                                                  </div>
                                             </Poptip>
-                                          
+                                            <Button type="primary" size="small" style="margin-left:5px" v-show="task.type == 1" :disabled="item.state == 0" @click="jumpToQuestionnaire(item.questionnaire_path, 2)">问卷答案</Button>
+                                            <Checkbox :disabled="item.state != 1" v-model="item.isSelected" style="margin-top: 3px;position: relative;left: 10px;"></Checkbox>
                                         </div>
                                     </td>
                                 </tr>
@@ -144,7 +157,17 @@
                     </div>
                 </div>
             </div>
-
+            <div style="float:right;margin-right:10px; margin-top:10px;">
+                <Poptip placement="bottom-end">
+                    <Button type="success" :disabled="trs.length == 0">一键确认</Button>
+                    <div class="div-evaluation" slot="content">
+                        <span class="span-score">评分</span>
+                        <Rate v-model="scoreValue"></Rate>
+                        <Button type="info" size="small" @click="confirmTaskMutiple(scoreValue)">确认</Button>
+                    </div>
+                </Poptip>
+            </div>
+           
         </Drawer>
         <div class="div-anchor-body">
             <div class="div-anchor">
@@ -173,7 +196,11 @@ export default {
     inject: ['reload'],
     data () {
         return {
-            username: 'abc',
+            
+            username: 'yao',
+            name:'',
+            
+           
             task_id: '',
             isReleaser: false,     
             isAcceptor: false,      //control the show of accepter and cancel buttons
@@ -183,7 +210,14 @@ export default {
             isOver: false,
             drawerDisplay: false,
             scoreValue: 0,
+            isSelectAll: false,
+            isFirst: true,
             trs: [],
+            selectedTr:[],
+            tr:  {
+                score:0,
+            },
+            td_width: 203,
             avatar:'',
             task: {
                 title: 'xxxxxx问卷调查',
@@ -199,18 +233,7 @@ export default {
                 content:''
             },
 
-            completeRateData: [
-                {
-                    username: 'Howlyao',
-                    state: 'waiting'
-                }, 
-                
-                {
-                     username: 'User',
-                    state: 'completed'
-                }
-
-            ],
+            
 
             
         }
@@ -218,11 +241,37 @@ export default {
     
     mounted() {
         this.task_id = this.$route.params.id;    
-        this.getTaskDetail();
+        this.getMyUserInfo();
 
     },
 
     methods: {
+        getMyUserInfo(){
+            let vm = this;
+            let url = '/api/v1/user/getPersonalInfo'
+            this.$axios.get(url, {
+            
+            })
+            .then(function(response) {
+                let data = response.data;
+                if (data.code == 200) {
+                    let userInfo = data.data;
+                    vm.username = userInfo.username;
+                    vm.name = userInfo.name;
+                    vm.getTaskDetail();
+                } 
+            
+            })
+            .catch(function (error) {
+                if (error.response.status == 401) {
+                    vm.$Notice.warning({
+                        title: 'Login',
+                        desc:  "Please Login first"
+                    });
+                    vm.$router.push({name: 'login'});
+                }
+            });
+        },
         // OK
         getTaskDetail:function() {
             let vm = this;
@@ -236,14 +285,21 @@ export default {
             })
             .then(function(response) {
                 let data = response.data;
-                console.log(data);
+                // console.log(data);
                 if (data.code == 200) {
                     let task = data.data;
                     if (task.type == 1) {
-                        task.type = '问卷调查';
+                        task["type_label"] = '问卷调查';
+                        vm.td_width = 163;
                     } else {
-                        task.type = '跑腿';
+                        task["type_label"] = '跑腿';
+                        vm.td_width = 203;
                     }
+
+                   
+
+                    
+
                     vm.task = task;
                     //Set the charactor
                     vm.setCharactor(); 
@@ -266,13 +322,13 @@ export default {
             //异步
             this.$axios.get(url, {
                 params: {
-                    username: vm.username
+                    username: vm.task.publisher
                 }
             })
             .then(function(response) {
                 let data = response.data;
                 if (data.code == 200) {
-                    console.log(data);
+                    // console.log(data);
                     vm.avatar = data.data.avatar;
                 }
                
@@ -280,7 +336,7 @@ export default {
                 
             })
             .catch(function (error) {
-                console.log('error');
+                console.log('userInfo error');
             });
 
         },
@@ -313,23 +369,24 @@ export default {
                 })
                 .then(function(response) {
                     
-                    let trs = response.data.data;
-                    
-                    if (trs == '') {
+                    let tr = response.data.data;
+                    // console.log(response);
+                    if (tr == null) {
                         vm.isAcceptor = false;
+                      
                     
                     } else {
-                        vm.trs = trs[0];
+                        vm.tr = tr;
                         vm.isAcceptor = true;
                         // console.log('test');
-                        if (vm.trs.state == 1) {
+                        if (vm.tr.state == 1) {
                             vm.acceptorBtnMsg = '等待核实';
                             vm.isDoing = false;
-                        } else if (vm.trs.state == 2) {
+                        } else if (vm.tr.state == 2) {
                             vm.acceptorBtnMsg = '已完成';
                             vm.isDoing = false;
                         }
-                        if (vm.trs.state == 2) {
+                        if (vm.tr.state == 2) {
                             vm.isCompleted = true;
                         }
                         
@@ -338,7 +395,7 @@ export default {
                 
                 })
                 .catch(function (error) {
-                     console.log('error');
+                     console.log('setCharacter error');
                 });
 
             }
@@ -361,6 +418,7 @@ export default {
             })
             .then(function(response) {
                 let data = response.data;
+                let msg = data.msg;
                 if (data.code == 200) {
                     vm.$Notice.success({
                         title: 'Task Acceptance',
@@ -368,8 +426,8 @@ export default {
                     });
                     vm.reload();
                     
-                } else {
-                    let msg = data.data;
+                } else{
+                    
                     vm.$Notice.warning({
                         title: 'Task Acceptance',
                         desc:  msg
@@ -379,15 +437,23 @@ export default {
                
             })
             .catch(function (error) {
-                console.log("Fail to accept task");
+                if (error.response.status == 401) {
+                   
+                    vm.$Notice.warning({
+                        title: 'Task Acceptance',
+                        desc:  "Please Login first"
+                    });
+                    vm.$router.push({name: 'login'});
+               
+               }
             });
         },
 
         completeTask: function() {
-            if(this.task.type == '问卷调查') {
-                let url = 'http://localhost:3000/uploads/questionnaire/f08edd9a08d95.json';
-                
-                this.$router.push({name: 'questionnaire', params: {url: url}});
+            if(this.task.type == 1) {
+                // let url = 'http://localhost:3000/uploads/questionnaire/69cc28649066e.json';
+                let url = this.task.questionnaire_path;
+                this.$router.push({name: 'questionnaire', params: {url: url, id: this.task.task_id, state: 1}});
             } else {
                 let vm = this;
                 let url = '/api/v1/task/complement'
@@ -399,16 +465,37 @@ export default {
                     
                 })
                 .then(function(response) {
-                    console.log(response.data);
-                    vm.$Notice.success({
-                        title: 'Task Complement',
-                        desc:  'Waiting for cofirming.'
-                    });
-                    vm.reload();
+                    // console.log(response.data);
+                    let data = response.data;
+                    let msg = data.msg;
+                    if (data.code == 200) {
+                        vm.$Notice.success({
+                            title: 'Task Complement',
+                            desc:  'Waiting for cofirming.'
+                        });
+                        vm.reload();
+                    } else{
+                        vm.$Notice.warning({
+                            title: 'Task Complement',
+                            desc:  msg
+                        });
+                        vm.reload();
+                    }
+
+                    
+                   
                     
                 })
                 .catch(function (error) {
-                    console.log('error');
+                    if (error.response.status == 403) {
+                   
+                        vm.$Notice.warning({
+                            title: 'Task Complement',
+                            desc:  "Please Login first"
+                        });
+                        vm.$router.push({name: 'login'});
+               
+                    }
                 });
             }
         },
@@ -427,17 +514,37 @@ export default {
             
             })
             .then(function(response) {
-                console.log(response.data);
-                vm.$Notice.success({
-                    title: 'Task Quiting',
-                    desc:  'Quiting the task successfully.'
-                });
-                vm.reload();
-                // console.log(reponse.data)
+                // console.log(response.data);
+                let data = response.data;
+                let msg = data.msg;
+                if (data.code == 200) {
+                    vm.$Notice.success({
+                        title: 'Task Quiting',
+                        desc:  'Quiting the task successfully.'
+                    });
+                    vm.reload();
+                } else{
+
+                    vm.$Notice.warning({
+                        title: 'Task Quiting',
+                        desc:  msg
+                    });
+                    vm.reload();
+                }
+                
+                // console.log(response.data)
                 //reload
             })
             .catch(function (error) {
-
+                if (error.response.status == 403) {
+                   
+                    vm.$Notice.warning({
+                        title: 'Task Quiting',
+                        desc:  "Please Login first"
+                    });
+                    vm.$router.push({name: 'login'});
+               
+                }
             });
             
             
@@ -458,21 +565,35 @@ export default {
             })
             .then(function(response) {
                 let data = response.data;
-                
+                let msg = data.msg;
                 if (data.code == 200) {
-                    console.log(data);
+                    // console.log(data)
                     vm.$Notice.success({
-                        title: 'Task Canceling',
+                        title: 'Task Cancel',
                         desc:  'Cancel the task successfully.'
                     });
 
-                    vm.$router.push({path: `/MainPage/taskSearch`})
+                    // vm.$router.push({path: `/MainPage/taskSearch`})
+                    vm.$router.go(-1);
+                } else {
+                    vm.$Notice.warning({
+                        title: 'Task Cancel',
+                        desc:  msg
+                    });
                 }
                
                 //reload
             })
             .catch(function (error) {
-                console("cancel error");
+                if (error.response.status == 401) {
+                   
+                    vm.$Notice.warning({
+                        title: 'Task Cancel',
+                        desc:  "Please Login first"
+                    });
+                    vm.$router.push({name: 'login'});
+               
+                }
             });
         },
 
@@ -488,12 +609,12 @@ export default {
                 }                     
             })
             .then(function(response) {
-                // console.log(response.data);
+                
                 let data = response.data;
                 
                 if (data.code == 200) {
                     let trs = data.data;
-                    console.log(trs);
+                    // console.log(trs);
                     for(let i = 0;i < trs.length;i ++) {
                         if (trs[i].state == 0) {
                             trs[i]["label"] = '正在做';
@@ -503,47 +624,86 @@ export default {
                             trs[i]["label"]  = '已完成';
                         }
                         trs[i]["avatar"] = trs[i].trs[0].avatar;
+                        trs[i]["isSelected"] = false;
+                        // vm.selectedTr.push({"isSelected":false});
                     }
+                   
                     
                     //over the max_accepter_number
                     if(trs.length >= vm.task.max_accepter_number) {
                         vm.isOver = true;
                     }
+                    
                     vm.trs = trs;
+                   
                    
                 }
                 
                 
             })
             .catch(function (error) {
-                console.log('error');
+                console.log('get tr error');
             });
         },
-
-        confirmTaskComplement:function(username_, score_, index) {
+        selectAll() {
+           
+            for (let i = 0;i < this.trs.length; i++) {
+                if (this.trs[i].state == 1) {
+                    this.trs[i].isSelected = this.isSelectAll;
+                }
+            } 
+        },
+        confirmTaskSingle:function(username_, score_, index) {
+            let username_arr = []
+            let index_arr = []
+            let score_arr =[]
+            username_arr.push(username_);
+            index_arr.push(index);
+            score_arr.push(score_)
+           
+            this.postConfirmTask(username_arr, score_arr, index_arr);
+            
+        },
+        confirmTaskMutiple(score_) {
+            let username_arr = [];
+            let index_arr = [];
+            let score_arr = [];
+            
+            for(let i = 0;i < this.trs.length;i ++) {
+                if (this.trs[i].isSelected) {
+                    username_arr.push(this.trs[i].username);
+                    index_arr.push(i);
+                    score_arr.push(score_);
+                }
+            }
+            
+            this.postConfirmTask(username_arr, score_arr, index_arr);
+        },
+        postConfirmTask(username_arr, score_arr, index_arr) {
             let vm = this;
             let url = '/api/v1/task/comfirm'
-
-            //异步
             this.$axios.post(url, {
-                username: username_,
-                score: score_,
+                username: username_arr,
+                score: score_arr,
                 task_id: vm.task_id
                 
                                     
             })
             .then(function(response) {
-                console.log(score_);
                 // console.log(response.data);
                 let data = response.data;
+                let msg = data.msg;
                 if (data.code == 200) {
                      vm.$Notice.success({
                         title: 'Task Confirm',
                         desc:  'Confirm successfully.'
                     });
                     // vm.reload();
-                    vm.trs[index].state = 2;
-                    vm.trs[index].label = "已完成";
+                    for (let i = 0;i < index_arr.length;i ++) {
+                         vm.trs[index_arr[i]].state = 2;
+                         vm.trs[index_arr[i]].label = "已完成";
+                    }
+                   
 
                     
                   
@@ -564,13 +724,34 @@ export default {
                     if (isCompleted) {
                         vm.isCompleted = true;
                     }
+                }  else {
+                    vm.$Notice.warning({
+                        title: 'Task Comfirm',
+                        desc:  msg
+                    });
                 }
                
             })
             .catch(function (error) {
-                console.log('error');
+                if (error.response.status == 403) {
+                   
+                    vm.$Notice.warning({
+                        title: 'Task Confirm',
+                        desc:  "Please Login first"
+                    });
+                    vm.$router.push({name: 'login'});
+               
+                }
             });
+        },
+
+        jumpToQuestionnaire(url, state) {
+            // let url = this.task.questionnaire_path;
+            // let url = 'http://localhost:3000/uploads/questionnaire/69cc28649066e.json';          
+            this.$router.push({name: 'questionnaire', params: {url: url, state: state}});
         }
+
+
     }
 }
     
@@ -584,17 +765,24 @@ div {
 }
 
 span, p {
-   margin-top: 8px;
-   margin-bottom: 8px;
-   color: #515a6e;
-   font-size :14px;
+    margin-top: 12px;
+    margin-bottom: 8px;
+    color: #515a6e;
+    font-size :14px;
+}
+
+h2 {
+    margin-top: 8px;
+    margin-bottom: 8px;
 }
 
 h1 {
     color :#17233d;
 }
 
-
+.div-flex {
+    display:flex;
+}
 
 
 .task-body {
@@ -621,6 +809,14 @@ h1 {
 .div-taskInfo-item {
     margin-top: 30px;
     
+}
+
+.div-taskInfo-cell {
+    width: 33%;
+}
+
+.span-time {
+    margin-left: 5px;
 }
 
 .accepted-detail-body {

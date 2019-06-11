@@ -190,9 +190,21 @@
             this.message = msg.data.data;
             console.log(this.message);
           }
-        });      
+        });
 
+<<<<<<< HEAD
+     
+     
+      
+      
+      
+      
+=======
+>>>>>>> 57e9d101a6513efeab78f7404794641d578c4528
+
+      this.$router.push({path: `/MainPage/taskSearch`});
     },
+
     methods: {
       jumpToPersonalPage: function () {
         if (this.isUser)
@@ -218,14 +230,17 @@
       },
 
       deleteMsg: function(index) {
-        this.message.splice(index, 1);
-        if (this.message.length == 0) this.showMsg = false;
-        this.$axios.delete('/toast/'+ this.message[index].id)
+        this.$axios.delete('/api/v1/toast/Id?id='+ this.message[index].id)
           .then(msg => {
             if (msg.data.code == 200) {
+              this.$Message.success(msg.data.msg);
               this.message.splice(index, 1);
               if (this.message.length == 0) this.showMsg = false;
             }
+            else this.$Message.error(msg.data.msg);
+          })
+          .catch(err => {
+            this.$Message.error(err.response.data.msg);
           });
       },
 
