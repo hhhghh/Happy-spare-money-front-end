@@ -15,7 +15,7 @@
         <input v-model="customInputMoney" placeholder="其他数量" @click="money=''"/>元
       </div>
     </div>
-    <p class="pay-amount">支付金额：<span>￥{{money ? money : customInputMoney}}</span></p>
+    <p class="pay-amount">支付金额：<span>￥{{amount}}</span></p>
     <Button type="info" class="pay-button" @click="deposit">立即充值</Button>
   </div>
 </template>
@@ -37,14 +37,16 @@
     },
 
     computed: {
-
+      amount() {
+        return this.money || this.customInputMoney;
+      }
     },
 
     methods: {
       deposit() {
-        this.$axios.get('api/v1/user/deposit').then(msg => {
+        this.$axios.get('api/v1/user/deposit?amount='+this.amount).then(msg => {
           if (msg.data.code == 200) {
-            this.$Message.success('充值成功！');
+            this.$Message.success(msg.data.msg);
             this.userInfo.money = msg.data.data;
           }
           else {

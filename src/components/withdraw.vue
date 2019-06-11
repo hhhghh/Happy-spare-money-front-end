@@ -15,7 +15,7 @@
         <input v-model="customInputMoney" placeholder="其他数量" @click="money=''"/>元
       </div>
     </div>
-    <p class="pay-amount">提现金额：<span>￥{{money ? money : customInputMoney}}</span></p>
+    <p class="pay-amount">提现金额：<span>￥{{amount}}</span></p>
     <Button type="info" class="pay-button" @click="withdraw">立即提现</Button>
   </div>
 </template>
@@ -37,21 +37,23 @@
     },
 
     computed: {
-
+      amount() {
+        return this.money || this.customInputMoney;
+      }
     },
 
     methods: {
       withdraw() {
-        this.$axios.get('api/v1/user/withdraw').then(msg => {
+        this.$axios.get('api/v1/user/withdraw?amount='+this.amount).then(msg => {
           if (msg.data.code == 200) {
-            this.$Message.success('提现成功！');
+            this.$Message.success(msg.data.msg);
             this.userInfo.money = msg.data.data;
           }
           else {
             this.$Message.error(msg.data.msg);
           }
         }).catch(err => {
-          this.$Message.error(err.response.statusText);
+          this.$Message.error(err.response.data.msg);
         });
       }
 
