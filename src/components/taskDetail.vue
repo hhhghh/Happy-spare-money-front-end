@@ -247,13 +247,7 @@ export default {
     watch: {
       '$route.params': 'enterTaskDetailPage'
     },
-    watch: {
-        
-        '$route'(to, from) {
-            this.task_id = this.$route.params.id;
-            this.getMyUserInfo();
-        }
-    },
+   
 
     methods: {
         enterTaskDetailPage() {
