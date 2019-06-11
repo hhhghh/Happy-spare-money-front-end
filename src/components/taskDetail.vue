@@ -159,7 +159,7 @@
             </div>
             <div style="float:right;margin-right:10px; margin-top:10px;">
                 <Poptip placement="bottom-end">
-                    <Button type="success" :disabled="trs.length == 0">一键确认</Button>
+                    <Button type="success" :disabled="!isCanConfirmAll">一键确认</Button>
                     <div class="div-evaluation" slot="content">
                         <span class="span-score">评分</span>
                         <Rate v-model="scoreValue"></Rate>
@@ -211,7 +211,7 @@ export default {
             drawerDisplay: false,
             scoreValue: 0,
             isSelectAll: false,
-            isConfirm: false,
+            isCanConfirmAll: false,
             isFirst: true,
             trs: [],
             selectedTr:[],
@@ -630,6 +630,7 @@ export default {
                             trs[i]["label"] = '正在做';
                         } else if (trs[i].state == 1) {
                             trs[i]["label"]  = '等待核实';
+                            vm.isCanConfirmAll = true;
                         } else if (trs[i].state == 2) {
                             trs[i]["label"]  = '已完成';
                         }
@@ -712,9 +713,15 @@ export default {
                     for (let i = 0;i < index_arr.length;i ++) {
                          vm.trs[index_arr[i]].state = 2;
                          vm.trs[index_arr[i]].label = "已完成";
+                        
                     }
                    
-
+                    for (let i = 0;i < vm.trs.length;i ++) {
+                        if (vm.trs[i].state != 1) {
+                            vm.isCanConfirmAll = false;
+                            break;
+                        } 
+                    }
                     
                   
                     if (vm.trs.length < vm.task.max_accepter_number) {
