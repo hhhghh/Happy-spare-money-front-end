@@ -241,9 +241,11 @@ export default {
     },
     
     mounted() {
-        this.task_id = this.$route.params.id;    
-        this.getMyUserInfo();
+      this.enterTaskDetailPage()
+    },
 
+    watch: {
+      '$route.params': 'enterTaskDetailPage'
     },
     watch: {
         
@@ -254,6 +256,11 @@ export default {
     },
 
     methods: {
+        enterTaskDetailPage() {
+          this.task_id = this.$route.params.id;
+          this.getMyUserInfo();
+        },
+
         getMyUserInfo(){
             let vm = this;
             let url = '/api/v1/user/getPersonalInfo'

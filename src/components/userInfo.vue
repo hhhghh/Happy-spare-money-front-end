@@ -65,39 +65,15 @@
             <TabPane label="发布过的任务" name="publishedFinishedTask">
               <ul>
                 <li v-for="task in publishedFinishedTasks">
-                  <Row class="history">
-                    <Col span="16">
-                      <h2>历史任务</h2>
-                      <h3 style="margin-bottom: 5px;">
-                        {{task.title}}
-                        <span style="color:#ed4014; margin-left: 10px;">
-                            {{task.money}}￥
-                          </span>
-                      </h3>
-                      <p>{{task.introduction}}</p>
-                    </Col>
-                    <Col span="8" style="text-align: center; position: absolute; right: 0; bottom: 10px;">
-                      <p>{{task.endtime}} </p>
-                      <Rate allow-half show-text disabled v-model="task.score">
-                        <span style="color: #f5a623">{{task.score}}</span>
-                      </Rate>
-                    </Col>
-                  </Row>
-                </li>
-              </ul>
-            </TabPane>
-
-            <TabPane label="已完成的任务" name="finishedTask">
-                <ul>
-                  <li v-for="task in finishedTasks">
+                  <router-link :to="'/MainPage/taskDetail/' + task.taskId">
                     <Row class="history">
                       <Col span="16">
                         <h2>历史任务</h2>
                         <h3 style="margin-bottom: 5px;">
                           {{task.title}}
                           <span style="color:#ed4014; margin-left: 10px;">
-                            {{task.money}}￥
-                          </span>
+                              {{task.money}}￥
+                            </span>
                         </h3>
                         <p>{{task.introduction}}</p>
                       </Col>
@@ -108,6 +84,34 @@
                         </Rate>
                       </Col>
                     </Row>
+                  </router-link>
+                </li>
+              </ul>
+            </TabPane>
+
+            <TabPane label="已完成的任务" name="finishedTask">
+                <ul>
+                  <li v-for="task in finishedTasks">
+                    <router-link :to="'/MainPage/taskDetail/' + task.taskId">
+                      <Row class="history">
+                        <Col span="16">
+                          <h2>历史任务</h2>
+                          <h3 style="margin-bottom: 5px;">
+                            {{task.title}}
+                            <span style="color:#ed4014; margin-left: 10px;">
+                              {{task.money}}￥
+                            </span>
+                          </h3>
+                          <p>{{task.introduction}}</p>
+                        </Col>
+                        <Col span="8" style="text-align: center; position: absolute; right: 0; bottom: 10px;">
+                          <p>{{task.endtime}} </p>
+                          <Rate allow-half show-text disabled v-model="task.score">
+                            <span style="color: #f5a623">{{task.score}}</span>
+                          </Rate>
+                        </Col>
+                      </Row>
+                    </router-link>
                   </li>
                 </ul>
             </TabPane>
@@ -125,61 +129,13 @@
   export default {
     data() {
       return {
-        userInfo: {
-          // username: 'hjj',
-          // name: 'huangjj',
-          // school: '中山大学',
-          // grade: '3',
-          // phone: '123',
-          // wechat: '456',
-          // qq: '789',
-          // avatar: 'https://i.loli.net/2017/08/21/599a521472424.jpg',
-          // score: 3.3,
-        },
+        userInfo: {},
 
-        waitedTasks: [
-          // {
-          //   "taskId": 1,
-          //   "title": "问卷调查",
-          //   "introduction": "可能会发生这样的情况：当一个道具在激活状态时，另一个道具与挡板发生了接触。在这种情况下我们有超过1个在当前PowerUps容器中处于激活状态的道具。然后，当这些道具中的一个被停用时，我们不应使其效果失效因为另一个相同类型的道具仍处于激活状态。出于这个原因，我们使用isOtherPowerUpActive检查是否有同类道具处于激活状态。只有当它返回false时，我们才停用这个道具的效果。这样，给定类型的道具的持续时间就可以延长至最近一次被激活后的持续时间。",
-          //   "starttime": "2019-05-01 00:00:00",
-          //   "endtime": "2019-05-02 00:00:00",
-          //   "score": 3.5,
-          //   "money": 12
-          // },
-          // {
-          //   "taskId": 2,
-          //   "title": "问卷调查",
-          //   "introduction": "",
-          //   "starttime": "2019-05-01 00:00:00",
-          //   "endtime": "2019-05-02 00:00:00",
-          //   "score": 3.5,
-          //   "money": 12
-          // }
-        ],
-        publishedFinishedTasks: [
-          // {
-          //   "taskId": 1,
-          //   "title": "问卷调查",
-          //   "introduction": "可能会发生这样的情况：当一个道具在激活状态时，另一个道具与挡板发生了接触。在这种情况下我们有超过1个在当前PowerUps容器中处于激活状态的道具。然后，当这些道具中的一个被停用时，我们不应使其效果失效因为另一个相同类型的道具仍处于激活状态。出于这个原因，我们使用isOtherPowerUpActive检查是否有同类道具处于激活状态。只有当它返回false时，我们才停用这个道具的效果。这样，给定类型的道具的持续时间就可以延长至最近一次被激活后的持续时间。",
-          //   "starttime": "2019-05-01 00:00:00",
-          //   "endtime": "2019-05-02 00:00:00",
-          //   "score": 3.5,
-          //   "money": 12
-          // }
-        ],
+        waitedTasks: [],
 
-        finishedTasks: [
-          // {
-          //   "taskId": 2,
-          //   "title": "问卷调查",
-          //   "introduction": "",
-          //   "starttime": "2019-05-01 00:00:00",
-          //   "endtime": "2019-05-02 00:00:00",
-          //   "score": 3.5,
-          //   "money": 12
-          // }
-        ]
+        publishedFinishedTasks: [],
+
+        finishedTasks: []
       };
     },
 
@@ -226,10 +182,8 @@
     },
 
     watch: {
-      '$route.query': 'getInfo'
+      '$route.params': 'getInfo'
     }
-
-
 
   }
 </script>

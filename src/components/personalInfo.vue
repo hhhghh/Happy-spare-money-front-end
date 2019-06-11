@@ -113,18 +113,18 @@ export default {
 
   },
 
-  // mounted() {
-  //   setTimeout(()=>{
-  //     console.log(this.userInfo.avatar);
-  //     this.avatarUrl = this.userInfo.avatar;
-  //   })
-  //
-  //   this.$nextTick(function () {
-  //     console.log(this.userInfo.avatar);
-  //     this.avatarUrl = this.userInfo.avatar;
-  //   })
-  //
-  // },
+
+  mounted() {
+    if (this.userInfo.avatar) {
+      this.avatarUrl = this.userInfo.avatar;
+    }
+  },
+
+  watch: {
+    'userInfo.avatar': function(newVal)  {
+      this.avatarUrl = newVal;
+    }
+  },
 
   computed: {
 
@@ -160,15 +160,15 @@ export default {
         formData.append("avatar", blob);
 
         this.$axios({
-          method: 'post',
+          method: 'put',
           url: '/api/v1/user/updateAvatar',
           data: formData,
           config: {headers: {'Content-Type': 'multipart/form-data'}}
         })
         .then(msg => {
           if (msg.data.code == 200) {
-            this.userInfo.avatar = this.avatarUrl = msg.data.data;
-            this.$Message.success(msg.data.msg);
+            this.userInfo.avatar = msg.data.data;
+            this.$Message.success('更改头像成功！');
           }
           else {
             this.avatarUrl = this.userInfo.avatar;
@@ -176,8 +176,14 @@ export default {
           }
         })
         .catch(err => {
-          this.avatarUrl = this.userInfo.avatar;
-          this.$Message.error(err.response.data.msg);
+          if (err.response.status == 401) {
+            this.$router.push({name: 'login'});
+            this.$Message.error('请登录');
+          }
+          else {
+            this.avatarUrl = this.userInfo.avatar;
+            this.$Message.error(err.response.data.msg);
+          }
         });
       });
     },

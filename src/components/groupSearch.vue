@@ -76,6 +76,7 @@
 
 <script>
 export default {
+    props: ['userInfo'],
     data() {
         return {
             groupAttributeList: [
@@ -203,8 +204,6 @@ export default {
             showDrawer: -1,
 
             getGroupURLParams: '',
-
-            loginUser: 'HeChX',
         };
     },
     methods: {
@@ -266,7 +265,7 @@ export default {
             for (let i = 0, len = this.teams.length; i < len; i++) {
                 if (id_ == this.teams[i].team_id) {
                     for (let j = 0, len2 = this.teams[i].members.length; j < len2; j++) {
-                        if (this.loginUser == this.teams[i].members[j].member_username) {
+                        if (this.userInfo.username == this.teams[i].members[j].member_username) {
                             inGroup = true;
                             break;
                         }
@@ -277,7 +276,7 @@ export default {
 
             let content = '';
             if (!inGroup) {
-                this.$axios.post('/api/v1/team/Member/Addition', {team_id: id_, username: this.loginUser})
+                this.$axios.post('/api/v1/team/Member/Addition', {team_id: id_})
                     .then((res) => {
                         console.log(res.data);
                         switch (res.data.code) {

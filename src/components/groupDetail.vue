@@ -36,10 +36,6 @@
                         <div class="property">Limit: </div>
                         <div class="inline-block">{{group.limit == 0 ? '允许所有人' : (group.limit == 1 ? '需要审核' : '禁止所有人')}}</div>
                     </div>
-                    <div class="createAt-block">
-                        <div class="property">Create Time: </div>
-                        <div class="inline-block">{{group.createdAt}}</div>
-                    </div>
                     <div class="tags-block">
                         <div class="property">Team Labels: </div>
                         <div class="tags-list">
@@ -58,29 +54,31 @@
                         <div class="group-task-title">
                             <span>组内发布的任务</span>
                         </div>
-                        <div v-if="taskList.length != 0" class="group-task-list">
-                            <div v-for="item in taskList">
-                                <div v-bind:class="{'task-card':true,'task-card-mouseenter': enterid == item.task_id, 'task-card-mouseleave':!(enterid == item.task_id)}"
-                                v-on:mouseenter="enterid = item.task_id" v-on:mouseleave="enterid = 0"  @click="jumpToTaskDetail(item.task_id)">
-                                    <div class="task-title">
-                                        <span>{{item.title}}</span>
-                                    </div>
-                                    <div class="task-simpleinfo"> 
-                                        <span>{{item.introduction}} </span>
-                                    </div>
-                                    <div class="task-profit"> 
-                                        <span>{{item.money}}</span>
-                                    </div>
-                                    <div class="task-detail">
-                                        <span>数量:{{item.max_accepter_numbert}}</span>
-                                        <span>发布人: {{item.publisher}}</span>
+                        <Scroll :on-reach-bottom="handleReachBottom" height="500">
+                            <div v-if="taskList.length != 0" class="group-task-list">
+                                <div v-for="item in taskList">
+                                    <div v-bind:class="{'task-card':true,'task-card-mouseenter': enterid == item.task_id, 'task-card-mouseleave':!(enterid == item.task_id)}"
+                                    v-on:mouseenter="enterid = item.task_id" v-on:mouseleave="enterid = 0"  @click="jumpToTaskDetail(item.task_id)">
+                                        <div class="task-title">
+                                            <span>{{item.title}}</span>
+                                        </div>
+                                        <div class="task-simpleinfo"> 
+                                            <span>{{item.introduction}} </span>
+                                        </div>
+                                        <div class="task-profit"> 
+                                            <span>{{item.money}}</span>
+                                        </div>
+                                        <div class="task-detail">
+                                            <span>数量:{{item.max_accepter_numbert}}</span>
+                                            <span>发布人: {{item.publisher}}</span>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
-                        </div>
-                        <div v-else class="group-task-title">
-                            <span style="font-size: 10pt">该小组还没有任务，赶紧去发布任务吧！</span>
-                        </div>
+                            <div v-else class="group-task-title">
+                                <span style="font-size: 10pt">该小组还没有任务，赶紧去发布任务吧！</span>
+                            </div>
+                        </Scroll>   
                     </div>
                 </div>
 
@@ -98,7 +96,8 @@
                                             <span class="username-span">{{item.username}}</span>
                                         </div>
                                         <Button :class="{'hidden': !isLeader}" class="button-blacklist" @click="dislodge(item.username)">移除</Button>
-                                        <Button class="button-blacklist" @click="blacklist(item.username)">拉黑</Button>
+                                        <Button :class="{'hidden': item.inBlacklist}" class="button-blacklist" @click="blacklist(item.username)">拉黑</Button>
+                                        <Button :class="{'hidden': !item.inBlacklist}" class="button-blacklist" @click="cancelBlacklist(item.username)">取消拉黑</Button>
                                     </div>
                                 </Scroll>
                                 <div class="withdraw">
@@ -168,10 +167,10 @@
                                 <Scroll :on-reach-bottom="handleReachBottom" height="330">
                                     <div class="member-item" v-for="item in organizationsList" v-bind:key="item.username">
                                         <div class="profile">
-                                            <Avatar :src="item.profile" size="small"/>
+                                            <Avatar :src="item.orgorganizationavatar" size="small"/>
                                         </div>
                                         <div class="member-username">
-                                            <span class="username-span">{{item.username}}</span>
+                                            <span class="username-span">{{item.orgorganizationname}}</span>
                                         </div>
                                         <Button :class="{'hidden': !isLeader}" class="button-blacklist" @click="dislodge(item.username)">移除</Button>
                                     </div>
@@ -195,6 +194,8 @@
 
 <script>
 export default {
+    props: ['userInfo'],
+
     data() {
         return {
             team_id: '',
@@ -206,8 +207,8 @@ export default {
                 logo: '',
                 description: '',
                 limit: '',
-                teamlabels: [],
-                members: []
+                teamlabels: [{}],
+                members: [{}]
             },  
 
             enterid: 0,
@@ -270,6 +271,27 @@ export default {
         };
     },
     methods: {
+        judge(team_id) {
+            let p = new Promise((resolve, reject) => {
+                this.$axios.get('/api/v1/team/Member?team_id=' + team_id)
+                    .then((res) => {
+                        console.log(res);
+                        if (res.data.code == 200) {
+                            resolve(team_id);
+                        } else if (res.data.code == 213) {
+                            reject(213);
+                        } else if (res.data.code == 211) {
+                            reject(211);
+                        }
+                    })
+                    .catch((err) => {
+                        reject(err);
+                    })
+            })
+
+            return p;
+        },
+
         getGroupDetail(team_id) {
 
             let p1 = new Promise((resolve, reject) => {
@@ -289,6 +311,27 @@ export default {
                                             res.data.data[0].members.push(response.data.data[i]);
                                         }
                                         console.log(res.data.data);
+                                        this.$axios.get('/api/v1/user/getUserBlacklist')
+                                            .then((response2) => {
+                                                console.log(response2.data.data);
+                                                if (response2.data.code == 200 && response2.data.data.length != 0) {
+                                                    for (let i = 0, len = res.data.data[0].members.length; i < len; i++) {
+                                                        for (let j = 0, len2 = response2.data.data.length; j < len2; j++) {
+                                                            if (res.data.data[0].members[i]['username'] == response2.data.data[j]['username']) {
+                                                                res.data.data[0].members[i].inBlacklist = true;
+                                                                break;
+                                                            } else {
+                                                                res.data.data[0].members[i].inBlacklist = false;
+                                                            }
+                                                        }
+                                                    }
+                                                }
+                                            })
+                                            .catch((error2) => {
+                                                console.log(error2);
+                                            })
+                                        console.log(res.data.data);
+                                        this.group = res.data.data[0];
                                         resolve(res);
                                     } else {
                                         reject(response);
@@ -309,6 +352,7 @@ export default {
             let p2 = new Promise((resolve, reject) => {
                 this.$axios.get('/api/v1/user/getCanPublishTasksOrg?teamId=' + team_id)
                     .then((res) => {
+                        this.organizationsList = res.data.data;
                         resolve(res);
                     })
                     .catch((err) => {
@@ -318,8 +362,13 @@ export default {
             });
 
             let p3 = new Promise((resolve, reject) => {
-                this.$axios.get('/api/v1/team/Leader?team_id=' + team_id + '&leader=HeChX')
+                this.$axios.get('/api/v1/team/Leader?team_id=' + team_id + '&leader=' + this.userInfo.username)
                     .then((res) => {
+                        if (res.data.code == 200) {
+                            this.isLeader = true;
+                        } else if (res.data.code == 212) {
+                            this.isLeader = false;
+                        }
                         resolve(res);
                     })
                     .catch((err) => {
@@ -328,8 +377,9 @@ export default {
             });
 
             let p4 = new Promise((resolve, reject) => {
-                this.$axios.get('/api/v1/task?type=all&range=' + team_id + '&username=HeChX')
+                this.$axios.get('/api/v1/task?type=all&range=' + team_id + '&username=' + this.userInfo.username)
                     .then((res) => {
+                        this.taskList = res.data.data;
                         resolve(res);
                     })
                     .catch((err) => {
@@ -338,74 +388,17 @@ export default {
             });
 
             let p = Promise.all([p1, p2, p3, p4]);
+            console.log(p);
 
             return p;
         },
-
-        getOrganization(team_id) {
-            let p = new Promise((resolve, reject) => {
-                this.$axios.get('/api/v1/user/getCanPublishTasksOrg?teamId=' + team_id)
-                    .then((res) => {
-                        resolve(res);
-                    })
-                    .catch((err) => {
-                        reject(err);
-                    })
-                
-            })
-
-            return p;
-        },
-
-        leader(team_id) {
-            let p = new Promise((resolve, reject) => {
-                this.$axios.get('/api/v1/team/Leader?team_id=' + team_id + '&leader=HeChX')
-                    .then((res) => {
-                        resolve(res);
-                    })
-                    .catch((err) => {
-                        reject(err);
-                    })
-            });
-
-            return p;
-        },
-
-        render(value) {
-            console.log(value);
-            if (value[0].data.code == 200 && value[0].data.data.length != 0) {
-                this.group = value[0].data.data[0];
-            }
-            if (value[1].data.code == 200) {
-                this.organizationsList = value[1].data.data;
-            }
-            if (value[2].data.code == 200) {
-                this.isLeader = true;
-            } else if (value[2].data.code == 212) {
-                this.isLeader = false;
-            }
-            if (value[3].data.code == 200) {
-                this.taskList = value[3].data.data;
-            }
-        },
-
-        // render(data) {
-        //     if (data.data.data.length != 0) {
-        //         this.group = data.data.data[0];
-        //         if (this.group.leader == this.loginUser) this.isLeader = true;
-        //         else this.isLeader = false;
-        //         this.memberList = [];
-        //         for (let i = 0, len = this.group.members.length; i < len; i++) {
-        //             this.memberList.push({username: this.group.members[i].member_username});
-        //             this.memberList[i]['profile'] = 'https://i.loli.net/2017/08/21/599a521472424.jpg';
-        //         }
-        //     }
-        // },
 
         addInvitedMember() {
             if (this.currentInvitedMember !== '') {
-                if (-1 == this.inviteList.indexOf(this.currentInvitedMember))
+                if (-1 == this.inviteList.indexOf(this.currentInvitedMember)) {
                     this.inviteList.push(this.currentInvitedMember);
+                    this.currentInvitedMember = '';
+                }
             }
         },
 
@@ -418,18 +411,42 @@ export default {
             this.showDrawer = false;
             let params = {};
             params['team_id'] = this.team_id;
-            params['leader'] = "hyx";
             params['user'] = [];
             for (let i = 0, len = this.inviteList.length; i < len; i++) {
                 params['user'].push({username: this.inviteList[i]});   
             }
             this.$axios.post('/api/v1/team/Member/Invitation', params)
-                .then(function(res) {
+                .then((res) => {
                     console.log(res.data);
+                    let param = {};
+                    param['members'] = [];
+                    for (let i = 0, len = this.group.members.length; i < len; i++) {
+                        param['members'].push({username: this.group.members[i]['username']});
+                    }
+                    for (let i = 0, len = this.inviteList.length; i < len; i++) {
+                        param['members'].push({username: this.inviteList[i]});
+                    }
+                    this.$axios.post('/api/v1/user/getteammembersavatat', param)
+                        .then((response) => {
+                            if (response.data.code == 200) {
+                                console.log(response.data.data);
+                                this.group.members = [];
+                                for (let i = 0, len = response.data.data.length; i < len; i++) {
+                                    this.group.members.push(response.data.data[i]);
+                                }
+                            }
+                        })
+                        .catch((error) => {
+                            console.log(error);
+                        });
+                    
+                    this.inviteList = [];
                 })
                 .catch(function(error) {
                     console.log(error);
+                    this.inviteList = [];
                 })
+
         },
 
         getTaskItem(id_) {
@@ -449,15 +466,20 @@ export default {
 
         dislodge(username) {
             if (this.isLeader) {
-                if (this.loginUser != username) {
+                if (this.userInfo.username != username) {
                     this.$Modal.confirm({
                         title: '确认',
                         content: '<p>是否确认移出用户' + username + '</p>',
                         onOk: () => {
-                            let param = {team_id: this.team_id, leader: this.loginUser, username: username};
+                            let param = {team_id: this.team_id, username: username};
                             this.$axios.delete('/api/v1/team/Member/Dislodge', {params: param})
                                 .then((res) => {
                                     console.log(res.data);
+                                    for (let i = 0, len = this.group.members.length; i < len; i++) {
+                                        if (username == this.group.members[i]['username']) {
+                                            this.group.members.splice(i, 1);
+                                        }
+                                    }
                                 })
                                 .catch((err) => {
                                     console.log(err);
@@ -475,7 +497,55 @@ export default {
         },
 
         blacklist(name) {
-            console.log("To be continue...");
+            if (name != this.userInfo.username) {
+                this.$axios.post('/api/v1/user/userblacklist', {username1: name, username2: this.userInfo.username})
+                    .then((res) => {
+                        console.log(res);
+                        if (res.data.code == 200) {
+                            this.$Modal.info({
+                                title: '提示',
+                                content: '<p>拉黑成功</p>'
+                            });
+                            for (let i = 0, len = this.group.members.length; i < len; i++) {
+                                if (name == this.group.members[i]['username']) {
+                                    this.group.members[i]['inBlacklist'] = true;
+                                }
+                            }
+                        }
+                    })
+                    .catch((err) => {
+                        console.log(err);
+                        if (err.data.code == 406) {
+                            this.$Modal.error({
+                                title: '提示',
+                                content: '<p>该用户已经在黑名单中</p>'
+                            })
+                        }
+                    })
+            }
+        },
+
+        cancelBlacklist(name) {
+            if (name != this.userInfo.username) {
+                this.$axios.post('/api/v1/user/usercancelblack', {username1: this.userInfo.username, username2: name})
+                    .then((res) => {
+                        console.log(res);
+                        if (res.data.code == 200) {
+                            this.$Modal.info({
+                                title: '提示',
+                                content: '<p>取消拉黑成功</p>'
+                            });
+                            for (let i = 0, len = this.group.members.length; i < len; i++) {
+                                if (name == this.group.members[i]['username']) {
+                                    this.group.members[i]['inBlacklist'] = false;
+                                }
+                            }
+                        }
+                    })
+                    .catch((err) => {
+                        console.log(err);
+                    })
+            }
         },
 
         selectMember(username) {
@@ -485,14 +555,16 @@ export default {
         transferMembersComplete(username) {
             console.log(username);
             if (username != '' && this.isLeader) {
-                if (this.loginUser != username) {
+                if (this.userInfo.username != username) {
                     this.$Modal.confirm({
                         title: '确认',
                         content: '<p>是否确认将该小组组长转让给' + username + '</p>',
                         onOk: () => {
-                            this.$axios.post('/api/v1/team/Leader', {team_id: this.team_id, leader: this.loginUser, username: username})
+                            this.$axios.post('/api/v1/team/Leader', {team_id: this.team_id, username: username})
                                 .then((res) => {
                                     console.log(res.data);
+                                    this.group.leader = username;
+                                    this.isLeader = false;
                                 })
                                 .catch((err) => {
                                     console.log(err);
@@ -522,7 +594,7 @@ export default {
                     title: '确认',
                     content: '<p>确认退出该小组？</p>',
                     onOk: () => {
-                        let param = {team_id: this.team_id, username: this.loginUser};
+                        let param = {team_id: this.team_id};
                         this.$axios.delete('/api/v1/team/Member/Departure', {params: param})
                             .then((res) => {
                                 console.log(res.data);
@@ -537,19 +609,6 @@ export default {
                             })
                     }
                 })
-                // let param = {team_id: this.team_id, username: this.loginUser};
-                // this.$axios.delete('/team/Member/Departure', {params: param})
-                //     .then((res) => {
-                //         console.log(res.data);
-                //         if (res.data.code == 200) {
-                //             this.$router.push({
-                //                 name: 'myGroup'
-                //             })
-                //         }
-                //     })
-                //     .catch((err) => {
-                //         console.log(err);
-                //     })
             }
         },
 
@@ -559,7 +618,7 @@ export default {
                     title: '确认',
                     content: '<p>是否确认解散该小组？</p><p>（解散后不可恢复！）</p>',
                     onOk: () => {
-                        let param = {team_id: this.team_id, leader: this.loginUser};
+                        let param = {team_id: this.team_id};
                         this.$axios.delete('/api/v1/team', {params: param})
                             .then((res) => {
                                 console.log(res.data);
@@ -576,17 +635,53 @@ export default {
                 })
             }
         },
-    },
-    mounted: function() {
-        this.team_id = this.$route.params.id;
-        //this.group = this.$route.params.group;
-        console.log("test" + this.$route.params.id);
 
-        this.getGroupDetail(this.team_id)
-            .then((data) => {
-                this.render(data);
-            })
+        switchGroup() {
+            this.team_id = this.$route.params.id;
+            console.log(this.team_id);
+
+            this.judge(this.team_id)
+                .then((data) => {
+                    console.log(data);
+                    this.getGroupDetail(data)
+                })
+            //this.getGroupDetail(this.team_id)
+                // .then((data) => {
+                //     this.render(data);
+                // })
+                .then((data) => {
+                    console.log(this.group);
+                    this.getBlacklist();
+                })
+                .catch((err) => {
+                    if (err == 213) {
+                        this.$Modal.error({
+                            title: '错误',
+                            content: '没有该小组'
+                        })
+                        this.$router.push({
+                            name: 'myGroup'
+                        })
+                    } else if (err == 211) {
+                        this.$Modal.error({
+                            title: '错误',
+                            content: '<p>你不是该小组成员</p><p>无法查看该小组详情</p>'
+                        })
+                        this.$router.push({
+                            name: 'myGroup'
+                        })
+                    }
+                })
+        },
     },
+
+    mounted: function() {
+        this.switchGroup();
+    },
+
+    watch: {
+        '$route.params': 'switchGroup'
+    }
 
 
 }
@@ -863,5 +958,9 @@ span {
 .no-organization {
     text-align: center;
 }
+
+/* .group-task-list {
+    margin-right: 10px;
+} */
 
 </style>

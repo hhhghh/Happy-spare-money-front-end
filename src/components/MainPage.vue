@@ -4,32 +4,25 @@
       <Header class="layout-header" >
         <div class="layout-header-right">
           <Badge :count="message.length" style="height: 32px; line-height: 32px; margin-right: 20px;">
-            <Icon @click="showMsg=!showMsg" type="ios-notifications-outline" size="26" style="cursor: pointer"></Icon>
+            <Icon @click="showMsgToggle" type="ios-notifications-outline" size="26" style="cursor: pointer"></Icon>
           </Badge>
-          <div class="avatar">
+          <div class="avatar" @click="jumpToUserInfoPage">
             <img class="avatarImg" :src="userInfo.avatar">
           </div>
           <Dropdown>
             <span>{{userInfo.username}}</span>
             <Icon type="ios-arrow-down" size="24" style="margin: 7px; color:#2d8cf0" />
             <DropdownMenu slot="list">
-              <DropdownItem>
-                <div @click="jumpToPersonalPage()">
-                  <Icon type="md-person" /> {{ isUser ? '个人信息' : '机构信息' }}
-                </div>
+              <DropdownItem  @click.native="jumpToPersonalPage">
+                <Icon type="md-person" /> {{ isUser ? '个人信息' : '机构信息' }}
               </DropdownItem>
-              <DropdownItem><div @click="jumpToLoginPage()"><Icon type="ios-power" /> 退出</div></DropdownItem>
+              <DropdownItem @click.native="jumpToLoginPage">
+                <Icon type="ios-power" /> 退出
+              </DropdownItem>
             </DropdownMenu>
           </Dropdown>
         </div>
-        <div class="div-message" v-show="showMsg">
-          <ul>
-            <li v-for="(msg, index) in message" class="li-msg">
-              <span style="display: inline-block; width: 300px">{{msg.message}}</span>
-              <Icon @click="deleteMsg(index)" type="ios-close" size="24" style="vertical-align: top; cursor: pointer" />
-            </li>
-          </ul>
-        </div>
+        <Message :message="message" :accTeamJoin="accTeamJoin" v-show="showMsg"></Message>
       </Header>
       <Layout class="layout-bottom">
         <Sider :style="{background: '#fff'}" class="layout-sider" >
@@ -95,7 +88,7 @@
         </Sider>
         <div class="layout-content">
           <div>
-            <router-view v-if="isRouterAlive"></router-view>
+            <router-view v-if="isRouterAlive" :userInfo="userInfo"></router-view>
           </div>
           <BackTop>
             <div v-on:mouseenter="inBackTop=true" v-on:mouseleave="inBackTop=false"
@@ -110,20 +103,15 @@
   </div>
 </template>
 <script>
+  import Message from './message.vue'
+
   export default {
     data() {
       return {
         userInfo: {},
 
-        message: [
-          {id: 1, message: "你已被踢出小组 public_team"},
-          {id: 1, message: "你已被踢出小组 public_team"},
-          {id: 1, message: "你已被踢出小组 public_team"},
-          {id: 1, message: "你已被踢出小组 public_team"},
-          {id: 2, message: "你发布的任务 buy food 已被 hyx 接受"},
-          {id: 2, message: "你发布的任务 可能会发生这样的情况：当一个道具在激活状态时，另一个道具与挡板发生了接触。在这种情况下我们有超过1个在当前PowerUps容器中处于激活状态的道具。然后，当这些道具中的一个被停用时，我们不应使其效果失效因为另一个相同类型的道具仍处于激活状态。出于这个原因，我们使用isOtherPowerUpActive检查是否有同类道具处于激活状态。只有当它返回false时，我们才停用这个道具的效果。这样，给定类型的道具的持续时间就可以延长至最近一次被激活后的持续时间。 已被 hyx 接受"}
-        ],
-
+        message: [],
+        accTeamJoin: [],
 
         isUser: true,
         showMsg: false,
@@ -183,27 +171,24 @@
         duration: 3
       });
 
-      this.$axios.get('/api/v1/toast')
-        .then(msg => {
-          console.log(msg);
-          if (msg.data.code == 200) {
-            this.message = msg.data.data;
-            console.log(this.message);
-          }
-        });
+      this.getMessage();
 
-      // this.$router.push({path: `/MainPage/taskSearch`});
+
     },
 
     methods: {
-      jumpToPersonalPage: function () {
+      jumpToPersonalPage() {
         if (this.isUser)
-          this.$router.push({path: `/personalPage/personalInfo`})
+          this.$router.push({path: `/personalPage/personalInfo`});
         else
-          this.$router.push({path: `/personalPage/organizationInf`})
+          this.$router.push({path: `/personalPage/organizationInf`});
       },
 
-      jumpToLoginPage: function() {
+      jumpToUserInfoPage() {
+        this.$router.push({path: `/user/` + this.userInfo.username});
+      },
+
+      jumpToLoginPage() {
         this.$axios.get('api/v1/user/logout').then(msg => {
           if (msg.data.code == 200) {
             this.$router.push({name: `login`});
@@ -219,19 +204,36 @@
         });
       },
 
-      deleteMsg: function(index) {
-        this.$axios.delete('/api/v1/toast/Id?id='+ this.message[index].id)
+      getMessage() {
+        this.$axios.get('/api/v1/toast')
           .then(msg => {
             if (msg.data.code == 200) {
-              this.$Message.success(msg.data.msg);
-              this.message.splice(index, 1);
-              if (this.message.length == 0) this.showMsg = false;
+              this.message = msg.data.data;
+              this.message.sort((msg1, msg2) => {
+                if (msg1.type == 0 && msg2.type != 0) return msg1.type - msg2.type;
+                if (msg1.type != 0 && msg2.type == 0) return msg1.type - msg2.type;
+                return msg1.id - msg2.id;
+              });
+              for (let i = 0; i < this.message.length; i++) {
+                if (this.message[i].type != 0) {
+                  this.accTeamJoin = new Array(i);
+                  break;
+                }
+              }
+              this.accTeamJoin.fill(-1);
             }
-            else this.$Message.error(msg.data.msg);
-          })
-          .catch(err => {
-            this.$Message.error(err.response.data.msg);
           });
+      },
+
+      hiddenMessage() {
+        this.showMsg = false;
+      },
+
+      showMsgToggle() {
+        this.showMsg = !this.showMsg;
+        if (this.showMsg) {
+          this.getMessage();
+        }
       },
 
       reload() {
@@ -247,6 +249,14 @@
       return {
         reload: this.reload
       }
+    },
+
+    components: {
+      Message
+    },
+
+    watch: {
+      '$route.path': 'hiddenMessage'
     }
   }
 </script>
@@ -328,34 +338,12 @@
     overflow: hidden;
     border-radius: 50%;
     line-height: 32px;
+    cursor: pointer;
   }
 
   .avatarImg {
     width: 32px;
     height: 32px;
-  }
-
-  .div-message {
-    width: 400px;
-    max-height: 500px;
-    position: absolute;
-    right: 5px;
-    top: 75px;
-    background: #fff;
-    border: 1px solid rgb(235, 235, 235);
-    overflow: auto;
-  }
-
-  .li-msg {
-    list-style: none;
-    border-bottom: 1px solid rgb(235, 235, 235);
-    padding: 20px;
-    line-height: 24px;
-    font-weight: 600;
-  }
-
-  .li-msg:last-child {
-    border-bottom: none;
   }
 
   .back-top-btn {
