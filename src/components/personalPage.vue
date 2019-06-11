@@ -4,24 +4,18 @@
             <div class="div-header">
                 <Header class="layout-header" >
                     <div class="layout-header-right">
-                        <div class="avatar">
+                        <div class="avatar" @click="jumpToUserInfoPage">
                           <img class="avatarImg" :src="userInfo.avatar">
                         </div>
                         <Dropdown>
                             <span style="color: #eee;">{{userInfo.username}}</span>
                             <Icon type="ios-arrow-down" size="24" style="margin: 7px; color:#2d8cf0"/>
                             <DropdownMenu slot="list">
-                                <DropdownItem>
-                                  <div @click="jumpToMainPage()">
-                                    <Icon type="ios-cube" />
-                                    主站
-                                  </div>
+                                <DropdownItem @click.native="jumpToMainPage">
+                                    <Icon type="ios-cube" /> 主站
                                 </DropdownItem>
-                                <DropdownItem>
-                                  <div @click="jumpToLoginPage()">
-                                    <Icon type="ios-power" />
-                                    退出
-                                  </div>
+                                <DropdownItem @click.native="jumpToLoginPage">
+                                    <Icon type="ios-power" /> 退出
                                 </DropdownItem>
                             </DropdownMenu>
                         </Dropdown>
@@ -76,10 +70,15 @@ export default {
     },
 
     methods: {
-        jumpToMainPage: function() {	
+        jumpToMainPage() {
             this.$router.push({path: `/MainPage`});
-        },	
-        jumpToLoginPage: function() {
+        },
+
+        jumpToUserInfoPage() {
+          this.$router.push({path: `/user/` + this.userInfo.username});
+        },
+
+        jumpToLoginPage() {
             this.$axios.get('api/v1/user/logout').then(msg => {
               if (msg.data.code == 200) {
                 this.$router.push({name: `login`});
@@ -125,6 +124,7 @@ div {
   overflow: hidden;
   border-radius: 50%;
   line-height: 32px;
+  cursor: pointer;
 }
 
 .avatarImg {
