@@ -96,8 +96,8 @@
                                             <span class="username-span">{{item.username}}</span>
                                         </div>
                                         <Button :class="{'hidden': !isLeader}" class="button-blacklist" @click="dislodge(item.username)">移除</Button>
-                                        <Button class="button-blacklist" @click="blacklist(item.username)">拉黑</Button>
-                                        <!-- <Button class="button-blacklist" @click="cancelBlacklist(item.username)">取消拉黑</Button> -->
+                                        <Button :class="{'hidden': item.inBlacklist}" class="button-blacklist" @click="blacklist(item.username)">拉黑</Button>
+                                        <Button :class="{'hidden': !item.inBlacklist}" class="button-blacklist" @click="cancelBlacklist(item.username)">取消拉黑</Button>
                                     </div>
                                 </Scroll>
                                 <div class="withdraw">
@@ -167,10 +167,10 @@
                                 <Scroll :on-reach-bottom="handleReachBottom" height="330">
                                     <div class="member-item" v-for="item in organizationsList" v-bind:key="item.username">
                                         <div class="profile">
-                                            <Avatar :src="item.profile" size="small"/>
+                                            <Avatar :src="item.orgorganizationavatar" size="small"/>
                                         </div>
                                         <div class="member-username">
-                                            <span class="username-span">{{item.username}}</span>
+                                            <span class="username-span">{{item.orgorganizationname}}</span>
                                         </div>
                                         <Button :class="{'hidden': !isLeader}" class="button-blacklist" @click="dislodge(item.username)">移除</Button>
                                     </div>
@@ -207,8 +207,8 @@ export default {
                 logo: '',
                 description: '',
                 limit: '',
-                teamlabels: [],
-                members: []
+                teamlabels: [{}],
+                members: [{}]
             },  
 
             enterid: 0,
@@ -273,15 +273,15 @@ export default {
     methods: {
         judge(team_id) {
             let p = new Promise((resolve, reject) => {
-                this.$axios.get('/api/v1/team/Member?team_id=' + team_id + '&member_username=' + this.userInfo.username)
+                this.$axios.get('/api/v1/team/Member?team_id=' + team_id)
                     .then((res) => {
+                        console.log(res);
                         if (res.data.code == 200) {
-                            console.log(res);
                             resolve(team_id);
                         } else if (res.data.code == 213) {
-                            resolve('213');
+                            reject(213);
                         } else if (res.data.code == 211) {
-                            resolve('211');
+                            reject(211);
                         }
                     })
                     .catch((err) => {
@@ -311,6 +311,27 @@ export default {
                                             res.data.data[0].members.push(response.data.data[i]);
                                         }
                                         console.log(res.data.data);
+                                        this.$axios.get('/api/v1/user/getUserBlacklist')
+                                            .then((response2) => {
+                                                console.log(response2.data.data);
+                                                if (response2.data.code == 200 && response2.data.data.length != 0) {
+                                                    for (let i = 0, len = res.data.data[0].members.length; i < len; i++) {
+                                                        for (let j = 0, len2 = response2.data.data.length; j < len2; j++) {
+                                                            if (res.data.data[0].members[i]['username'] == response2.data.data[j]['username']) {
+                                                                res.data.data[0].members[i].inBlacklist = true;
+                                                                break;
+                                                            } else {
+                                                                res.data.data[0].members[i].inBlacklist = false;
+                                                            }
+                                                        }
+                                                    }
+                                                }
+                                            })
+                                            .catch((error2) => {
+                                                console.log(error2);
+                                            })
+                                        console.log(res.data.data);
+                                        this.group = res.data.data[0];
                                         resolve(res);
                                     } else {
                                         reject(response);
@@ -331,6 +352,7 @@ export default {
             let p2 = new Promise((resolve, reject) => {
                 this.$axios.get('/api/v1/user/getCanPublishTasksOrg?teamId=' + team_id)
                     .then((res) => {
+                        this.organizationsList = res.data.data;
                         resolve(res);
                     })
                     .catch((err) => {
@@ -342,6 +364,11 @@ export default {
             let p3 = new Promise((resolve, reject) => {
                 this.$axios.get('/api/v1/team/Leader?team_id=' + team_id + '&leader=' + this.userInfo.username)
                     .then((res) => {
+                        if (res.data.code == 200) {
+                            this.isLeader = true;
+                        } else if (res.data.code == 212) {
+                            this.isLeader = false;
+                        }
                         resolve(res);
                     })
                     .catch((err) => {
@@ -352,6 +379,7 @@ export default {
             let p4 = new Promise((resolve, reject) => {
                 this.$axios.get('/api/v1/task?type=all&range=' + team_id + '&username=' + this.userInfo.username)
                     .then((res) => {
+                        this.taskList = res.data.data;
                         resolve(res);
                     })
                     .catch((err) => {
@@ -363,27 +391,6 @@ export default {
             console.log(p);
 
             return p;
-            //return all([p1, p2, p3, p4]);
-        },
-
-        render(value) {
-            console.log(value);
-            if (value[0].data.code == 200 && value[0].data.data.length != 0) {
-                this.group = value[0].data.data[0];
-            }
-            if (value[1].data.code == 200) {
-                this.organizationsList = value[1].data.data;
-            }
-            if (value[2].data.code == 200) {
-                this.isLeader = true;
-            } else if (value[2].data.code == 212) {
-                this.isLeader = false;
-            }
-            if (value[3].data.code == 200) {
-                this.taskList = value[3].data.data;
-            }
-
-            console.log(this.userInfo);
         },
 
         addInvitedMember() {
@@ -491,19 +498,24 @@ export default {
 
         blacklist(name) {
             if (name != this.userInfo.username) {
-                this.$axios.post('/api/v1/user/userblacklist', {username1: this.userInfo.username, username2: name})
+                this.$axios.post('/api/v1/user/userblacklist', {username1: name, username2: this.userInfo.username})
                     .then((res) => {
                         console.log(res);
                         if (res.data.code == 200) {
                             this.$Modal.info({
                                 title: '提示',
                                 content: '<p>拉黑成功</p>'
-                            })
+                            });
+                            for (let i = 0, len = this.group.members.length; i < len; i++) {
+                                if (name == this.group.members[i]['username']) {
+                                    this.group.members[i]['inBlacklist'] = true;
+                                }
+                            }
                         }
                     })
                     .catch((err) => {
                         console.log(err);
-                        if (res.data.code == 406) {
+                        if (err.data.code == 406) {
                             this.$Modal.error({
                                 title: '提示',
                                 content: '<p>该用户已经在黑名单中</p>'
@@ -518,6 +530,17 @@ export default {
                 this.$axios.post('/api/v1/user/usercancelblack', {username1: this.userInfo.username, username2: name})
                     .then((res) => {
                         console.log(res);
+                        if (res.data.code == 200) {
+                            this.$Modal.info({
+                                title: '提示',
+                                content: '<p>取消拉黑成功</p>'
+                            });
+                            for (let i = 0, len = this.group.members.length; i < len; i++) {
+                                if (name == this.group.members[i]['username']) {
+                                    this.group.members[i]['inBlacklist'] = false;
+                                }
+                            }
+                        }
                     })
                     .catch((err) => {
                         console.log(err);
@@ -615,16 +638,20 @@ export default {
 
         switchGroup() {
             this.team_id = this.$route.params.id;
+            console.log(this.team_id);
 
-            // this.judge(this.team_id)
-            //     .then((data) => {
-            //         console.log(data);
-            //         this.getGroupDetail(data)
-            //     })
-            this.getGroupDetail(this.team_id)
+            this.judge(this.team_id)
                 .then((data) => {
                     console.log(data);
-                    this.render(data);
+                    this.getGroupDetail(data)
+                })
+            //this.getGroupDetail(this.team_id)
+                // .then((data) => {
+                //     this.render(data);
+                // })
+                .then((data) => {
+                    console.log(this.group);
+                    this.getBlacklist();
                 })
                 .catch((err) => {
                     if (err == 213) {
@@ -635,19 +662,23 @@ export default {
                         this.$router.push({
                             name: 'myGroup'
                         })
+                    } else if (err == 211) {
+                        this.$Modal.error({
+                            title: '错误',
+                            content: '<p>你不是该小组成员</p><p>无法查看该小组详情</p>'
+                        })
+                        this.$router.push({
+                            name: 'myGroup'
+                        })
                     }
                 })
         },
     },
+
     mounted: function() {
         this.switchGroup();
-        // this.team_id = this.$route.params.id;
-
-        // this.getGroupDetail(this.team_id)
-        //     .then((data) => {
-        //         this.render(data);
-        //     })
     },
+
     watch: {
         '$route.params': 'switchGroup'
     }
