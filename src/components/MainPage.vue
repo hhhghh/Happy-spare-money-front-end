@@ -88,7 +88,7 @@
         </Sider>
         <div class="layout-content">
           <div>
-            <router-view v-if="isRouterAlive"></router-view>
+            <router-view v-if="isRouterAlive" :userInfo="userInfo"></router-view>
           </div>
           <BackTop>
             <div v-on:mouseenter="inBackTop=true" v-on:mouseleave="inBackTop=false"
