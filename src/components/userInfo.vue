@@ -65,39 +65,15 @@
             <TabPane label="发布过的任务" name="publishedFinishedTask">
               <ul>
                 <li v-for="task in publishedFinishedTasks">
-                  <Row class="history">
-                    <Col span="16">
-                      <h2>历史任务</h2>
-                      <h3 style="margin-bottom: 5px;">
-                        {{task.title}}
-                        <span style="color:#ed4014; margin-left: 10px;">
-                            {{task.money}}￥
-                          </span>
-                      </h3>
-                      <p>{{task.introduction}}</p>
-                    </Col>
-                    <Col span="8" style="text-align: center; position: absolute; right: 0; bottom: 10px;">
-                      <p>{{task.endtime}} </p>
-                      <Rate allow-half show-text disabled v-model="task.score">
-                        <span style="color: #f5a623">{{task.score}}</span>
-                      </Rate>
-                    </Col>
-                  </Row>
-                </li>
-              </ul>
-            </TabPane>
-
-            <TabPane label="已完成的任务" name="finishedTask">
-                <ul>
-                  <li v-for="task in finishedTasks">
+                  <router-link :to="'/MainPage/taskDetail/' + task.taskId">
                     <Row class="history">
                       <Col span="16">
                         <h2>历史任务</h2>
                         <h3 style="margin-bottom: 5px;">
                           {{task.title}}
                           <span style="color:#ed4014; margin-left: 10px;">
-                            {{task.money}}￥
-                          </span>
+                              {{task.money}}￥
+                            </span>
                         </h3>
                         <p>{{task.introduction}}</p>
                       </Col>
@@ -108,6 +84,34 @@
                         </Rate>
                       </Col>
                     </Row>
+                  </router-link>
+                </li>
+              </ul>
+            </TabPane>
+
+            <TabPane label="已完成的任务" name="finishedTask">
+                <ul>
+                  <li v-for="task in finishedTasks">
+                    <router-link :to="'/MainPage/taskDetail/' + task.taskId">
+                      <Row class="history">
+                        <Col span="16">
+                          <h2>历史任务</h2>
+                          <h3 style="margin-bottom: 5px;">
+                            {{task.title}}
+                            <span style="color:#ed4014; margin-left: 10px;">
+                              {{task.money}}￥
+                            </span>
+                          </h3>
+                          <p>{{task.introduction}}</p>
+                        </Col>
+                        <Col span="8" style="text-align: center; position: absolute; right: 0; bottom: 10px;">
+                          <p>{{task.endtime}} </p>
+                          <Rate allow-half show-text disabled v-model="task.score">
+                            <span style="color: #f5a623">{{task.score}}</span>
+                          </Rate>
+                        </Col>
+                      </Row>
+                    </router-link>
                   </li>
                 </ul>
             </TabPane>
