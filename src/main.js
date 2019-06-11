@@ -12,7 +12,7 @@ axios.defaults.withCredentials = true;
 Vue.prototype.$axios = axios;
 /* eslint-disable no-new */
 Vue.use(iView)
-new Vue({
+var vm = new Vue({
   el: '#app',
   router,
   axios,

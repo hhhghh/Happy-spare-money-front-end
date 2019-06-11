@@ -195,6 +195,7 @@
 <script>
 export default {
     props: ['userInfo'],
+
     data() {
         return {
             team_id: '',
@@ -270,6 +271,27 @@ export default {
         };
     },
     methods: {
+        judge(team_id) {
+            let p = new Promise((resolve, reject) => {
+                this.$axios.get('/api/v1/team/Member?team_id=' + team_id + '&member_username=' + this.userInfo.username)
+                    .then((res) => {
+                        if (res.data.code == 200) {
+                            console.log(res);
+                            resolve(team_id);
+                        } else if (res.data.code == 213) {
+                            resolve('213');
+                        } else if (res.data.code == 211) {
+                            resolve('211');
+                        }
+                    })
+                    .catch((err) => {
+                        reject(err);
+                    })
+            })
+
+            return p;
+        },
+
         getGroupDetail(team_id) {
 
             let p1 = new Promise((resolve, reject) => {
@@ -338,8 +360,10 @@ export default {
             });
 
             let p = Promise.all([p1, p2, p3, p4]);
+            console.log(p);
 
             return p;
+            //return all([p1, p2, p3, p4]);
         },
 
         render(value) {
@@ -562,19 +586,6 @@ export default {
                             })
                     }
                 })
-                // let param = {team_id: this.team_id, username: this.loginUser};
-                // this.$axios.delete('/team/Member/Departure', {params: param})
-                //     .then((res) => {
-                //         console.log(res.data);
-                //         if (res.data.code == 200) {
-                //             this.$router.push({
-                //                 name: 'myGroup'
-                //             })
-                //         }
-                //     })
-                //     .catch((err) => {
-                //         console.log(err);
-                //     })
             }
         },
 
@@ -601,15 +612,45 @@ export default {
                 })
             }
         },
+
+        switchGroup() {
+            this.team_id = this.$route.params.id;
+
+            // this.judge(this.team_id)
+            //     .then((data) => {
+            //         console.log(data);
+            //         this.getGroupDetail(data)
+            //     })
+            this.getGroupDetail(this.team_id)
+                .then((data) => {
+                    console.log(data);
+                    this.render(data);
+                })
+                .catch((err) => {
+                    if (err == 213) {
+                        this.$Modal.error({
+                            title: '错误',
+                            content: '没有该小组'
+                        })
+                        this.$router.push({
+                            name: 'myGroup'
+                        })
+                    }
+                })
+        },
     },
     mounted: function() {
-        this.team_id = this.$route.params.id;
+        this.switchGroup();
+        // this.team_id = this.$route.params.id;
 
-        this.getGroupDetail(this.team_id)
-            .then((data) => {
-                this.render(data);
-            })
+        // this.getGroupDetail(this.team_id)
+        //     .then((data) => {
+        //         this.render(data);
+        //     })
     },
+    watch: {
+        '$route.params': 'switchGroup'
+    }
 
 
 }
