@@ -211,6 +211,7 @@ export default {
             drawerDisplay: false,
             scoreValue: 0,
             isSelectAll: false,
+            isConfirm: false,
             isFirst: true,
             trs: [],
             selectedTr:[],
@@ -243,6 +244,13 @@ export default {
         this.task_id = this.$route.params.id;    
         this.getMyUserInfo();
 
+    },
+    watch: {
+        
+        '$route'(to, from) {
+            this.task_id = this.$route.params.id;
+            this.getMyUserInfo();
+        }
     },
 
     methods: {
@@ -330,6 +338,7 @@ export default {
                 if (data.code == 200) {
                     // console.log(data);
                     vm.avatar = data.data.avatar;
+                    vm.name = data.data.name;
                 }
                
 
@@ -487,7 +496,7 @@ export default {
                     
                 })
                 .catch(function (error) {
-                    if (error.response.status == 403) {
+                    if (error.response.status == 401) {
                    
                         vm.$Notice.warning({
                             title: 'Task Complement',
@@ -536,7 +545,7 @@ export default {
                 //reload
             })
             .catch(function (error) {
-                if (error.response.status == 403) {
+                if (error.response.status == 401) {
                    
                     vm.$Notice.warning({
                         title: 'Task Quiting',
@@ -733,7 +742,7 @@ export default {
                
             })
             .catch(function (error) {
-                if (error.response.status == 403) {
+                if (error.response.status == 401) {
                    
                     vm.$Notice.warning({
                         title: 'Task Confirm',

@@ -224,8 +224,9 @@ export default {
         jumpToTaskDetail(id) {
             this.$router.push({path: `/MainPage/taskDetail/${id}`})
         }
-    }
-
+    },
+    
+    
 
 }
 </script>
