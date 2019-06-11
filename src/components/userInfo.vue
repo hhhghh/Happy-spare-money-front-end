@@ -126,102 +126,109 @@
     data() {
       return {
         userInfo: {
-          username: 'hjj',
-          name: 'huangjj',
-          school: '中山大学',
-          grade: '3',
-          phone: '123',
-          wechat: '456',
-          qq: '789',
-          avatar: 'https://i.loli.net/2017/08/21/599a521472424.jpg',
-          score: 3.3,
+          // username: 'hjj',
+          // name: 'huangjj',
+          // school: '中山大学',
+          // grade: '3',
+          // phone: '123',
+          // wechat: '456',
+          // qq: '789',
+          // avatar: 'https://i.loli.net/2017/08/21/599a521472424.jpg',
+          // score: 3.3,
         },
 
         waitedTasks: [
-          {
-            "taskId": 1,
-            "title": "问卷调查",
-            "introduction": "可能会发生这样的情况：当一个道具在激活状态时，另一个道具与挡板发生了接触。在这种情况下我们有超过1个在当前PowerUps容器中处于激活状态的道具。然后，当这些道具中的一个被停用时，我们不应使其效果失效因为另一个相同类型的道具仍处于激活状态。出于这个原因，我们使用isOtherPowerUpActive检查是否有同类道具处于激活状态。只有当它返回false时，我们才停用这个道具的效果。这样，给定类型的道具的持续时间就可以延长至最近一次被激活后的持续时间。",
-            "starttime": "2019-05-01 00:00:00",
-            "endtime": "2019-05-02 00:00:00",
-            "score": 3.5,
-            "money": 12
-          },
-          {
-            "taskId": 2,
-            "title": "问卷调查",
-            "introduction": "",
-            "starttime": "2019-05-01 00:00:00",
-            "endtime": "2019-05-02 00:00:00",
-            "score": 3.5,
-            "money": 12
-          }
+          // {
+          //   "taskId": 1,
+          //   "title": "问卷调查",
+          //   "introduction": "可能会发生这样的情况：当一个道具在激活状态时，另一个道具与挡板发生了接触。在这种情况下我们有超过1个在当前PowerUps容器中处于激活状态的道具。然后，当这些道具中的一个被停用时，我们不应使其效果失效因为另一个相同类型的道具仍处于激活状态。出于这个原因，我们使用isOtherPowerUpActive检查是否有同类道具处于激活状态。只有当它返回false时，我们才停用这个道具的效果。这样，给定类型的道具的持续时间就可以延长至最近一次被激活后的持续时间。",
+          //   "starttime": "2019-05-01 00:00:00",
+          //   "endtime": "2019-05-02 00:00:00",
+          //   "score": 3.5,
+          //   "money": 12
+          // },
+          // {
+          //   "taskId": 2,
+          //   "title": "问卷调查",
+          //   "introduction": "",
+          //   "starttime": "2019-05-01 00:00:00",
+          //   "endtime": "2019-05-02 00:00:00",
+          //   "score": 3.5,
+          //   "money": 12
+          // }
         ],
         publishedFinishedTasks: [
-          {
-            "taskId": 1,
-            "title": "问卷调查",
-            "introduction": "可能会发生这样的情况：当一个道具在激活状态时，另一个道具与挡板发生了接触。在这种情况下我们有超过1个在当前PowerUps容器中处于激活状态的道具。然后，当这些道具中的一个被停用时，我们不应使其效果失效因为另一个相同类型的道具仍处于激活状态。出于这个原因，我们使用isOtherPowerUpActive检查是否有同类道具处于激活状态。只有当它返回false时，我们才停用这个道具的效果。这样，给定类型的道具的持续时间就可以延长至最近一次被激活后的持续时间。",
-            "starttime": "2019-05-01 00:00:00",
-            "endtime": "2019-05-02 00:00:00",
-            "score": 3.5,
-            "money": 12
-          }
+          // {
+          //   "taskId": 1,
+          //   "title": "问卷调查",
+          //   "introduction": "可能会发生这样的情况：当一个道具在激活状态时，另一个道具与挡板发生了接触。在这种情况下我们有超过1个在当前PowerUps容器中处于激活状态的道具。然后，当这些道具中的一个被停用时，我们不应使其效果失效因为另一个相同类型的道具仍处于激活状态。出于这个原因，我们使用isOtherPowerUpActive检查是否有同类道具处于激活状态。只有当它返回false时，我们才停用这个道具的效果。这样，给定类型的道具的持续时间就可以延长至最近一次被激活后的持续时间。",
+          //   "starttime": "2019-05-01 00:00:00",
+          //   "endtime": "2019-05-02 00:00:00",
+          //   "score": 3.5,
+          //   "money": 12
+          // }
         ],
 
         finishedTasks: [
-          {
-            "taskId": 2,
-            "title": "问卷调查",
-            "introduction": "",
-            "starttime": "2019-05-01 00:00:00",
-            "endtime": "2019-05-02 00:00:00",
-            "score": 3.5,
-            "money": 12
-          }
+          // {
+          //   "taskId": 2,
+          //   "title": "问卷调查",
+          //   "introduction": "",
+          //   "starttime": "2019-05-01 00:00:00",
+          //   "endtime": "2019-05-02 00:00:00",
+          //   "score": 3.5,
+          //   "money": 12
+          // }
         ]
       };
     },
 
     methods: {
+      getInfo() {
+        this.userInfo = {};
+        this.waitedTasks = this.publishedFinishedTasks = this.finishedTasks = [];
 
+        this.$axios.get('/api/v1/user/getuser?username='+ this.$route.params.username)
+          .then(msg => {
+            if (msg.data.code == 200) {
+              this.userInfo = msg.data.data;
+            }
+          })
+          .catch(err => {
+            this.$Message.error('用户不存在！');
+          });
+
+        this.$axios.get('/api/v1/user/getAcceptedFinishedTasks?username='+ this.$route.params.username)
+          .then(msg => {
+            if (msg.data.code == 200) {
+              this.finishedTasks = msg.data.data;
+            }
+          });
+
+        this.$axios.get('/api/v1/user/getPublishedFinishedTasks?username='+ this.$route.params.username)
+          .then(msg => {
+            if (msg.data.code == 200) {
+              this.publishedFinishedTasks = msg.data.data;
+            }
+          });
+
+        this.$axios.get('/api/v1/user/getPublishedWaitedTasks?username='+ this.$route.params.username)
+          .then(msg => {
+            if (msg.data.code == 200) {
+              this.waitedTasks = msg.data.data;
+            }
+          });
+      }
     },
 
     created() {
-      this.$axios.get('/user/getAcceptedFinishedTasks?username='+ this.$route.params.username)
-      .then(msg => {
-        if (msg.data.code == 200) {
-          this.finishedTasks = msg.data.data;
-        }
-      });
-
-      this.$axios.get('/user/getPublishedFinishedTasks?username='+ this.$route.params.username)
-      .then(msg => {
-        if (msg.data.code == 200) {
-          this.publishedFinishedTasks = msg.data.data;
-        }
-      });
-
-      this.$axios.get('/user/getPublishedWaitedTasks?username='+ this.$route.params.username)
-      .then(msg => {
-        if (msg.data.code == 200) {
-          this.waitedTasks = msg.data.data;
-        }
-      });
-
-      this.$axios.get('/user/getuser?username='+ this.$route.params.username)
-      .then(msg => {
-        if (msg.data.code == 200) {
-          this.userInfo = msg.data.data;
-        }
-      });
+      this.getInfo();
     },
 
-    mounted() {
-       // $('ul').delegate('.ivu-rate-star', 'click', (e) => {
-       //   console.log(e);
-       // });
+    watch: {
+      '$route.query': 'getInfo'
     }
+
 
 
   }
@@ -256,7 +263,7 @@
   /*background: #19be6b;*/
   overflow: hidden;
   position: relative;
-  background-image: url("http://pic41.nipic.com/20140519/18505720_094554360140_2.jpg");
+  background-image: url(http://139.196.79.193:3000/userInfobg.png);
   background-size: cover;
   box-shadow: 0 0 0 1px #eee;
   border-radius: 4px;

@@ -33,7 +33,7 @@
                         <div class="bottom-block">
                             <div class="group-tags" style="display: inline">
                                 <Icon type="md-pricetags" />
-                                <Tag type="border" class="tags" v-for="item in item.teamlabels" :key="item.label" :name="item.label">{{ item.label }}</Tag>
+                                <Tag type="border" class="tags" v-for="item in item.teamlabels" :key="item.id" :name="item.label">{{ item.label }}</Tag>
                             </div>
                             <div class="group-members" style="display: inline">
                                 <Icon type="md-person" />
@@ -181,7 +181,7 @@ export default {
         getAllGroupJoined() {
             let t = this;
             t.teams = [];
-            t.$axios.get('/team/MemberName?member_username=' + t.loginUser)
+            t.$axios.get('/api/v1/team/MemberName?member_username=' + t.loginUser)
                 .then(function (response) {
                     console.log(response.data);
                     if (response.data.code == 200) {

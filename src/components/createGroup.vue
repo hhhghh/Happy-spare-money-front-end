@@ -268,22 +268,6 @@ export default {
             console.log(index);
             this.teamlabels.splice(index, 1);
         },
-            
-        handleBeforeUpload (file) {
-            if (!typeof FileReader != 'undefined') {
-                if (/^image\/\w+/.test(file.type)) {
-                    let fr = new FileReader();
-                    fr.readAsDataURL(file);
-
-                    fr.onload = function(e) {
-                        let logo = document.getElementById('logo');
-                        logo.src = this.result;
-                    }
-                }
-            }
-
-            return false;
-        },
 
         previewImage(e) {
             this.logoFile = e.target.files[0];
@@ -300,7 +284,7 @@ export default {
             let form = new FormData();
             form.append('file', this.logoFile);
             let p = new Promise((resolve, reject) => {
-                this.$axios.post('/file/TeamLogo', form, {
+                this.$axios.post('/api/v1/file/TeamLogo', form, {
                     headers: {
                         'Content-Type': 'multipart/form-data'
                     }
@@ -316,9 +300,10 @@ export default {
         },
 
         uploadGroupInfo(logoUrl) {
-            this.group.leader = "hyx";
+            this.group.leader = "HeChX";
             this.group.logo = logoUrl;
             this.group.members.push({member_username: this.group.leader});
+            console.log(this.InvitedMemberList);
             for (let i = 0, len = this.InvitedMemberList.length; i < len; i++) {
                 this.group.members.push(this.InvitedMemberList[i]);
             }
@@ -329,7 +314,7 @@ export default {
             console.log(this.group);
 
             let p = new Promise((resolve, reject) => {
-                this.$axios.post('/team', this.group)
+                this.$axios.post('/api/v1/team', this.group)
                     .then(function(res) {
                         resolve(res.data);
                     })
@@ -349,12 +334,16 @@ export default {
                     if (this.logoFile != '') {
                         this.uploadLogoImage()
                             .then((data) => {
-                                return this.uploadGroupInfo('http://' + data.imgUrl);
+                                return this.uploadGroupInfo(data.imgUrl);
                             })
                             .then((data) => {
-                                console.log(data);
-                                console.log('Create a new group successfully');
-                                this.$router.push({name: 'groupDetail', params: {id: data.data.team_id}});
+                                if (data.code == 200) {
+                                    console.log(data);
+                                    console.log('Create a new group successfully');
+                                    this.$router.push({name: 'groupDetail', params: {id: data.data.team_id}});
+                                } else if (data.code == 220) {
+                                    console.log(data);
+                                }
                             })
                             .catch((err) => {
                                 console.log(err);

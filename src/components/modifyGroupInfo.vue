@@ -45,25 +45,6 @@
                     </Form>
                 </div>
 
-                <!-- <div class="logo-content">
-                    <div class="logo-title">Logo</div>
-                    <div class="logo-block">
-                        <img class="logo-image" id="logo" :src="group.logo" alt="Group Logo">
-                        <div class="upload-block">
-                            <Upload
-                                ref="upload"
-                                :format="['jpg','jpeg','png']"
-                                :before-upload="handleBeforeUpload"
-                                type="drag"
-                                action="https://sm.ms/api/upload"
-                                style="display: inline-block;width:58px;">
-                                <div style="width: 58px;height:58px;line-height: 58px;">
-                                    <Icon type="ios-camera" size="20"></Icon>
-                                </div>
-                            </Upload>
-                        </div>
-                    </div>
-                </div> -->
                 <div class="logo-content">
                     <div class="logo-title">Logo</div>
                     <div class="logo-block">
@@ -242,22 +223,6 @@ export default {
             const index = this.teamlabels.indexOf(name);
             this.teamlabels.splice(index, 1);
         },
-            
-        handleBeforeUpload (file) {
-            if (!typeof FileReader != 'undefined') {
-                if (/^image\/\w+/.test(file.type)) {
-                    let fr = new FileReader();
-                    fr.readAsDataURL(file);
-
-                    fr.onload = function(e) {
-                        let logo = document.getElementById('logo');
-                        logo.src = this.result;
-                    }
-                }
-            }
-
-            return false;
-        },
 
         previewImage(e) {
             this.logoFile = e.target.files[0];
@@ -274,7 +239,7 @@ export default {
             let form = new FormData();
             form.append('file', this.logoFile);
             let p = new Promise((resolve, reject) => {
-                this.$axios.post('/file/TeamLogo', form, {
+                this.$axios.post('/api/v1/file/TeamLogo', form, {
                     headers: {
                         'Content-Type': 'multipart/form-data'
                     }
@@ -299,7 +264,7 @@ export default {
             console.log(this.group);
 
             let p = new Promise((resolve, reject) => {
-                this.$axios.put('/team', this.group)
+                this.$axios.put('/api/v1/team', this.group)
                     .then(function(res) {
                         resolve(res.data);
                     })
@@ -315,7 +280,7 @@ export default {
             if (this.logoFile != '') {
                 this.uploadLogoImage()
                     .then((data) => {
-                        return this.uploadGroupInfo('http://' + data.imgUrl);
+                        return this.uploadGroupInfo(data.imgUrl);
                     })
                     .then((data) => {
                         console.log(data);

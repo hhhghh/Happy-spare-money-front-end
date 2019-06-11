@@ -10,7 +10,11 @@
         <Row>
           <Col span="5" offset="2">
             <div class="avatar-box">
-              <img class="avatar" src="https://i.loli.net/2017/08/21/599a521472424.jpg"/>
+              <img :src="userInfo.avatarImg || defaultAvatarImg" />
+              <label class="img-upload-box avatar-upload-box" for="fileInput">
+                <Icon type="ios-camera" size="20"></Icon>
+              </label>
+              <input id="fileInput" type="file" @change="avatarImgUpload">
             </div>
             <Select v-model="userType" style="width:75%; float: left;">
               <Option value="0" label="用户注册"></Option>
@@ -42,13 +46,6 @@
                     <Option value="3">大三</Option>
                     <Option value="4">大四</Option>
                   </Select>
-                </FormItem>
-                <FormItem label="认证照片" prop="authImg">
-                  <img :src="userInfo.authImg" id="authImg">
-                  <input id="fileInput" type="file" @change="authImgUpload">
-                  <label class="img-upload-box" for="fileInput">
-                    <Icon type="ios-camera" size="20"></Icon>
-                  </label>
                 </FormItem>
                 <FormItem label="电话" prop="phone">
                   <Input v-model="userInfo.phone" placeholder="phone"></Input>
@@ -116,13 +113,11 @@
           ],
           grade: [
             {required: true, message: '年级不能为空',  trigger: 'blur'}
-          ],
-          authImg: [
-            {required: true, message: '请上传您与学生证的合照作为认证照片'}
           ]
         },
 
         userType: '0',
+        defaultAvatarImg: 'https://i.loli.net/2017/08/21/599a521472424.jpg',
 
         userInfo: {
           username: '',
@@ -134,7 +129,7 @@
           phone: '',
           weChat: '',
           qq: '',
-          authImg: ''
+          avatarImg: ''
         },
 
         orgInfo: {
@@ -161,32 +156,17 @@
         reader.readAsDataURL(file);
       },
 
-      authImgUpload(event) {
+      avatarImgUpload(event) {
         var imgFile = event.target.files[0];
         if (!imgFile) {
-          this.userInfo.authImg = '';
+          this.userInfo.avatarImg = '';
           return;
         }
 
         this.fileToDataURL(imgFile, (url) => {
-          this.userInfo.authImg = url;
+          this.userInfo.avatarImg = url;
         });
-        // var showPicURL = this.getObjectURL(imgObject);
-        // var show = document.getElementById('authImg');
-        // this.userInfo.authImg = showPicURL;
       },
-
-      // getObjectURL(file) {
-      //   var url = null
-      //   if (window.createObjectURL) {
-      //     url = window.createObjectURL(file);
-      //   } else if (window.URL) {
-      //     url = window.URL.createObjectURL(file);
-      //   } else if (window.webkitURL) {
-      //     url = window.webkitURL.createObjectURL(file);
-      //   }
-      //   return url;
-      // }
 
       userRegisterSubmit (name) {
         this.$refs[name].validate((valid) => {
@@ -195,10 +175,10 @@
             formData.append("type", "0");
             for(var key in this.userInfo) {
               if (key == 'confirmPassword') continue;
-              if (key == 'authImg') {
-                if (this.userInfo.authImg) {
-                  let blob = this.dataURLtoBlob(this.userInfo.authImg);
-                  formData.append("authImg", blob);
+              if (key == 'avatarImg') {
+                if (this.userInfo.avatarImg) {
+                  let blob = this.dataURLtoBlob(this.userInfo.avatarImg);
+                  formData.append("avatar", blob);
                 }
               }
               else if (key == 'password') {
@@ -217,7 +197,7 @@
             })
             .then(msg => {
               if (msg.data.code == 200) {
-                this.$Message.success('Success!');
+                this.$Message.success('注册成功！');
                 this.$router.push({name: 'login'});
               }
               else {
@@ -268,6 +248,7 @@
     width: 75%;
     overflow: hidden;
     margin-bottom: 20px;
+    position: relative;
   }
 
   .avatar-box img {
@@ -291,13 +272,16 @@
     border-color: #2d8cf0;
   }
 
+  .avatar-upload-box {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    opacity:0.8;
+  }
+
   #fileInput {
     display: none;
   }
 
-  #authImg {
-    width: 30%;
-    vertical-align: middle;
-    border-radius: 2%;
-  }
 </style>
