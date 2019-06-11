@@ -95,7 +95,7 @@
         </Sider>
         <div class="layout-content">
           <div>
-            <router-view v-if="isRouterAlive"></router-view>
+            <router-view v-if="isRouterAlive" :userInfo="userInfo"></router-view>
           </div>
           <BackTop>
             <div v-on:mouseenter="inBackTop=true" v-on:mouseleave="inBackTop=false"
@@ -192,17 +192,6 @@
           }
         });
 
-<<<<<<< HEAD
-     
-     
-      
-      
-      
-      
-=======
->>>>>>> 57e9d101a6513efeab78f7404794641d578c4528
-
-      this.$router.push({path: `/MainPage/taskSearch`});
     },
 
     methods: {
