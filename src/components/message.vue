@@ -1,7 +1,7 @@
 <template>
   <div class="div-message">
     <ul>
-      <li v-for="(msg, index) in message" class="li-msg">
+      <li v-for="(msg, index) in message" :key="msg.id" class="li-msg">
         <template v-if="msg.type==0">
           <span style="float: left;">
             <span class="jump-link user-link" @click="jumpToUser(msg.msg_username)">{{msg.msg_username}}</span>
@@ -9,7 +9,7 @@
             <span class="jump-link team-link" @click="jumpToTeam(msg.team.team_id)">{{msg.team.team_name}}</span>
           </span>
           <span style="float: right; width: 60px">
-            <Select v-model="accTeamJoin"
+            <Select v-model="accTeamJoin[index]"
                     @on-change="handleTeamJoin(msg.team.team_id,msg.msg_username,index)">
               <Option :value="-1" :key="-1">选择</Option>
               <Option :value="1" :key="1">同意</Option>
@@ -115,10 +115,10 @@
 
 <script>
   export default {
-    props: ['message'],
+    props: ['message', 'accTeamJoin'],
     data() {
       return {
-        accTeamJoin: -1
+
       }
 
     },
@@ -133,7 +133,7 @@
 
     methods: {
       handleTeamJoin(teamid, username, index) {
-        if (this.accTeamJoin == 1) {
+        if (this.accTeamJoin[index] == 1) {
           this.$axios({
             method: 'post',
             url: "/api/v1/team/Member/Invitation",
@@ -153,14 +153,16 @@
             else {
               this.$Message.error(msg.data.msg);
             }
-            deleteMsg(index);
+            this.deleteMsg(index);
+            this.accTeamJoin.splice(index, 1);
           })
           .catch(err => {
             this.$Message.error(err.response.data.msg);
-            deleteMsg(index);
+            this.deleteMsg(index);
+            this.accTeamJoin.splice(index, 1);
           });
         }
-        else if (this.accTeamJoin == 0) {
+        else if (this.accTeamJoin[index] == 0) {
           this.$axios({
             method: 'post',
             url: "/api/v1/team/Member/Rejection",
@@ -169,18 +171,20 @@
               "username": username
             }
           })
-          .then(msg => {
+          .then(msg => {;
             if (msg.data.code == 200) {
               this.$Message.success(msg.data.msg);
             }
             else {
               this.$Message.error(msg.data.msg);
             }
-            deleteMsg(index);
+            this.deleteMsg(index);
+            this.accTeamJoin.splice(index, 1);
           })
           .catch(err => {
             this.$Message.error(err.response.data.msg);
-            deleteMsg(index);
+            this.deleteMsg(index)
+            this.accTeamJoin.splice(index, 1);
           });
         }
       },
