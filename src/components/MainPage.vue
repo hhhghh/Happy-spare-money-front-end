@@ -180,17 +180,7 @@
             });
           }
         });
-
-<<<<<<< HEAD
-     
-     
       
-      
-      
-      
-=======
->>>>>>> 57e9d101a6513efeab78f7404794641d578c4528
-
       this.$router.push({path: `/MainPage/taskSearch`});
     },
 
