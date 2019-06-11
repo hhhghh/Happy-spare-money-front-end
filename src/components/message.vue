@@ -2,8 +2,6 @@
   <div class="div-message">
     <ul>
       <li v-for="(msg, index) in message" class="li-msg">
-<!--        <span style="display: inline-block; width: 300px">{{msg.message}}</span>-->
-<!--        <Icon @click="deleteMsg(index)" type="ios-close" size="24" class="close-icon" />-->
         <template v-if="msg.type==0">
           <span style="float: left;">
             <span class="jump-link user-link" @click="jumpToUser(msg.msg_username)">{{msg.msg_username}}</span>
@@ -146,6 +144,29 @@
                   "username": username
                 }
               ]
+            }
+          })
+          .then(msg => {
+            if (msg.data.code == 200) {
+              this.$Message.success(msg.data.msg);
+            }
+            else {
+              this.$Message.error(msg.data.msg);
+            }
+            deleteMsg(index);
+          })
+          .catch(err => {
+            this.$Message.error(err.response.data.msg);
+            deleteMsg(index);
+          });
+        }
+        else if (this.accTeamJoin == 0) {
+          this.$axios({
+            method: 'post',
+            url: "/api/v1/team/Member/Rejection",
+            data: {
+              "team_id": teamid,
+              "username": username
             }
           })
           .then(msg => {

@@ -176,12 +176,13 @@
           if (msg.data.code == 200) {
             this.message = msg.data.data;
             this.message.sort((msg1, msg2) => {
-              return msg1.type - msg2.type;
+              if (msg1.type == 0 && msg2.type != 0) return msg1.type - msg2.type;
+              if (msg1.type != 0 && msg2.type == 0) return msg1.type - msg2.type;
+              return msg1.id - msg2.id;
             });
           }
         });
-      
-      this.$router.push({path: `/MainPage/taskSearch`});
+
     },
 
     methods: {
