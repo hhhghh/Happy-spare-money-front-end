@@ -64,6 +64,7 @@
 
 <script>
 export default {
+    props: ['userInfo'],
     data() {
         return {
             screenWidth: document.body.clientWidth,
@@ -263,9 +264,7 @@ export default {
         },
 
         handleCloseLabels(event, name) {
-            console.log(name);
             const index = this.teamlabels.indexOf(name);
-            console.log(index);
             this.teamlabels.splice(index, 1);
         },
 
@@ -300,10 +299,11 @@ export default {
         },
 
         uploadGroupInfo(logoUrl) {
-            this.group.leader = "HeChX";
+            this.group.leader = this.userInfo.username;
             this.group.logo = logoUrl;
+            this.group.members = [];
+            this.group.teamlabels = [];
             this.group.members.push({member_username: this.group.leader});
-            console.log(this.InvitedMemberList);
             for (let i = 0, len = this.InvitedMemberList.length; i < len; i++) {
                 this.group.members.push(this.InvitedMemberList[i]);
             }
@@ -341,7 +341,7 @@ export default {
                                     console.log(data);
                                     console.log('Create a new group successfully');
                                     this.$router.push({name: 'groupDetail', params: {id: data.data.team_id}});
-                                } else if (data.code == 220) {
+                                } else if (data.code == 211) {
                                     console.log(data);
                                 }
                             })
@@ -352,8 +352,13 @@ export default {
                         this.uploadGroupInfo(this.logoUrl)
                             .then((data) => {
                                 console.log(data);
-                                console.log('Create a new group successfully');
-                                this.$router.push({name: 'groupDetail', params: {id: data.data.team_id}});
+                                if (data.code == 200) {
+                                    console.log(data);
+                                    console.log('Create a new group successfully');
+                                    this.$router.push({name: 'groupDetail', params: {id: data.data.team_id}});
+                                } else if (data.code == 220) {
+                                    console.log(data);
+                                }
                             })
                             .catch((err) => {
                                 console.log(err);
