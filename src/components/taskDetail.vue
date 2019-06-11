@@ -29,7 +29,7 @@
                             <h1 id="type">类型</h1>
                             <p>{{ task.type_label }} </p>
                         </div>
-                        <div class="div-taskInfo-cell">
+                        <div class="div-taskInfo-cell" @click="jumpToPersonalPage()">
                             <h1 id="releaser">发布人</h1>
                             <Avatar :src="avatar"> </Avatar>
                             <span style="margin-left: 10px">{{ name }} </span>
@@ -199,6 +199,7 @@ export default {
             
             username: 'yao',
             name:'',
+            score:0,
             
            
             task_id: '',
@@ -267,6 +268,8 @@ export default {
                     let userInfo = data.data;
                     vm.username = userInfo.username;
                     vm.name = userInfo.name;
+                    vm.score = userInfo.score;
+                    console.log(vm.score);
                     vm.getTaskDetail();
                 } 
             
@@ -414,6 +417,14 @@ export default {
         acceptTask: function() {
             let vm = this;
             let url = '/api/v1/task/acceptance';
+
+            if (vm.score < vm.task.score) {
+                vm.$Notice.warning({
+                    title: 'Task Acceptance',
+                    desc:  "你的分数不满足任务要求"
+                });
+                return;
+            }
 
             //添加接受者与任务的联系
             this.$axios.post(url, {

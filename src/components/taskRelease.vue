@@ -161,7 +161,7 @@
                         </div>                   
                         <div class="div-task-type">
                             <span class="item-span"   style="width:25%;">任务发布范围</span>
-                            <Select class="input-style"  v-model="taskInfo.range" style="width:70%" label="全部"  multiple>
+                            <Select class="input-style"  v-bind:class="{ 'error-input': taskInfo.range.length == 0 && !isFirst}" v-model="taskInfo.range" style="width:70%" label="全部" :on-change="releaseRangeChange()" multiple >
                                 <Option v-for="item in rangeType" :value="item.value" :key="item.value" >{{ item.label }}</Option>
                             </Select>
                         </div>
@@ -253,6 +253,7 @@
                 <p>{{taskInfo.content}}</p>      
             </div>
             -->
+            
         </div>
     </div>
 </template>
@@ -618,6 +619,14 @@ export default {
                 isError = true;
             }
 
+            if (taskInfo.range.length == 0) {
+                this.$Notice.warning({
+                    title: 'Task Range Lack',
+                    desc: 'Please select release range'
+                });
+                isError = true;
+            }
+
           
             if (!isError)
             {
@@ -713,6 +722,21 @@ export default {
                
                 }
             });
+        },
+        releaseRangeChange() {
+            let range = this.taskInfo.range;
+            let length = range.length;
+            if (length < 2) return;
+
+            if (range[length - 1] == 1 ) {
+                for (let i = 0;i < length - 1;i ++) {
+                    this.taskInfo.range.splice(0, length - 1);
+                }
+            } else {
+                if (range[0] == 1) {
+                    this.taskInfo.range.splice(0, 1);
+                }
+            }
         }
 
     }
