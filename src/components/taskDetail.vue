@@ -29,7 +29,7 @@
                             <h1 id="type">类型</h1>
                             <p>{{ task.type_label }} </p>
                         </div>
-                        <div class="div-taskInfo-cell">
+                        <div class="div-taskInfo-cell" @click="jumpToPersonalPage()">
                             <h1 id="releaser">发布人</h1>
                             <Avatar :src="avatar"> </Avatar>
                             <span style="margin-left: 10px">{{ name }} </span>
@@ -159,7 +159,7 @@
             </div>
             <div style="float:right;margin-right:10px; margin-top:10px;">
                 <Poptip placement="bottom-end">
-                    <Button type="success" :disabled="trs.length == 0">一键确认</Button>
+                    <Button type="success" :disabled="!isCanConfirmAll">一键确认</Button>
                     <div class="div-evaluation" slot="content">
                         <span class="span-score">评分</span>
                         <Rate v-model="scoreValue"></Rate>
@@ -199,6 +199,7 @@ export default {
             
             username: 'yao',
             name:'',
+            score:0,
             
            
             task_id: '',
@@ -211,6 +212,7 @@ export default {
             drawerDisplay: false,
             scoreValue: 0,
             isSelectAll: false,
+            isCanConfirmAll: false,
             isFirst: true,
             trs: [],
             selectedTr:[],
@@ -246,6 +248,7 @@ export default {
     watch: {
       '$route.params': 'enterTaskDetailPage'
     },
+   
 
     methods: {
         enterTaskDetailPage() {
@@ -265,6 +268,8 @@ export default {
                     let userInfo = data.data;
                     vm.username = userInfo.username;
                     vm.name = userInfo.name;
+                    vm.score = userInfo.score;
+                    console.log(vm.score);
                     vm.getTaskDetail();
                 } 
             
@@ -337,6 +342,7 @@ export default {
                 if (data.code == 200) {
                     // console.log(data);
                     vm.avatar = data.data.avatar;
+                    vm.name = data.data.name;
                 }
                
 
@@ -411,6 +417,14 @@ export default {
         acceptTask: function() {
             let vm = this;
             let url = '/api/v1/task/acceptance';
+
+            if (vm.score < vm.task.score) {
+                vm.$Notice.warning({
+                    title: 'Task Acceptance',
+                    desc:  "你的分数不满足任务要求"
+                });
+                return;
+            }
 
             //添加接受者与任务的联系
             this.$axios.post(url, {
@@ -494,7 +508,7 @@ export default {
                     
                 })
                 .catch(function (error) {
-                    if (error.response.status == 403) {
+                    if (error.response.status == 401) {
                    
                         vm.$Notice.warning({
                             title: 'Task Complement',
@@ -543,7 +557,7 @@ export default {
                 //reload
             })
             .catch(function (error) {
-                if (error.response.status == 403) {
+                if (error.response.status == 401) {
                    
                     vm.$Notice.warning({
                         title: 'Task Quiting',
@@ -627,6 +641,7 @@ export default {
                             trs[i]["label"] = '正在做';
                         } else if (trs[i].state == 1) {
                             trs[i]["label"]  = '等待核实';
+                            vm.isCanConfirmAll = true;
                         } else if (trs[i].state == 2) {
                             trs[i]["label"]  = '已完成';
                         }
@@ -709,9 +724,15 @@ export default {
                     for (let i = 0;i < index_arr.length;i ++) {
                          vm.trs[index_arr[i]].state = 2;
                          vm.trs[index_arr[i]].label = "已完成";
+                        
                     }
                    
-
+                    for (let i = 0;i < vm.trs.length;i ++) {
+                        if (vm.trs[i].state != 1) {
+                            vm.isCanConfirmAll = false;
+                            break;
+                        } 
+                    }
                     
                   
                     if (vm.trs.length < vm.task.max_accepter_number) {
@@ -740,7 +761,7 @@ export default {
                
             })
             .catch(function (error) {
-                if (error.response.status == 403) {
+                if (error.response.status == 401) {
                    
                     vm.$Notice.warning({
                         title: 'Task Confirm',

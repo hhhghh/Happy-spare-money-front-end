@@ -22,7 +22,7 @@
             </DropdownMenu>
           </Dropdown>
         </div>
-        <Message :message="message" :accTeamJoin="accTeamJoin" v-show="showMsg"></Message>
+        <Message :message="message" :accTeamJoin="accTeamJoin" v-show="showMsg" style="z-index: 0"></Message>
       </Header>
       <Layout class="layout-bottom">
         <Sider :style="{background: '#fff'}" class="layout-sider" >
@@ -172,6 +172,7 @@
       });
 
       this.getMessage();
+
 
     },
 
