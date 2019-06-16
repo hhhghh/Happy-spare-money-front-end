@@ -6,11 +6,11 @@
           <span style="float: left;">
             <span class="jump-link user-link" @click="jumpToUser(msg.msg_username)">{{msg.msg_username}}</span>
             <span>申请加入小组</span>
-            <span class="jump-link team-link" @click="jumpToTeam(msg.team.team_id)">{{msg.team.team_name}}</span>
+            <span class="jump-link team-link" @click="jumpToTeam(msg.msg_team_id)">{{msg.msg_team_name}}</span>
           </span>
           <span style="float: right; width: 60px">
             <Select v-model="accTeamJoin[index]"
-                    @on-change="handleTeamJoin(msg.team.team_id,msg.msg_username,index)">
+                    @on-change="handleTeamJoin(msg.msg_team_id,msg.msg_username,index)">
               <Option :value="-1" :key="-1">选择</Option>
               <Option :value="1" :key="1">同意</Option>
               <Option :value="0" :key="0">拒绝</Option>
@@ -21,14 +21,14 @@
         <template v-else-if="msg.type==1">
           <span style="float: left;">
             <span>你已进入小组</span>
-            <span class="jump-link team-link" @click="jumpToTeam(msg.team.team_id)">{{msg.team.team_name}}</span>
+            <span class="jump-link team-link" @click="jumpToTeam(msg.msg_team_id)">{{msg.msg_team_name}}</span>
           </span>
         </template>
 
         <template v-else-if="msg.type==2">
           <span style="float: left;">
             <span>你被踢出小组</span>
-            <span class="jump-link team-link" @click="jumpToTeam(msg.team.team_id)">{{msg.team.team_name}}</span>
+            <span class="jump-link team-link" @click="jumpToTeam(msg.msg_team_id)">{{msg.msg_team_name}}</span>
           </span>
         </template>
 
@@ -36,7 +36,7 @@
         <template v-else-if="msg.type==3">
           <span style="float: left;">
             <span>你加入的小组</span>
-            <span class="jump-link team-link" @click="jumpToTeam(msg.team.team_id)">{{msg.team.team_name}}</span>
+            <span class="jump-link team-link" @click="jumpToTeam(msg.msg_team_id)">{{msg.msg_team_name}}</span>
             <span>被解散</span>
           </span>
         </template>
@@ -45,7 +45,7 @@
         <template v-else-if="msg.type==4">
           <span style="float: left;">
             <span>你被设为小组</span>
-            <span class="jump-link team-link" @click="jumpToTeam(msg.team.team_id)">{{msg.team.team_name}}</span>
+            <span class="jump-link team-link" @click="jumpToTeam(msg.msg_team_id)">{{msg.msg_team_name}}</span>
             <span>的组长</span>
           </span>
         </template>
@@ -54,14 +54,14 @@
           <span style="float: left;">
             <span class="jump-link user-link" @click="jumpToUser(msg.msg_username)">{{msg.msg_username}}</span>
             <span>退出小组</span>
-            <span class="jump-link team-link" @click="jumpToTeam(msg.team.team_id)">{{msg.team.team_name}}</span>
+            <span class="jump-link team-link" @click="jumpToTeam(msg.msg_team_id)">{{msg.msg_team_name}}</span>
           </span>
         </template>
 
         <template v-else-if="msg.type==6">
           <span style="float: left;">
             <span>你申请加入小组</span>
-            <span class="jump-link team-link" @click="jumpToTeam(msg.team.team_id)">{{msg.team.team_name}}</span>
+            <span class="jump-link team-link" @click="jumpToTeam(msg.msg_team_id)">{{msg.msg_team_name}}</span>
             <span>被拒绝</span>
           </span>
         </template>
@@ -69,7 +69,7 @@
         <template v-else-if="msg.type==10">
           <span style="float: left;">
             <span>你发布的任务</span>
-            <span class="jump-link task-link" @click="jumpToTask(msg.task.task_id)">{{msg.task.title}}</span>
+            <span class="jump-link task-link" @click="jumpToTask(msg.msg_task_id)">{{msg.msg_task_title}}</span>
             <span>被</span>
             <span class="jump-link user-link" @click="jumpToUser(msg.msg_username)">{{msg.msg_username}}</span>
             <span>接受</span>
@@ -79,7 +79,7 @@
         <template v-else-if="msg.type==11">
           <span style="float: left;">
             <span>你发布的任务</span>
-            <span class="jump-link task-link" @click="jumpToTask(msg.task.task_id)">{{msg.task.title}}</span>
+            <span class="jump-link task-link" @click="jumpToTask(msg.msg_task_id)">{{msg.msg_task_title}}</span>
             <span>被</span>
             <span class="jump-link user-link" @click="jumpToUser(msg.msg_username)">{{msg.msg_username}}</span>
             <span>完成</span>
@@ -89,7 +89,7 @@
         <template v-else-if="msg.type==12">
           <span style="float: left;">
             <span>你发布的任务</span>
-            <span class="jump-link task-link" @click="jumpToTask(msg.task.task_id)">{{msg.task.title}}</span>
+            <span class="jump-link task-link" @click="jumpToTask(msg.msg_task_id)">{{msg.msg_task_title}}</span>
             <span>被</span>
             <span class="jump-link user-link" @click="jumpToUser(msg.msg_username)">{{msg.msg_username}}</span>
             <span>取消接受</span>
@@ -99,7 +99,7 @@
         <template v-else-if="msg.type==13">
           <span style="float: left;">
             <span>你完成的任务</span>
-            <span class="jump-link task-link" @click="jumpToTask(msg.task.task_id)">{{msg.task.title}}</span>
+            <span class="jump-link task-link" @click="jumpToTask(msg.msg_task_id)">{{msg.msg_task_title}}</span>
             <span>被</span>
             <span class="jump-link user-link" @click="jumpToUser(msg.msg_username)">{{msg.msg_username}}</span>
             <span>确认</span>
@@ -109,6 +109,7 @@
         <Icon @click="deleteMsg(index)" type="ios-close" size="24" class="close-icon" v-if="msg.type!=0"/>
       </li>
     </ul>
+    <Button @click="deleteAllMsg" type="error" class="btn-deleteAllMsg">清空消息</Button>
   </div>
 </template>
 
@@ -195,7 +196,20 @@
             if (msg.data.code == 200) {
               this.$Message.success(msg.data.msg);
               this.message.splice(index, 1);
-              if (this.message.length == 0) this.showMsg = false;
+            }
+            else this.$Message.error(msg.data.msg);
+          })
+          .catch(err => {
+            this.$Message.error(err.response.data.msg);
+          });
+      },
+
+      deleteAllMsg() {
+        this.$axios.delete('/api/v1/toast/Username')
+          .then(msg => {
+            if (msg.data.code == 200) {
+              this.$Message.success(msg.data.msg);
+              this.message.splice(0);
             }
             else this.$Message.error(msg.data.msg);
           })
@@ -277,5 +291,9 @@
     display: inline-block;
     max-width: 280px;
     overflow: hidden;
+  }
+
+  .btn-deleteAllMsg {
+    float: right;
   }
 </style>
