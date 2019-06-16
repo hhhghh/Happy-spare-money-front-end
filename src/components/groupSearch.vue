@@ -220,15 +220,24 @@ export default {
 
                 let searchType = '';
                 switch(this.groupAttribute) {
-                    case 'group_id': this.getGroupURLParams = '/Id?team_id=' + this.input; searchType = '小组ID'; break;
-                    case 'group_name': this.getGroupURLParams = '/Name?team_name=' + this.input; searchType = '小组名字'; break;
-                    case 'group_tag': this.getGroupURLParams = '/Label?label=' + this.input; searchType = '小组标签'; break;
+                    case 'group_id': 
+                        this.getGroupURLParams = '/Id?team_id=' + this.input; searchType = '小组ID'; 
+                        this.errorMessage = '抱歉，没有找到符合条件(小组ID为\'' + this.input + '\')的小组，请确认' + searchType + '是否输入正确';
+                        break;
+                    case 'group_name': 
+                        this.getGroupURLParams = '/Name?team_name=' + this.input; searchType = '小组名字'; 
+                        this.errorMessage = '抱歉，没有找到符合条件(小组名字为\'' + this.input + '\')的小组，请确认' + searchType + '是否输入正确';
+                        break;
+                    case 'group_tag': 
+                        this.getGroupURLParams = '/Label?label=' + this.input; searchType = '小组标签'; 
+                        this.errorMessage = '抱歉，没有找到符合条件(小组标签为\'' + this.input + '\')的小组，请确认' + searchType + '是否输入正确';
+                        break;
                     default: break;
                 }
 
                 let t = this;
                 t.teams = [];
-                this.$axios.get('/api/v1/team' + this.getGroupURLParams)
+                this.$axios.get('/api/v1/team' + this.getGroupURLParams + '&type=0')
                     .then((response) => {
                         console.log(response.data);
                         switch(response.data.code) {
@@ -239,22 +248,14 @@ export default {
                                 };
                                 break;
                             case 213:
-                                this.errorMessage = '抱歉，没有找到符合条件(' + this.groupAttribute + ' = ' + this.input + ')的小组，请确认' + searchType + '是否正确';
+                                //this.errorMessage = '抱歉，没有找到符合条件(' + this.groupAttribute + ' = ' + this.input + ')的小组，请确认' + searchType + '是否正确';
                                 break;
                         }
                         
                     })
                     .catch((error) => {
                         console.log(error);
-                        if (error.response) {
-                            console.log(error.response.status);
-                            if (error.response.status == 413) {
-                                this.errorMessage = '抱歉，没有找到符合条件(' + this.groupAttribute + ' = ' + this.input + ')的小组，请确认' + searchType + '是否正确';
-                                console.log(this.errorMessage);
-                            }
-                        } else if (error.request) {
-                            console.log(error.request);
-                        }
+
                     })
             }
         },
@@ -356,7 +357,7 @@ export default {
     mounted: function() {
         // for (let i = 0, len = this.default_teams.length; i < len; i++) {
         //     this.default_teams[i]['showDrawer'] = false;
-        // }
+        // }    
     }
 
 
