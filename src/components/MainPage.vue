@@ -4,7 +4,7 @@
       <Header class="layout-header" >
         <div class="layout-header-right">
           <Badge :count="message.length" style="height: 32px; line-height: 32px; margin-right: 20px;">
-            <Icon @click="showMsg=!showMsg" type="ios-notifications-outline" size="26" style="cursor: pointer"></Icon>
+            <Icon @click="showMsgToggle" type="ios-notifications-outline" size="26" style="cursor: pointer"></Icon>
           </Badge>
           <div class="avatar" @click="jumpToUserInfoPage">
             <img class="avatarImg" :src="userInfo.avatar">
@@ -22,7 +22,7 @@
             </DropdownMenu>
           </Dropdown>
         </div>
-        <Message :message="message" v-show="showMsg"></Message>
+        <Message :message="message" :accTeamJoin="accTeamJoin" v-show="showMsg" style="z-index: 0"></Message>
       </Header>
       <Layout class="layout-bottom">
         <Sider :style="{background: '#fff'}" class="layout-sider" >
@@ -111,7 +111,7 @@
         userInfo: {},
 
         message: [],
-
+        accTeamJoin: [],
 
         isUser: true,
         showMsg: false,
@@ -171,15 +171,8 @@
         duration: 3
       });
 
-      this.$axios.get('/api/v1/toast')
-        .then(msg => {
-          if (msg.data.code == 200) {
-            this.message = msg.data.data;
-            this.message.sort((msg1, msg2) => {
-              return msg1.type - msg2.type;
-            });
-          }
-        });
+      this.getMessage();
+
 
     },
 
@@ -211,7 +204,37 @@
         });
       },
 
+      getMessage() {
+        this.$axios.get('/api/v1/toast')
+          .then(msg => {
+            if (msg.data.code == 200) {
+              this.message = msg.data.data;
+              this.message.sort((msg1, msg2) => {
+                if (msg1.type == 0 && msg2.type != 0) return msg1.type - msg2.type;
+                if (msg1.type != 0 && msg2.type == 0) return msg1.type - msg2.type;
+                return msg1.id - msg2.id;
+              });
+              for (let i = 0; i < this.message.length; i++) {
+                if (this.message[i].type != 0) {
+                  this.accTeamJoin = new Array(i);
+                  break;
+                }
+              }
+              this.accTeamJoin.fill(-1);
+            }
+          });
+      },
 
+      hiddenMessage() {
+        this.showMsg = false;
+      },
+
+      showMsgToggle() {
+        this.showMsg = !this.showMsg;
+        if (this.showMsg) {
+          this.getMessage();
+        }
+      },
 
       reload() {
         this.isRouterAlive = false;
@@ -230,6 +253,10 @@
 
     components: {
       Message
+    },
+
+    watch: {
+      '$route.path': 'hiddenMessage'
     }
   }
 </script>
