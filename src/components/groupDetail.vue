@@ -272,6 +272,8 @@ export default {
     },
     methods: {
         judge(team_id) {
+            
+            console.log(this.userInfo);
             let p = new Promise((resolve, reject) => {
                 this.$axios.get('/api/v1/team/Member?team_id=' + team_id)
                     .then((res) => {
@@ -295,7 +297,7 @@ export default {
         getGroupDetail(team_id) {
 
             let p1 = new Promise((resolve, reject) => {
-                this.$axios.get('/api/v1/team/Id?team_id=' + team_id)
+                this.$axios.get('/api/v1/team/Id?team_id=' + team_id + '&type=0')
                     .then((res) => {
                         if (res.data.code == 200 && res.data.data.length != 0) {
                             let param = {};
@@ -884,6 +886,8 @@ span {
 .member-item {
     height: 30px;
     margin: 5px 0px;
+    display: flex;
+    justify-content: space-between;
 }
 
 .hidden {
@@ -897,9 +901,10 @@ span {
 } */
 
 .profile {
-    display: inline-block;
+    /* display: inline-block; */
     height: 30px;
     width: 30px;
+    flex: 0 1 10%;
 }
 
 .profile-img {
@@ -910,6 +915,8 @@ span {
 .member-username {
     display: inline-block;
     vertical-align: middle;
+    overflow: hidden;
+    flex: 0 1 50%;
 }
 
 .username-span {
@@ -917,7 +924,6 @@ span {
 }
 
 .button-blacklist {
-    float: right;
     padding: 3px 15px;
     margin: 1.5px 3px;
 }
