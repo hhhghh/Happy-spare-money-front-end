@@ -22,6 +22,7 @@
                   <Icon type="ios-more" size="24" color="white"/>
                 </a>
                 <DropdownMenu slot="list">
+                  <DropdownItem v-if="userInfo.type==1" @click.native="follow">关注</DropdownItem>
                   <DropdownItem @click.native="addBlackList">加入黑名单</DropdownItem>
                 </DropdownMenu>
               </Dropdown>
@@ -33,9 +34,10 @@
             <TabPane label="个人信息" name="info">
               <div class="info">
                 <h2>个人信息</h2>
-                <div class="info-row">性名： <span>{{userInfo.name}}</span></div>
+                <div v-if="userInfo.type==0" class="info-row">性名： <span>{{userInfo.name}}</span></div>
+                <div v-else class="info-row">负责人： <span>{{userInfo.name}}</span></div>
                 <div class="info-row">学校： <span>{{userInfo.school}}</span></div>
-                <div class="info-row">年级： <span>{{userInfo.grade}}</span></div>
+                <div v-if="userInfo.type==0" class="info-row">年级： <span>{{userInfo.grade}}</span></div>
                 <div class="info-row">电话： <span>{{userInfo.phone}}</span></div>
                 <div class="info-row">微信： <span>{{userInfo.wechat}}</span></div>
                 <div class="info-row">qq： <span>{{userInfo.qq}}</span></div>
@@ -66,7 +68,7 @@
               </ul>
             </TabPane>
 
-            <TabPane label="正在完成的任务" name="finishingTasks">
+            <TabPane v-if="userInfo.type==0" label="正在完成的任务" name="finishingTasks">
               <ul>
                 <li v-for="task in finishingTasks">
                   <router-link :to="'/MainPage/taskDetail/' + task.task_id">
@@ -113,7 +115,7 @@
               </ul>
             </TabPane>
 
-            <TabPane label="已完成的任务" name="finishedTasks">
+            <TabPane v-if="userInfo.type==0" label="已完成的任务" name="finishedTasks">
               <ul>
                 <li v-for="task in finishedTasks">
                   <router-link :to="'/MainPage/taskDetail/' + task.task_id">
@@ -217,6 +219,24 @@
           data: {
             "username1": this.$route.params.username,
           }
+        })
+          .then(msg => {
+            if (msg.data.code == 200) {
+              this.$Message.success(msg.data.msg);
+            }
+            else {
+              this.$Message.error(msg.data.msg);
+            }
+          })
+          .catch(err => {
+            console.log(err);
+            this.$Message.error(err.response.data.msg);
+          });
+      },
+
+      follow() {
+        this.$axios.post('/api/v1/user/follow', {
+          ins_name: this.$route.params.username
         })
           .then(msg => {
             if (msg.data.code == 200) {

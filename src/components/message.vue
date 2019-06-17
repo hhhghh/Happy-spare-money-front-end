@@ -147,21 +147,19 @@
               ]
             }
           })
-            .then(msg => {
-              if (msg.data.code == 200) {
-                this.$Message.success(msg.data.msg);
-              }
-              else {
-                this.$Message.error(msg.data.msg);
-              }
-              this.deleteMsg(index);
-              this.accTeamJoin.splice(index, 1);
-            })
-            .catch(err => {
-              this.$Message.error(err.response.data.msg);
-              this.deleteMsg(index);
-              this.accTeamJoin.splice(index, 1);
-            });
+          .then(msg => {
+            if (msg.data.code == 200) {
+              this.$Message.success(msg.data.msg);
+            }
+            else {
+              this.$Message.error(msg.data.msg);
+            }
+            this.deleteMsg(index, true);
+          })
+          .catch(err => {
+            this.$Message.error(err.response.data.msg);
+            this.deleteMsg(index, true);
+          });
         }
         else if (this.accTeamJoin[index] == 0) {
           this.$axios({
@@ -172,30 +170,29 @@
               "username": username
             }
           })
-            .then(msg => {
-              if (msg.data.code == 200) {
-                this.$Message.success(msg.data.msg);
-              }
-              else {
-                this.$Message.error(msg.data.msg);
-              }
-              this.deleteMsg(index);
-              this.accTeamJoin.splice(index, 1);
-            })
-            .catch(err => {
-              this.$Message.error(err.response.data.msg);
-              this.deleteMsg(index)
-              this.accTeamJoin.splice(index, 1);
-            });
+          .then(msg => {
+            if (msg.data.code == 200) {
+              this.$Message.success(msg.data.msg);
+            }
+            else {
+              this.$Message.error(msg.data.msg);
+            }
+            this.deleteMsg(index, true);
+          })
+          .catch(err => {
+            this.$Message.error(err.response.data.msg);
+            this.deleteMsg(index, true);
+          });
         }
       },
 
-      deleteMsg(index) {
+      deleteMsg(index, isHandleTeamJoin) {
         this.$axios.delete('/api/v1/toast/Id?id='+ this.message[index].id)
           .then(msg => {
             if (msg.data.code == 200) {
               this.$Message.success(msg.data.msg);
               this.message.splice(index, 1);
+              if (isHandleTeamJoin) this.accTeamJoin.splice(index, 1);
             }
             else this.$Message.error(msg.data.msg);
           })
