@@ -2,7 +2,7 @@
 
 <template>
     <div class="content-body">
-        <div class="content"> 
+        <div v-bind:class="{'hidden': userType}" class="content"> 
             <div class="content-selector-block">
                 <div style="margin-left: 15px;">
                     <Breadcrumb>
@@ -50,11 +50,26 @@
                 </div>
             </div>        
         </div>
+
+        <div v-bind:class="{'hidden': !userType}" class="content">
+            <div class="content-selector-block">
+                <div style="margin-left: 15px;">
+                    <Breadcrumb>
+                        <BreadcrumbItem to="/MainPage/myGroup">我的小组</BreadcrumbItem>
+                    </Breadcrumb>
+                </div>
+            </div>
+
+            <Divider></Divider>
+
+
+        </div>
     </div>
 </template>
 
 <script>
 export default {
+    props: ['userInfo'],
     data() {
         return {
             groupAttributeList: [
@@ -174,14 +189,14 @@ export default {
 
             tags: ['sport', 'music'],
 
-            loginUser: 'hyx',
+            userType: 0,
         };
     },
     methods: {
         getAllGroupJoined() {
             let t = this;
             t.teams = [];
-            t.$axios.get('/api/v1/team/MemberName?member_username=' + t.loginUser)
+            t.$axios.get('/api/v1/team/MemberName?type=0')
                 .then(function (response) {
                     console.log(response.data);
                     if (response.data.code == 200) {
@@ -202,7 +217,9 @@ export default {
 
     },
     mounted: function() {
+        console.log(this.userInfo);
         this.getAllGroupJoined();
+        this.userType = this.userInfo.type;
     }
 
 }
@@ -336,6 +353,10 @@ span {
 .no-group {
     margin: auto;
     font-size: 12pt;
+}
+
+.hidden {
+    display: none;
 }
 
 </style>
