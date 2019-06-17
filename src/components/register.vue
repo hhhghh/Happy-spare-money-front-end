@@ -28,10 +28,10 @@
                   <Input v-model="userInfo.username" placeholder="username"></Input>
                 </FormItem>
                 <FormItem label="密码" prop="password">
-                  <Input v-model="userInfo.password" placeholder="password"></Input>
+                  <Input v-model="userInfo.password" placeholder="password" type="password"></Input>
                 </FormItem>
                 <FormItem label="确认密码" prop="confirmPassword">
-                  <Input v-model="userInfo.confirmPassword" placeholder="confirm password"></Input>
+                  <Input v-model="userInfo.confirmPassword" placeholder="confirm password" type="password"></Input>
                 </FormItem>
                 <FormItem label="姓名" prop="name">
                   <Input v-model="userInfo.name" placeholder="real name"></Input>
@@ -61,17 +61,48 @@
                   <Button @click="handleReset('infoForm')" style="margin-left: 8px">Reset</Button>
                 </FormItem>
               </Form>
-
-
             </template>
 
 
             <template v-else>
-              2
-
-
-
-
+              <Form ref="infoForm" :model="userInfo" :rules="userRuleValidate" label-position="right" :label-width="80">
+                <FormItem label="机构名" prop="username">
+                  <Input v-model="userInfo.username" placeholder="username"></Input>
+                </FormItem>
+                <FormItem label="密码" prop="password">
+                  <Input v-model="userInfo.password" placeholder="password" type="password"></Input>
+                </FormItem>
+                <FormItem label="确认密码" prop="confirmPassword">
+                  <Input v-model="userInfo.confirmPassword" placeholder="confirm password" type="password"></Input>
+                </FormItem>
+                <FormItem label="姓名" prop="name">
+                  <Input v-model="userInfo.name" placeholder="real name"></Input>
+                </FormItem>
+                <FormItem label="学校" prop="school">
+                  <Input v-model="userInfo.school" placeholder="school"></Input>
+                </FormItem>
+                <FormItem label="年级" prop="grade">
+                  <Select v-model="userInfo.grade">
+                    <Option value="1">大一</Option>
+                    <Option value="2">大二</Option>
+                    <Option value="3">大三</Option>
+                    <Option value="4">大四</Option>
+                  </Select>
+                </FormItem>
+                <FormItem label="电话" prop="phone">
+                  <Input v-model="userInfo.phone" placeholder="phone"></Input>
+                </FormItem>
+                <FormItem label="微信" prop="weChat">
+                  <Input v-model="userInfo.weChat" placeholder="WeChat"></Input>
+                </FormItem>
+                <FormItem label="qq" prop="qq">
+                  <Input v-model="userInfo.qq" placeholder="qq"></Input>
+                </FormItem>
+                <FormItem>
+                  <Button @click="userRegisterSubmit('infoForm')" type="primary">Submit</Button>
+                  <Button @click="handleReset('infoForm')" style="margin-left: 8px">Reset</Button>
+                </FormItem>
+              </Form>
             </template>
           </Col>
         </Row>
@@ -195,18 +226,18 @@
               data: formData,
               config: {headers: {'Content-Type': 'multipart/form-data'}}
             })
-            .then(msg => {
-              if (msg.data.code == 200) {
-                this.$Message.success('注册成功！');
-                this.$router.push({name: 'login'});
-              }
-              else {
-                this.$Message.error(msg.data.msg);
-              }
-            })
-            .catch(err => {
-              this.$Message.error(err.response.statusText);
-            });
+              .then(msg => {
+                if (msg.data.code == 200) {
+                  this.$Message.success('注册成功！');
+                  this.$router.push({name: 'login'});
+                }
+                else {
+                  this.$Message.error(msg.data.msg);
+                }
+              })
+              .catch(err => {
+                this.$Message.error(err.response.statusText);
+              });
           }
           else {
             this.$Message.error('Fail!');
@@ -255,7 +286,7 @@
     width: 100%;
     border-radius: 6px;
   }
-  
+
 
   .img-upload-box {
     width: 58px;
