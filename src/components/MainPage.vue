@@ -184,10 +184,7 @@
 
     methods: {
       jumpToPersonalPage() {
-        if (this.isUser)
-          this.$router.push({path: `/personalPage/personalInfo`});
-        else
-          this.$router.push({path: `/personalPage/organizationInf`});
+        this.$router.push({path: `/personalPage/personalInfo`});
       },
 
       jumpToUserInfoPage() {

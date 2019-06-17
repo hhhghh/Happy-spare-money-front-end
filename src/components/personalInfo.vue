@@ -2,18 +2,18 @@
   <div class="contain">
     <h1 class="div-border-bottom">Profile</h1>
     <div class="div-userinfo">
-      <h2>Username</h2>
+      <h2>用户名</h2>
       <Input v-model="userInfo.username" disabled/>
 
-      <h2>Password</h2>
+      <h2>密码</h2>
       <Button type="primary" @click="changeModifyPasswdShow">Modify</Button>
       <transition name="fade">
         <div class="div-password" v-if="isModifyPassword">
-          <h3>Old Password</h3>
+          <h3>原密码</h3>
           <Input placeholder="Enter old password" v-model="passwdItems.oldPasswd" type="password" clearable/>
-          <h3>New Password</h3>
+          <h3>新密码</h3>
           <Input placeholder="Enter new password" v-model="passwdItems.newPasswd" type="password" clearable/>
-          <h3>Confirm Password</h3>
+          <h3>确认密码</h3>
           <Input placeholder="confirm password" v-model="passwdItems.confirmPasswd" type="password" clearable/>
           <Alert class="alert-message" type="error" v-show="passwdItems.newPasswd != passwdItems.confirmPasswd" show-icon>
             两次密码不一致
@@ -22,31 +22,44 @@
       </transition>
 
       <div class="div-basicInf">
-        <h1>Basic Information</h1>
-        <h2>Name</h2>
-        <Input v-model="userInfo.name" placeholder="Enter realname.." disabled  />
+        <h1>基本信息</h1>
+        <h2>姓名</h2>
+        <Input v-if="userInfo.type==0" v-model="userInfo.name" placeholder="Enter name" disabled  />
+        <Input v-else v-model="userInfo.name" placeholder="Enter name" />
 
-        <div style="width: 49%; float: left;">
-          <h3>School</h3>
+        <div v-if="userInfo.type == 0">
+          <div style="width: 49%; float: left;">
+            <h3>学校</h3>
+            <AutoComplete v-model="userInfo.school" :data="schools" :filter-method="filterMethod" placeholder="input here" disabled>
+            </AutoComplete>
+          </div>
+          <div style="width: 49%; float: right;">
+            <h3>年级</h3>
+            <Select v-model="userInfo.grade">
+              <Option v-for="item in grades" :value="item.value" :key="item.value">{{ item.label }}</Option>
+            </Select>
+          </div>
+        </div>
+        <div v-else>
+          <h3>学校</h3>
           <AutoComplete v-model="userInfo.school" :data="schools" :filter-method="filterMethod" placeholder="input here" disabled>
           </AutoComplete>
-        </div>
-        <div style="width: 49%; float: right;">
-          <h3>Grade</h3>
-          <Select v-model="userInfo.grade">
-            <Option v-for="item in grades" :value="item.value" :key="item.value">{{ item.label }}</Option>
-          </Select>
         </div>
       </div>
 
       <div class="div-otherInf">
-        <h1>Contact Information</h1>
-        <h2>Phone Number</h2>
+        <h1>联系方式</h1>
+        <h2>电话号码</h2>
         <Input v-model="userInfo.phone" placeholder="Enter phonenumber.." clearable  />
-        <h2>WeChat</h2>
+        <h2>微信</h2>
         <Input v-model="userInfo.wechat" placeholder="Enter webchat.." clearable  />
         <h2>QQ</h2>
         <Input v-model="userInfo.qq" placeholder="Enter QQ.." clearable  />
+      </div>
+
+      <div class="div-signature">
+        <h2>个性签名</h2>
+        <Input v-model="userInfo.signature" type="textarea" :autosize="{minRows: 2,maxRows: 5}" placeholder="Enter something..."></Input>
       </div>
 
       <Button type="success" style="margin: 5px 0px 5px 0px" @click="updateInfo" long>Submit</Button>
@@ -304,6 +317,14 @@ h2, h3 {
   padding: 10px;
   border-radius: 10px;
   margin-top: 10px;
+}
+
+.div-signature {
+  border: 1px solid #ff9900;
+  padding: 10px;
+  border-radius: 10px;
+  margin-top: 10px;
+  overflow:hidden;
 }
 
 .div-avatar {

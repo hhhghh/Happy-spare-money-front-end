@@ -7,35 +7,37 @@
         </span>
       </Header>
       <Content>
-        <div class="login-contain">
-          <Tabs>
-            <TabPane label="用户登录">
-              <Form ref="userLoginForm" :rules="ruleValidate" :model="userLoginInfo">
-                <FormItem prop="username">
-                  <Input v-model="userLoginInfo.username" prefix="ios-contact" placeholder="username"/>
-                </FormItem>
-                <FormItem prop="password">
-                  <Input v-model="userLoginInfo.password" type="password" prefix="ios-lock" placeholder="password"/>
-                </FormItem>
-                <FormItem>
-                  <Button @click="login('userLoginForm', '0')" type="primary" long>登录</Button>
-                </FormItem>
-              </Form>
-            </TabPane>
-            <TabPane label="机构登录">
-              <Form ref="orLoginForm" :rules="ruleValidate" :model="userLoginInfo">
-                <FormItem prop="username">
-                  <Input v-model="userLoginInfo.username" prefix="ios-contacts" placeholder="username"/>
-                </FormItem>
-                <FormItem prop="password">
-                  <Input v-model="userLoginInfo.password" type="password" prefix="ios-lock" placeholder="password"/>
-                </FormItem>
-                <FormItem>
-                  <Button @click="login('orLoginForm', '1')" type="primary" long>登录</Button>
-                </FormItem>
-              </Form>
-            </TabPane>
-          </Tabs>
+        <div class="div-login">
+          <div class="login-contain">
+            <Tabs>
+              <TabPane label="用户登录">
+                <Form ref="userLoginForm" :rules="ruleValidate" :model="userLoginInfo">
+                  <FormItem prop="username">
+                    <Input v-model="userLoginInfo.username" prefix="ios-contact" placeholder="username"/>
+                  </FormItem>
+                  <FormItem prop="password">
+                    <Input v-model="userLoginInfo.password" type="password" prefix="ios-lock" placeholder="password"/>
+                  </FormItem>
+                  <FormItem>
+                    <Button @click="login('userLoginForm', '0')" type="primary" long>登录</Button>
+                  </FormItem>
+                </Form>
+              </TabPane>
+              <TabPane label="机构登录">
+                <Form ref="orLoginForm" :rules="ruleValidate" :model="userLoginInfo">
+                  <FormItem prop="username">
+                    <Input v-model="userLoginInfo.username" prefix="ios-contacts" placeholder="username"/>
+                  </FormItem>
+                  <FormItem prop="password">
+                    <Input v-model="userLoginInfo.password" type="password" prefix="ios-lock" placeholder="password"/>
+                  </FormItem>
+                  <FormItem>
+                    <Button @click="login('orLoginForm', '1')" type="primary" long>登录</Button>
+                  </FormItem>
+                </Form>
+              </TabPane>
+            </Tabs>
+          </div>
         </div>
       </Content>
     </Layout>
@@ -101,7 +103,7 @@
 </script>
 
 <style>
-.ivu-tabs-nav {
+.div-login .ivu-tabs-nav {
   position: relative;
   left: 50%;
   transform: translateX(-50%);
