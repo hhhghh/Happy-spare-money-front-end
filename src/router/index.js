@@ -13,6 +13,7 @@ import groupSearch from '@/components/groupSearch'
 import myGroup from '@/components/myGroup'
 import createGroup from '@/components/createGroup'
 import groupDetail from '@/components/groupDetail'
+import defaultGroupDetail from '@/components/defaultGroupDetail'
 import modifyGroupInfo from '@/components/modifyGroupInfo'
 import login from '@/components/login'
 import register from '@/components/register'
@@ -80,6 +81,11 @@ export default new Router({
           path: '/MainPage/groupDetail/:id',
           name: 'groupDetail',
           component: groupDetail
+        },
+        {
+          path: '/MainPage/defaultGroupDetail/:id',
+          name: 'defaultGroupDetail',
+          component: defaultGroupDetail
         },
         {
           path: '/MainPage/groupDetail/:id/modifyInfo',

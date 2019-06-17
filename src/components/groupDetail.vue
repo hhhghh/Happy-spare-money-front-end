@@ -915,6 +915,7 @@ span {
 .member-username {
     display: inline-block;
     vertical-align: middle;
+    margin: auto;
     overflow: hidden;
     flex: 0 1 50%;
 }
