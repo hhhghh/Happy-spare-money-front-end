@@ -12,7 +12,16 @@
                     <div class="selector">
                     <span class="selector-span">任务发布范围</span>
                         <Select v-model="rangeSelect" style="width:100px;margin-right:5px" @on-change="getReleaseTask(typeSelect,rangeSelect,stateSelect)">
-                            <Option v-for="item in rangeType" :value="item.value" :key="item.value">{{ item.label }}</Option>
+                            
+                            <OptionGroup label="全部">
+                                <Option v-for="item in allRangeType" :value="item.value" :key="item.value">{{ item.label }}</Option>
+                            </OptionGroup>
+                            <OptionGroup label="小组">
+                                <Option v-for="item in groupRangeType" :value="item.value" :key="item.value">{{ item.label }}</Option>
+                             </OptionGroup>
+                             <OptionGroup label="机构小组">
+                                <Option v-for="item in organRangeType" :value="item.value" :key="item.value">{{ item.label }}</Option>
+                             </OptionGroup>
                         </Select>
                     </div>
                     <div class="selector">
@@ -93,11 +102,18 @@ export default {
                     label: '跑腿'
                 }
             ],
-            rangeType: [
+            allRangeType:[
                 {
                     value: 'all',
                     label: '全部'
-                },
+                }
+            ],
+            groupRangeType: [
+                
+                
+            ],
+            organRangeType:[
+
             ],
             stateType: [
                 {
@@ -192,6 +208,7 @@ export default {
                     if (vm.type == 0) {
                         vm.getGroup(0);
                     } else {
+                        vm.getGroup(0);
                         vm.getGroup(1);
                     }
                     vm.getReleaseTask(vm.typeSelect, vm.rangeSelect, vm.stateSelect);
@@ -222,22 +239,23 @@ export default {
             })
             .then(function(response) {
                 let data = response.data;
-                if (data.code == 200 || data.code == 213) {
-                    if (data.code == 200) {
+                if (data.code == 200 ) {
+                    
+                    if (type == 0) {
                         let teamDatas = data.data;
                         for(let i = 0;i < teamDatas.length;i ++) {
-                           if (type == 0) {
-                                vm.rangeType.push({value: teamDatas[i].team_id, label: teamDatas[i].team_name + '--' + teamDatas[i].leader});
-                            } else {
-                                vm.rangeType.push({value: teamDatas[i].team_id, label: teamDatas[i].team_name + '--' + teamDatas[i].leader + '  ***'});
-                            }
-                        
+                          
+                            vm.groupRangeType.push({value: teamDatas[i].team_id, label: teamDatas[i].team_name + '--' + teamDatas[i].leader});
+                        }
+                    } else {
+                        let organDatas = data.data;
+                         for(let i = 0;i < organDatas.length;i ++) {
+                          
+                            vm.organRangeType.push({value: organDatas[i].team_id, label: organDatas[i].team_name + '--' + organDatas[i].leader});
                         }
                     }
+                    
 
-                    if (vm.type == 1 && type != 1) {
-                        vm.getGroup(0);
-                    }
                     // console.log(vm.rangeType);
                 } 
             

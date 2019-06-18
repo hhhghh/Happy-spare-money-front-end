@@ -11,9 +11,20 @@
                     </div>
                     <div class="selector">
                     <span class="selector-span">任务发布范围</span>
+                        
                         <Select v-model="rangeSelect" style="width:100px;margin-right:5px" @on-change="getAcceptTask(typeSelect,rangeSelect,stateSelect)">
-                            <Option v-for="item in rangeType" :value="item.value" :key="item.value">{{ item.label }}</Option>
+                            
+                            <OptionGroup label="全部">
+                                <Option v-for="item in allRangeType" :value="item.value" :key="item.value">{{ item.label }}</Option>
+                            </OptionGroup>
+                            <OptionGroup label="小组">
+                                <Option v-for="item in groupRangeType" :value="item.value" :key="item.value">{{ item.label }}</Option>
+                             </OptionGroup>
+                             <OptionGroup label="机构">
+                                <Option v-for="item in organRangeType" :value="item.value" :key="item.value">{{ item.label }}</Option>
+                             </OptionGroup>
                         </Select>
+                       
                     </div>
                     <div class="selector">
                     <span class="selector-span">任务状态</span>
@@ -90,12 +101,18 @@ export default {
                     label: '跑腿'
                 }
             ],
-            rangeType: [
+            allRangeType:[
                 {
                     value: 'all',
                     label: '全部'
                 }
+            ],
+            groupRangeType: [
                 
+                
+            ],
+            organRangeType:[
+
             ],
             stateType: [
                 {
@@ -205,7 +222,8 @@ export default {
                 if (data.code == 200) {
                     let userInfo = data.data;
                     vm.username = userInfo.username;
-                    vm.getGroup();
+                    vm.getGroup(0);
+                    vm.getGroup(1);
                     vm.getAcceptTask(vm.typeSelect, vm.rangeSelect, vm.stateSelect);
                 } 
             
@@ -220,13 +238,13 @@ export default {
                 }
             });
         },
-        getGroup() {
+        getGroup(type) {
             let vm = this;
             let url = '/api/v1/team/MemberName'
             //异步
             this.$axios.get(url, {
                params: {
-                   type: 0,
+                   type: type,
                    member_username : vm.username
                }
             
@@ -234,10 +252,19 @@ export default {
             .then(function(response) {
                 let data = response.data;
                 if (data.code == 200) {
-                    let teamDatas = data.data;
-                    for(let i = 0;i < teamDatas.length;i ++) {
-                        vm.rangeType.push({value: teamDatas[i].team_id, label: teamDatas[i].team_name + '--' + teamDatas[i].leader});
+                   
+                    if (type == 0) {
+                        let teamDatas = data.data;
+                        for(let i = 0;i < teamDatas.length;i ++) {
+                            vm.groupRangeType.push({value: teamDatas[i].team_id, label: teamDatas[i].team_name + '--' + teamDatas[i].leader});
+                        }
+                    } else if (type == 1) {
+                        let organDatas = data.data;
+                         for(let i = 0;i < organDatas.length;i ++) {
+                            vm.organRangeType.push({value: organDatas[i].team_id, label:  organDatas[i].leader});
+                        }
                     }
+                  
                     // console.log(vm.rangeType);
                 } 
             
@@ -246,6 +273,7 @@ export default {
                 console.log('Fail to request');
             });
         },
+
         //get Accept Task
         getAcceptTask(typeSelect, rangeSelect, stateSelect) {
             //http request get

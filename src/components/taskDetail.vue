@@ -55,8 +55,9 @@
                     <div class="div-taskInfo-item div-flex">
                         <div class="div-taskInfo-cell">
                             <h1 id="profit" >奖赏</h1>
+                            <img class="coin" src="../assets/coin.jpg"/>
                             <span>{{task.money}}</span>
-                            <Icon type="logo-yen" />
+                            
                         </div>
                         <div class="div-taskInfo-cell" v-show="isReleaser">
                             <h1>数量</h1>
@@ -82,7 +83,7 @@
             
 
             <div style="margin-top: 20px;">
-                <Button class="btn" type="success" long v-show="!isAcceptor && !isReleaser" @click="acceptTask()" :disabled="isOver">接受任务</Button>
+                <Button class="btn" type="success" long v-show="!isAcceptor && !isReleaser" @click="acceptTask()" :disabled="isOver || type == 1">接受任务</Button>
                 <Button class="btn" type="primary" long v-show="isAcceptor && isDoing" @click="completeTask()">完成任务</Button>
                 <Button class="btn" type="error" long v-show="isAcceptor && isDoing" @click="quitingTask()">放弃任务</Button>
                
@@ -202,7 +203,7 @@ export default {
         return {
             
             username: 'yao',
-    
+            type:0,
             
            
             task_id: '',
@@ -270,6 +271,7 @@ export default {
                 if (data.code == 200) {
                     let userInfo = data.data;
                     vm.username = userInfo.username;
+                    vm.type = userInfo.type;
                     vm.getTaskDetail();
                 } 
             
@@ -921,4 +923,13 @@ h1 {
     margin-top: 15px;
    
 }
+
+.coin {
+    position:relative;
+    width:20px;
+    height:20px;
+    top: 5px;
+
+}
+
 </style>
