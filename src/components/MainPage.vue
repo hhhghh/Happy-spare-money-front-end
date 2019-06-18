@@ -358,7 +358,7 @@
   }
 
   .fade1-enter-active, .fade1-leave-active {
-    transition: opacity 1s ease;
+    transition: opacity 0.5s ease;
   }
 
   .fade1-enter, .fade1-leave-to /* .fade-leave-active below version 2.1.8 */ {
