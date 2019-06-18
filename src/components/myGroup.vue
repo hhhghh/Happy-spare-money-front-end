@@ -52,7 +52,7 @@
         </div>
 
         <div v-bind:class="{'hidden': !userType}" class="tab-content">
-            <Tabs>
+            <Tabs :value="tabValue">
                 <TabPane label="我的小组" name="tabMyGroup">
                     <div v-if="teams.length != 0" class="group-content">
                         <div class="div-flex" v-for="item in teams" v-bind:key="item.team_id">
@@ -256,6 +256,8 @@ export default {
             tags: ['sport', 'music'],
 
             userType: 0,
+
+            tabValue: 'tabMyGroup',
         };
     },
     methods: {
@@ -298,17 +300,26 @@ export default {
 
         jumpToDefaultGroupDetail(item) {
             this.$router.push({name: 'defaultGroupDetail', params: {id: item.team_id, group: item}})
+        },
+
+        sendToMainPage() {
+            let data = {
+                active: '2-2',
+                open: '2'
+            };
+            this.$emit('menuSelected', data);
         }
 
     },
     mounted: function() {
         console.log(this.userInfo);
         this.getAllGroupJoined();
-        //this.userType = this.userInfo.type;
-        this.userType = 1;
+        this.userType = !this.userInfo.type;
+        //this.userType = 1;
         if (this.userType) {
             this.getDefaultGroup();
         }
+        this.sendToMainPage();
     }
 
 }
@@ -446,15 +457,6 @@ span {
 
 .tab-content {
     padding: 15px;
-}
-
-.ivu-tabs-nav {
-    position: relative;
-}
-
-.ivu-tabs-bar {
-    margin-left: 30px;
-    margin-right: 30px;
 }
 
 .hidden {

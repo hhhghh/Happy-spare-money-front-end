@@ -256,6 +256,14 @@ export default {
                     }
                 })
         },
+
+        sendToMainPage() {
+            let data = {
+                active: '2-2',
+                open: '2'
+            };
+            this.$emit('menuSelected', data);
+        },
     },
 
     mounted: function() {
@@ -283,7 +291,7 @@ export default {
                 name: 'myGroup'
             })
         }
-        
+        this.sendToMainPage();
     },
 
     watch: {
@@ -321,14 +329,8 @@ span {
     position: relative;
 }
 
-.flex-content {
-    flex: 0 1 32%;
-    margin: 0px 5px;
-}
-
-
 .left-content {
-    flex: 1 1 25%;
+    flex: 1 0 25%;
     margin: 0px 5px;
 }
 
@@ -351,29 +353,14 @@ span {
     border-radius: 5px;
 }
 
-.modify-info {
-    margin: 10px auto;
-    text-align: center;
-}
-
-.button-modify {
-    margin: auto;
-}
-
 .middle-content {
-    flex: 1 1 40%;
+    flex: 1 0 40%;
     margin: 0px 5px;
 }
 
 .property {
     display: inline-block;
     width: 30%;
-    font-size: 12pt;
-    margin: 5px;
-}
-
-.list-title {
-    display: inline-block;
     font-size: 12pt;
     margin: 5px;
 }
@@ -387,15 +374,6 @@ span {
     padding: 5px;
     width: 60%;
     vertical-align: top;
-}
-
-.description2 {
-    border: 1px solid #dcdee2;
-    border-radius: 5px;
-    background-color: #ffffff;
-    height: 96px;
-    font-size: 10pt;
-    padding: 5px;
 }
 
 .span {
@@ -442,9 +420,10 @@ span {
     box-shadow: 4px 4px 10px #5cadff;
 }
 
-.task-title{
+.task-title {
     font-size: 20px;
     margin: 10px;
+    overflow: hidden;
 }
 
 .task-simpleinfo {
@@ -466,14 +445,7 @@ span {
     right:0px;
     bottom:0px;
     margin:10px;
-
 }
-
-.drawer-button {
-    margin: 5px;
-    width: 100px;
-}
-
 
 .right-content {
     flex: 1 1 30%;
@@ -491,8 +463,6 @@ span {
 .member-item {
     height: 30px;
     margin: 5px 0px;
-    display: inline-block;
-    justify-content: space-between;
 }
 
 .hidden {
@@ -511,11 +481,6 @@ span {
     width: 30px;
 }
 
-.profile-img {
-    height: 24px;
-    width: 24px;
-}
-
 .member-username {
     display: inline-block;
     vertical-align: middle;
@@ -524,44 +489,6 @@ span {
 
 .username-span {
     font-size: 12pt;
-}
-
-.button-blacklist {
-    padding: 3px 15px;
-    margin: 1.5px 3px;
-}
-
-.withdraw {
-    margin-top: 20px;
-}
-
-.invite-button {
-    margin: 5px 0;
-}
-
-.withdraw-button {
-    margin: 5px 0;
-}
-
-.transfer-block {
-    margin-top: 15px;
-}
-
-.user-item-mouseenter {
-    background-color: #f8f8f9;
-    cursor: pointer;
-}
-
-.user-item-mouseleave {
-    background-color: #ffffff;
-}
-
-.user-item-selected {
-    background-color: #5cadff;
-}
-
-.transfer-complete {
-    margin-top: 20px;
 }
 
 .no-organization {

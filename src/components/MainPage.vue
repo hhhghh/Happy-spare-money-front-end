@@ -26,7 +26,7 @@
       </Header>
       <Layout class="layout-bottom">
         <Sider :style="{background: '#fff'}" class="layout-sider" >
-          <Menu active-name="1-1" theme="light" width="auto" :open-names="['1']">
+          <Menu ref="menu" :active-name="menuActive" theme="light" width="auto" :open-names="menuOpen">
             <Submenu name="1">
               <template slot="title">
                 <Icon type="md-apps" size="24"/>
@@ -76,7 +76,7 @@
                   <span>我的小组</span>
                 </MenuItem>
               </router-link>
-              <router-link to="/MainPage/createGroup">
+              <router-link v-if="isUser" to="/MainPage/createGroup">
                 <MenuItem name="2-3">
                   <Icon type="ios-create-outline" />
                   <span>创建小组</span>
@@ -88,7 +88,7 @@
         </Sider>
         <div class="layout-content">
           <div>
-            <router-view v-if="isRouterAlive" :userInfo="userInfo"></router-view>
+            <router-view v-if="isRouterAlive" :userInfo="userInfo" @menuSelected="updateMenu"></router-view>
           </div>
           <BackTop>
             <div v-on:mouseenter="inBackTop=true" v-on:mouseleave="inBackTop=false"
@@ -147,7 +147,8 @@
         taskClass: '',
         range: '',
 
-
+        menuActive: '1-1',
+        menuOpen: ['1'],
       };
     },
     mounted() {
@@ -241,6 +242,15 @@
         this.$nextTick(function() {
           this.isRouterAlive = true;
         })
+      },
+
+      updateMenu(value) {
+        this.menuOpen.push(value.open);
+        this.menuActive = value.active;
+        this.$nextTick(() => {
+          this.$refs.menu.updateOpened();
+          this.$refs.menu.updateActiveName();
+        })
       }
 
     },
@@ -288,7 +298,7 @@
     left:0px;
     right:0px;
     height:auto;
-    over-flow:hidden;
+    overflow:hidden;
     min-width: 960px;
     background-color: #f8f8f9;
   }
