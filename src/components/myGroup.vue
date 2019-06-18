@@ -314,7 +314,7 @@ export default {
     mounted: function() {
         console.log(this.userInfo);
         this.getAllGroupJoined();
-        this.userType = !this.userInfo.type;
+        this.userType = this.userInfo.type;
         //this.userType = 1;
         if (this.userType) {
             this.getDefaultGroup();

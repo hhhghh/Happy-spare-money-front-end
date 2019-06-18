@@ -252,8 +252,9 @@
           this.$refs.menu.updateOpened();
           this.$refs.menu.updateActiveName();
         })
+      },
 
-      backTop(){
+      backTop() {
         window.scrollTo(0,0);
 
       }
