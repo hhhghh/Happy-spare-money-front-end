@@ -4,7 +4,7 @@
       <Header class="layout-header" >
         <div class="layout-header-right">
           <Badge :count="message.length" style="height: 32px; line-height: 32px; margin-right: 20px;">
-            <Icon @click="showMsgToggle" type="ios-notifications-outline" size="26" style="cursor: pointer"></Icon>
+            <Icon @click="showMessage" type="ios-notifications-outline" size="26" style="cursor: pointer"></Icon>
           </Badge>
           <div class="avatar" @click="jumpToUserInfoPage">
             <img class="avatarImg" :src="userInfo.avatar">
@@ -22,7 +22,13 @@
             </DropdownMenu>
           </Dropdown>
         </div>
-        <Message :message="message" :accTeamJoin="accTeamJoin" v-show="showMsg" style="z-index: 0"></Message>
+        <transition name="fade1">
+          <Message :message="message" :accTeamJoin="accTeamJoin"
+                   @mouseleave.native="showMsg=false"
+                   v-show="message.length&&showMsg"
+                   style="z-index: 0;">
+          </Message>
+        </transition>
       </Header>
       <Layout class="layout-bottom">
         <Sider :style="{background: '#fff'}" class="layout-sider" >
@@ -179,10 +185,7 @@
 
     methods: {
       jumpToPersonalPage() {
-        if (this.isUser)
-          this.$router.push({path: `/personalPage/personalInfo`});
-        else
-          this.$router.push({path: `/personalPage/organizationInf`});
+        this.$router.push({path: `/personalPage/personalInfo`});
       },
 
       jumpToUserInfoPage() {
@@ -230,11 +233,9 @@
         this.showMsg = false;
       },
 
-      showMsgToggle() {
-        this.showMsg = !this.showMsg;
-        if (this.showMsg) {
-          this.getMessage();
-        }
+      showMessage() {
+        this.showMsg = true;
+        this.getMessage();
       },
 
       reload() {
@@ -251,13 +252,17 @@
           this.$refs.menu.updateOpened();
           this.$refs.menu.updateActiveName();
         })
-      }
 
+      backTop(){
+        window.scrollTo(0,0);
+
+      }
     },
 
     provide() {
       return {
-        reload: this.reload
+        reload: this.reload,
+        backTop: this.backTop
       }
     },
 
@@ -367,5 +372,11 @@
     background-color: rgba(0, 0, 0, 1);
   }
 
+  .fade1-enter-active, .fade1-leave-active {
+    transition: opacity 0.5s ease;
+  }
 
+  .fade1-enter, .fade1-leave-to /* .fade-leave-active below version 2.1.8 */ {
+    opacity: 0;
+  }
 </style>
