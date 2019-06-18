@@ -78,6 +78,7 @@ export default {
     data() {
         return {
             username: null,
+            type:0,
             taskType: [
                 {
                     value: 'all',
@@ -186,7 +187,13 @@ export default {
                 if (data.code == 200) {
                     let userInfo = data.data;
                     vm.username = userInfo.username;
-                    vm.getGroup();
+                    vm.type = userInfo.type;
+                    
+                    if (vm.type == 0) {
+                        vm.getGroup(0);
+                    } else {
+                        vm.getGroup(1);
+                    }
                     vm.getReleaseTask(vm.typeSelect, vm.rangeSelect, vm.stateSelect);
                 } 
             
@@ -201,23 +208,35 @@ export default {
                 }
             });
         },
-        getGroup() {
+        getGroup(type) {
+            console.log("test");
             let vm = this;
             let url = '/api/v1/team/MemberName'
             //异步
             this.$axios.get(url, {
                params: {
-                   type: 0,
+                   type: type,
                    member_username : vm.username
                }
             
             })
             .then(function(response) {
                 let data = response.data;
-                if (data.code == 200) {
-                    let teamDatas = data.data;
-                    for(let i = 0;i < teamDatas.length;i ++) {
-                        vm.rangeType.push({value: teamDatas[i].team_id, label: teamDatas[i].team_name + '--' + teamDatas[i].leader});
+                if (data.code == 200 || data.code == 213) {
+                    if (data.code == 200) {
+                        let teamDatas = data.data;
+                        for(let i = 0;i < teamDatas.length;i ++) {
+                           if (type == 0) {
+                                vm.rangeType.push({value: teamDatas[i].team_id, label: teamDatas[i].team_name + '--' + teamDatas[i].leader});
+                            } else {
+                                vm.rangeType.push({value: teamDatas[i].team_id, label: teamDatas[i].team_name + '--' + teamDatas[i].leader + '  ***'});
+                            }
+                        
+                        }
+                    }
+
+                    if (vm.type == 1 && type != 1) {
+                        vm.getGroup(0);
                     }
                     // console.log(vm.rangeType);
                 } 
