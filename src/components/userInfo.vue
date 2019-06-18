@@ -218,11 +218,11 @@
             }
           });
 
-        this.$axios.get('/api/v1/user/getFollowList')
+        this.$axios.get('/api/v1/user/getUsersFollowedOrganizationsList')
           .then(msg => {
             if (msg.data.code == 200) {
-              this.inFollowList = msg.data.data.some(user => {
-                return user.username == this.$route.params.username;
+              this.inFollowList = msg.data.data.some(org => {
+                return org.orgname == this.$route.params.username;
               });
             }
           });
