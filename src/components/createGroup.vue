@@ -375,9 +375,17 @@ export default {
             const index = labels.length - 1;
             return labels[index];
         },
+
+        sendToMainPage() {
+            let data = {
+                active: '2-3',
+                open: '2'
+            };
+            this.$emit('menuSelected', data);
+        },
     },
     mounted () {
-        
+        this.sendToMainPage();
     }
 
 }

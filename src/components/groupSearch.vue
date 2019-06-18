@@ -352,12 +352,21 @@ export default {
                     content: '<p>你已经在该小组中了</p><p>不能再次加入</P>'
                 })
             }
-        }
+        },
+
+        sendToMainPage() {
+            let data = {
+                active: '2-1',
+                open: '2'
+            };
+            this.$emit('menuSelected', data);
+        },
     },
     mounted: function() {
         // for (let i = 0, len = this.default_teams.length; i < len; i++) {
         //     this.default_teams[i]['showDrawer'] = false;
         // }    
+        this.sendToMainPage();
     }
 
 
