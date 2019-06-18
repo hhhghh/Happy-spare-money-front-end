@@ -236,8 +236,12 @@ export default {
         "grade": this.userInfo.grade,
         "phone": this.userInfo.phone,
         "wechat": this.userInfo.wechat,
-        "qq": this.userInfo.qq
+        "qq": this.userInfo.qq,
+        "signature": this.userInfo.signature
       };
+      if (this.userInfo.type == 1) {
+        data.name = this.userInfo.name;
+      }
 
       if (this.isModifyPassword && this.passwdItems.confirmPasswd == this.passwdItems.newPasswd) {
         data.oldPasswd = SHA256(this.passwdItems.oldPasswd).toString();

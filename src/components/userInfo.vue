@@ -10,23 +10,33 @@
         <div class="content">
           <div class="h">
             <img :src="userInfo.avatar">
-            <div class="username">
-              {{userInfo.username}}
-              <Rate allow-half show-text disabled v-model="userInfo.score">
-                <span style="color: #f5a623">{{userInfo.score}}</span>
-              </Rate>
-            </div>
+
             <div class="action">
               <Dropdown>
                 <a href="javascript:void(0)">
                   <Icon type="ios-more" size="24" color="white"/>
                 </a>
                 <DropdownMenu slot="list">
-                  <DropdownItem v-if="userInfo.type==1" @click.native="follow">关注</DropdownItem>
-                  <DropdownItem @click.native="addBlackList">加入黑名单</DropdownItem>
+                  <DropdownItem v-if="userInfo.type==1" @click.native="toggleFollow">
+                    {{inFollowList ? '取消关注' : '关注'}}
+                  </DropdownItem>
+                  <DropdownItem @click.native="toggleBlack">
+                    {{inBlackList ? '取消拉黑' : '拉黑'}}
+                  </DropdownItem>
                 </DropdownMenu>
               </Dropdown>
             </div>
+
+            <div class="username">
+              {{userInfo.username}}
+              <Rate v-if="userInfo.type==0" allow-half show-text disabled v-model="userInfo.score">
+                <span style="color: #f5a623">{{userInfo.score}}</span>
+              </Rate>
+            </div>
+            <div class="div-signature">
+              {{userInfo.signature}}
+            </div>
+
           </div>
 
 
@@ -155,7 +165,10 @@
         publishingTasks: [],
         publishedTasks: [],
         finishingTasks: [],
-        finishedTasks: []
+        finishedTasks: [],
+
+        inBlackList: false,
+        inFollowList: false
       };
     },
 
@@ -195,6 +208,25 @@
               this.addTaskTr(this.finishedTasks, this.$route.params.username);
             }
           });
+
+        this.$axios.get('/api/v1/user/getUserBlacklist')
+          .then(msg => {
+            if (msg.data.code == 200) {
+              this.inBlackList = msg.data.data.some(user => {
+                return user.username == this.$route.params.username;
+              });
+            }
+          });
+
+        this.$axios.get('/api/v1/user/getFollowList')
+          .then(msg => {
+            if (msg.data.code == 200) {
+              this.inFollowList = msg.data.data.some(user => {
+                return user.username == this.$route.params.username;
+              });
+            }
+          });
+
       },
 
 
@@ -212,17 +244,18 @@
         });
       },
 
-      addBlackList() {
-        this.$axios({
-          method: 'post',
-          url: "/api/v1/user/userblacklist",
-          data: {
+      toggleBlack() {
+        let url = '';
+        if (this.inBlackList) url = '/api/v1/user/usercancelblack';
+        else url = '/api/v1/user/userblacklist';
+
+        this.$axios.post(url, {
             "username1": this.$route.params.username,
-          }
         })
           .then(msg => {
             if (msg.data.code == 200) {
               this.$Message.success(msg.data.msg);
+              this.inBlackList = !this.inBlackList;
             }
             else {
               this.$Message.error(msg.data.msg);
@@ -234,13 +267,18 @@
           });
       },
 
-      follow() {
-        this.$axios.post('/api/v1/user/follow', {
+      toggleFollow() {
+        let url = '';
+        if (this.inFollowList) url = '/api/v1/user/cancelfollow';
+        else url = '/api/v1/user/follow';
+
+        this.$axios.post(url, {
           ins_name: this.$route.params.username
         })
           .then(msg => {
             if (msg.data.code == 200) {
               this.$Message.success(msg.data.msg);
+              this.inFollowList = !this.inFollowList;
             }
             else {
               this.$Message.error(msg.data.msg);
@@ -306,12 +344,18 @@
   }
 
   .h .username {
-    margin: 20px;
+    margin: 20px 20px 0 140px;
     color: #fff;
     font-size: 24px;
-    position: absolute;
-    bottom: 0;
-    left: 120px;
+  }
+
+  .div-signature {
+    margin: 20px 20px 20px 140px;
+    color: #fff;
+  }
+
+  .action {
+    float: right;
   }
 
   .name {
