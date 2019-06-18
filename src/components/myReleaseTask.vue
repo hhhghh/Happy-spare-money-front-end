@@ -12,7 +12,16 @@
                     <div class="selector">
                     <span class="selector-span">任务发布范围</span>
                         <Select v-model="rangeSelect" style="width:100px;margin-right:5px" @on-change="getReleaseTask(typeSelect,rangeSelect,stateSelect)">
-                            <Option v-for="item in rangeType" :value="item.value" :key="item.value">{{ item.label }}</Option>
+                            
+                            <OptionGroup label="全部">
+                                <Option v-for="item in allRangeType" :value="item.value" :key="item.value">{{ item.label }}</Option>
+                            </OptionGroup>
+                            <OptionGroup label="小组">
+                                <Option v-for="item in groupRangeType" :value="item.value" :key="item.value">{{ item.label }}</Option>
+                             </OptionGroup>
+                             <OptionGroup label="机构小组">
+                                <Option v-for="item in organRangeType" :value="item.value" :key="item.value">{{ item.label }}</Option>
+                             </OptionGroup>
                         </Select>
                     </div>
                     <div class="selector">
@@ -74,9 +83,11 @@
 
 <script scoped>
 export default {
+    inject: ['backTop'],
     data() {
         return {
             username: null,
+            type:0,
             taskType: [
                 {
                     value: 'all',
@@ -91,11 +102,18 @@ export default {
                     label: '跑腿'
                 }
             ],
-            rangeType: [
+            allRangeType:[
                 {
                     value: 'all',
                     label: '全部'
-                },
+                }
+            ],
+            groupRangeType: [
+                
+                
+            ],
+            organRangeType:[
+
             ],
             stateType: [
                 {
@@ -156,6 +174,7 @@ export default {
     },
 
     mounted() {
+        this.backTop();
         //http.get my release task
         //this.getReleaseTask(this.typeSelect, this.rangeSelect, this.stateSelect);
         this.getUserInfo()
@@ -184,7 +203,14 @@ export default {
                 if (data.code == 200) {
                     let userInfo = data.data;
                     vm.username = userInfo.username;
-                    vm.getGroup();
+                    vm.type = userInfo.type;
+                    
+                    if (vm.type == 0) {
+                        vm.getGroup(0);
+                    } else {
+                        vm.getGroup(0);
+                        vm.getGroup(1);
+                    }
                     vm.getReleaseTask(vm.typeSelect, vm.rangeSelect, vm.stateSelect);
                 } 
             
@@ -199,23 +225,37 @@ export default {
                 }
             });
         },
-        getGroup() {
+        getGroup(type) {
+            console.log("test");
             let vm = this;
             let url = '/api/v1/team/MemberName'
             //异步
             this.$axios.get(url, {
                params: {
+                   type: type,
                    member_username : vm.username
                }
             
             })
             .then(function(response) {
                 let data = response.data;
-                if (data.code == 200) {
-                    let teamDatas = data.data;
-                    for(let i = 0;i < teamDatas.length;i ++) {
-                        vm.rangeType.push({value: teamDatas[i].team_id, label: teamDatas[i].team_name + '--' + teamDatas[i].leader});
+                if (data.code == 200 ) {
+                    
+                    if (type == 0) {
+                        let teamDatas = data.data;
+                        for(let i = 0;i < teamDatas.length;i ++) {
+                          
+                            vm.groupRangeType.push({value: teamDatas[i].team_id, label: teamDatas[i].team_name + '--' + teamDatas[i].leader});
+                        }
+                    } else {
+                        let organDatas = data.data;
+                         for(let i = 0;i < organDatas.length;i ++) {
+                          
+                            vm.organRangeType.push({value: organDatas[i].team_id, label: organDatas[i].team_name + '--' + organDatas[i].leader});
+                        }
                     }
+                    
+
                     // console.log(vm.rangeType);
                 } 
             
@@ -316,7 +356,7 @@ h2 {
     padding: 20px;
     position:relative;
     min-width: 960px;
-    min-height:200px;
+    min-height: 1000px;
     overflow: hidden;
     background-color: #f8f8f9;
 }
