@@ -47,6 +47,7 @@
 
 <script scoped>
 export default {
+    inject: ['backTop'],
     data() {
         return {
             username: null,
@@ -124,11 +125,12 @@ export default {
 
     mounted() {
         this.getUserInfo();
-       
+        this.backTop();
         
     },
 
     methods: {
+        
         getUserInfo(){
             let vm = this;
             let url = '/api/v1/user/getPersonalInfo'

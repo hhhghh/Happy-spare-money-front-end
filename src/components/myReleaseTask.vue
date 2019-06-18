@@ -74,6 +74,7 @@
 
 <script scoped>
 export default {
+    inject: ['backTop'],
     data() {
         return {
             username: null,
@@ -156,6 +157,7 @@ export default {
     },
 
     mounted() {
+        this.backTop();
         //http.get my release task
         //this.getReleaseTask(this.typeSelect, this.rangeSelect, this.stateSelect);
         this.getUserInfo()

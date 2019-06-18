@@ -124,6 +124,7 @@ span {
 <script scoped>
 
 export default {
+    inject: ['backTop'],
     data() {
         return {
             username:'yao',
@@ -202,7 +203,7 @@ export default {
 
     },
     mounted() {
-       
+       this.backTop();
         // this.getQuestions(this.questionnaire);
          
         this.questionnaire_path = this.$route.params.url; 

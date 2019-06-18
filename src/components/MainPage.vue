@@ -242,12 +242,16 @@
         this.$nextTick(function() {
           this.isRouterAlive = true;
         })
+      },
+      backTop(){
+        window.scrollTo(0,0);
       }
     },
 
     provide() {
       return {
-        reload: this.reload
+        reload: this.reload,
+        backTop: this.backTop
       }
     },
 

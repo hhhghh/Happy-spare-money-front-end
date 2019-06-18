@@ -196,7 +196,8 @@
 <script scoped>
 export default {
     //ba6edb624b0d2.json
-    inject: ['reload'],
+    inject: ['reload', 'backTop'],
+
     data () {
         return {
             
@@ -244,6 +245,7 @@ export default {
     },
     
     mounted() {
+        this.backTop();
         this.task_id = this.$route.params.id;    
         this.getMyUserInfo();
 

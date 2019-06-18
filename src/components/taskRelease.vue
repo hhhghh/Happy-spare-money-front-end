@@ -381,6 +381,7 @@
 <script scoped>
 var SHA256 = require("crypto-js/sha256");
 export default {
+    inject: ['backTop'],
     data() {
         return {
             username: 'yao',
@@ -486,6 +487,7 @@ export default {
     },
 
     mounted() {
+        this.backTop();
         Date.prototype.Format = function (fmt) { //author: meizz
                 let o = {
                 "M+": this.getMonth() + 1, //月份
