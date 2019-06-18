@@ -51,16 +51,80 @@
             </div>        
         </div>
 
-        <div v-bind:class="{'hidden': !userType}" class="content">
-            <div class="content-selector-block">
-                <div style="margin-left: 15px;">
-                    <Breadcrumb>
-                        <BreadcrumbItem to="/MainPage/myGroup">我的小组</BreadcrumbItem>
-                    </Breadcrumb>
-                </div>
-            </div>
-
-            <Divider></Divider>
+        <div v-bind:class="{'hidden': !userType}" class="tab-content">
+            <Tabs :value="tabValue">
+                <TabPane label="我的小组" name="tabMyGroup">
+                    <div v-if="teams.length != 0" class="group-content">
+                        <div class="div-flex" v-for="item in teams" v-bind:key="item.team_id">
+                            <div v-bind:class="{'group-card':true,'group-card-mouseenter': enterid == item.team_id, 'group-card-mouseleave':!(enterid == item.team_id)}"
+                            v-on:mouseenter="enterid = item.team_id" v-on:mouseleave="enterid = 0" @click="jumpToGroupDetail(item)" >
+                                <div class="top-block">
+                                    <div class="group-image" style="display: inline">
+                                        <Avatar :src="item.logo" > U</Avatar>
+                                    </div>
+                                    <div class="group-name" style="display: inline">
+                                        <span>{{item.team_name}}</span>
+                                    </div>
+                                </div>
+                                <div class="middle-block">
+                                    <div class="group-description">
+                                        <span>{{item.description}}</span>
+                                    </div>
+                                </div>
+                                <div class="bottom-block">
+                                    <div class="group-tags" style="display: inline">
+                                        <Icon type="md-pricetags" />
+                                        <Tag type="border" class="tags" v-for="item in item.teamlabels" :key="item.id" :name="item.label">{{ item.label }}</Tag>
+                                    </div>
+                                    <div class="group-members" style="display: inline">
+                                        <Icon type="md-person" />
+                                        <span>{{item.members.length}}</span>
+                                    </div>
+                                </div>
+                                
+                            </div>
+                        </div>
+                    </div>
+                    <div v-else class="group-content">
+                        <div class="no-group">
+                            你还没有加入小组，赶紧去加入吧！
+                        </div>
+                    </div> 
+                </TabPane>
+                <TabPane label="默认小组" name="tabDefaultGroup">
+                    <div class="group-content">
+                        <div class="div-flex" v-for="item in defaultGroupList" v-bind:key="item.team_id">
+                            <div v-bind:class="{'group-card':true,'group-card-mouseenter': enterid == item.team_id, 'group-card-mouseleave':!(enterid == item.team_id)}"
+                            v-on:mouseenter="enterid = item.team_id" v-on:mouseleave="enterid = 0" @click="jumpToDefaultGroupDetail(item)" >
+                                <div class="top-block">
+                                    <div class="group-image" style="display: inline">
+                                        <Avatar :src="item.logo" > U</Avatar>
+                                    </div>
+                                    <div class="group-name" style="display: inline">
+                                        <span>{{item.team_name}}</span>
+                                    </div>
+                                </div>
+                                <div class="middle-block">
+                                    <div class="group-description">
+                                        <span>{{item.description}}</span>
+                                    </div>
+                                </div>
+                                <div class="bottom-block">
+                                    <div class="group-tags" style="display: inline">
+                                        <Icon type="md-pricetags" />
+                                        <Tag type="border" class="tags" v-for="item in item.teamlabels" :key="item.id" :name="item.label">{{ item.label }}</Tag>
+                                    </div>
+                                    <div class="group-members" style="display: inline">
+                                        <Icon type="md-person" />
+                                        <span>{{item.members.length}}</span>
+                                    </div>
+                                </div>
+                                
+                            </div>
+                        </div>
+                    </div>
+                </TabPane>
+            </Tabs>
 
 
         </div>
@@ -187,9 +251,13 @@ export default {
                 
             ],
 
+            defaultGroupList: [],
+
             tags: ['sport', 'music'],
 
             userType: 0,
+
+            tabValue: 'tabMyGroup',
         };
     },
     methods: {
@@ -211,8 +279,35 @@ export default {
                 })
         },
 
+        getDefaultGroup() {
+            this.$axios.get('/api/v1/team/DefaultGroup')
+                .then((res) => {
+                    console.log(res);
+                    if (res.data.code == 200) {
+                        for (let i = 0, len = res.data.data.length; i < len; i++) {
+                            this.defaultGroupList.push(res.data.data[i]);
+                        }
+                    }
+                })
+                .catch((err) => {
+                    console.log(err);
+                })
+        },
+
         jumpToGroupDetail: function(item) {
             this.$router.push({name: 'groupDetail', params: {id: item.team_id, group: item}})
+        },
+
+        jumpToDefaultGroupDetail(item) {
+            this.$router.push({name: 'defaultGroupDetail', params: {id: item.team_id, group: item}})
+        },
+
+        sendToMainPage() {
+            let data = {
+                active: '2-2',
+                open: '2'
+            };
+            this.$emit('menuSelected', data);
         }
 
     },
@@ -220,6 +315,11 @@ export default {
         console.log(this.userInfo);
         this.getAllGroupJoined();
         this.userType = this.userInfo.type;
+        //this.userType = 1;
+        if (this.userType) {
+            this.getDefaultGroup();
+        }
+        this.sendToMainPage();
     }
 
 }
@@ -353,6 +453,10 @@ span {
 .no-group {
     margin: auto;
     font-size: 12pt;
+}
+
+.tab-content {
+    padding: 15px;
 }
 
 .hidden {

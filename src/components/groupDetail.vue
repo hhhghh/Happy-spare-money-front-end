@@ -95,9 +95,11 @@
                                         <div class="member-username">
                                             <span class="username-span">{{item.username}}</span>
                                         </div>
-                                        <Button :class="{'hidden': !isLeader}" class="button-blacklist" @click="dislodge(item.username)">移除</Button>
-                                        <Button :class="{'hidden': item.inBlacklist}" class="button-blacklist" @click="blacklist(item.username)">拉黑</Button>
-                                        <Button :class="{'hidden': !item.inBlacklist}" class="button-blacklist" @click="cancelBlacklist(item.username)">取消拉黑</Button>
+                                        <div class="buttonList">
+                                            <Button :class="{'hidden': item.inBlacklist}" class="button-blacklist" @click="blacklist(item.username)">拉黑</Button>
+                                            <Button :class="{'hidden': !item.inBlacklist}" class="button-blacklist" @click="cancelBlacklist(item.username)">取消拉黑</Button>
+                                            <Button :class="{'hidden': !isLeader}" class="button-blacklist" @click="dislodge(item.username)">移除</Button>
+                                        </div>
                                     </div>
                                 </Scroll>
                                 <div class="withdraw">
@@ -319,6 +321,7 @@ export default {
                                                 if (response2.data.code == 200 && response2.data.data.length != 0) {
                                                     for (let i = 0, len = res.data.data[0].members.length; i < len; i++) {
                                                         for (let j = 0, len2 = response2.data.data.length; j < len2; j++) {
+                                                            this.$forceUpdate();
                                                             if (res.data.data[0].members[i]['username'] == response2.data.data[j]['username']) {
                                                                 res.data.data[0].members[i].inBlacklist = true;
                                                                 break;
@@ -333,6 +336,7 @@ export default {
                                                 console.log(error2);
                                             })
                                         console.log(res.data.data);
+                                        
                                         this.group = res.data.data[0];
                                         resolve(res);
                                     } else {
@@ -509,6 +513,7 @@ export default {
                                 content: '<p>拉黑成功</p>'
                             });
                             for (let i = 0, len = this.group.members.length; i < len; i++) {
+                                this.$forceUpdate();
                                 if (name == this.group.members[i]['username']) {
                                     this.group.members[i]['inBlacklist'] = true;
                                 }
@@ -524,12 +529,17 @@ export default {
                             })
                         }
                     })
+            } else {
+                this.$Modal.error({
+                    title: '提示',
+                    content: '<p>不能拉黑自己</p>'
+                });
             }
         },
 
         cancelBlacklist(name) {
             if (name != this.userInfo.username) {
-                this.$axios.post('/api/v1/user/usercancelblack', {username1: this.userInfo.username, username2: name})
+                this.$axios.post('/api/v1/user/usercancelblack', {username1: name, username2: this.userInfo.username})
                     .then((res) => {
                         console.log(res);
                         if (res.data.code == 200) {
@@ -538,6 +548,7 @@ export default {
                                 content: '<p>取消拉黑成功</p>'
                             });
                             for (let i = 0, len = this.group.members.length; i < len; i++) {
+                                this.$forceUpdate();
                                 if (name == this.group.members[i]['username']) {
                                     this.group.members[i]['inBlacklist'] = false;
                                 }
@@ -675,9 +686,21 @@ export default {
                     }
                 })
         },
+
+        sendToMainPage() {
+            let data = {
+                active: '2-2',
+                open: '2'
+            };
+            this.$emit('menuSelected', data);
+        },
     },
 
     mounted: function() {
+        this.sendToMainPage();
+    },
+
+    created: function() {
         this.switchGroup();
     },
 
@@ -716,12 +739,6 @@ span {
     position: relative;
 }
 
-.flex-content {
-    flex: 0 1 32%;
-    margin: 0px 5px;
-}
-
-
 .left-content {
     flex: 1 1 25%;
     margin: 0px 5px;
@@ -756,7 +773,7 @@ span {
 }
 
 .middle-content {
-    flex: 1 1 40%;
+    flex: 1 0 40%;
     margin: 0px 5px;
 }
 
@@ -915,8 +932,15 @@ span {
 .member-username {
     display: inline-block;
     vertical-align: middle;
+    margin: auto;
     overflow: hidden;
     flex: 0 1 50%;
+}
+
+.buttonList {
+    flex: 0 1 40%;
+    display: flex;
+    justify-content: flex-end;
 }
 
 .username-span {
