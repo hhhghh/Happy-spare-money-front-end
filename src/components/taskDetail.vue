@@ -29,10 +29,12 @@
                             <h1 id="type">类型</h1>
                             <p>{{ task.type_label }} </p>
                         </div>
-                        <div class="div-taskInfo-cell" @click="jumpToPersonalPage()">
+                        <div class="div-taskInfo-cell" >
                             <h1 id="releaser">发布人</h1>
-                            <Avatar :src="avatar"> </Avatar>
-                            <span style="margin-left: 10px">{{ name }} </span>
+                            <div @click="jumpToReleaserInfo()">
+                                <Avatar :src="avatar" > </Avatar>
+                                <span style="margin-left: 10px">{{ task.publisher }} </span>
+                            </div>
                         </div>
                     </div>
                     <div class="div-taskInfo-item">
@@ -149,6 +151,7 @@
                                             </Poptip>
                                             <Button type="primary" size="small" style="margin-left:5px" v-show="task.type == 1" :disabled="item.state == 0" @click="jumpToQuestionnaire(item.questionnaire_path, 2)">问卷答案</Button>
                                             <Checkbox :disabled="item.state != 1" v-model="item.isSelected" style="margin-top: 3px;position: relative;left: 10px;"></Checkbox>
+
                                         </div>
                                     </td>
                                 </tr>
@@ -159,7 +162,7 @@
             </div>
             <div style="float:right;margin-right:10px; margin-top:10px;">
                 <Poptip placement="bottom-end">
-                    <Button type="success" :disabled="!isCanConfirmAll">一键确认</Button>
+                    <Button type="success" :disabled="!isCanConfrmAll">一键确认</Button>
                     <div class="div-evaluation" slot="content">
                         <span class="span-score">评分</span>
                         <Rate v-model="scoreValue"></Rate>
@@ -198,8 +201,7 @@ export default {
         return {
             
             username: 'yao',
-            name:'',
-            score:0,
+    
             
            
             task_id: '',
@@ -212,7 +214,7 @@ export default {
             drawerDisplay: false,
             scoreValue: 0,
             isSelectAll: false,
-            isCanConfirmAll: false,
+            isCanConfrmAll: false,
             isFirst: true,
             trs: [],
             selectedTr:[],
@@ -235,27 +237,26 @@ export default {
                 content:''
             },
 
-            
+           
 
             
         }
     },
     
     mounted() {
-      this.enterTaskDetailPage()
-    },
+        this.task_id = this.$route.params.id;    
+        this.getMyUserInfo();
 
-    watch: {
-      '$route.params': 'enterTaskDetailPage'
     },
-   
+    watch: {
+        
+        '$route'(to, from) {
+            this.task_id = this.$route.params.id;
+            this.getMyUserInfo();
+        }
+    },
 
     methods: {
-        enterTaskDetailPage() {
-          this.task_id = this.$route.params.id;
-          this.getMyUserInfo();
-        },
-
         getMyUserInfo(){
             let vm = this;
             let url = '/api/v1/user/getPersonalInfo'
@@ -267,9 +268,6 @@ export default {
                 if (data.code == 200) {
                     let userInfo = data.data;
                     vm.username = userInfo.username;
-                    vm.name = userInfo.name;
-                    vm.score = userInfo.score;
-                    console.log(vm.score);
                     vm.getTaskDetail();
                 } 
             
@@ -300,6 +298,8 @@ export default {
                 // console.log(data);
                 if (data.code == 200) {
                     let task = data.data;
+
+
                     if (task.type == 1) {
                         task["type_label"] = '问卷调查';
                         vm.td_width = 163;
@@ -417,14 +417,6 @@ export default {
         acceptTask: function() {
             let vm = this;
             let url = '/api/v1/task/acceptance';
-
-            if (vm.score < vm.task.score) {
-                vm.$Notice.warning({
-                    title: 'Task Acceptance',
-                    desc:  "你的分数不满足任务要求"
-                });
-                return;
-            }
 
             //添加接受者与任务的联系
             this.$axios.post(url, {
@@ -641,7 +633,7 @@ export default {
                             trs[i]["label"] = '正在做';
                         } else if (trs[i].state == 1) {
                             trs[i]["label"]  = '等待核实';
-                            vm.isCanConfirmAll = true;
+                            vm.isCanConfrmAll = true;
                         } else if (trs[i].state == 2) {
                             trs[i]["label"]  = '已完成';
                         }
@@ -724,15 +716,9 @@ export default {
                     for (let i = 0;i < index_arr.length;i ++) {
                          vm.trs[index_arr[i]].state = 2;
                          vm.trs[index_arr[i]].label = "已完成";
-                        
                     }
                    
-                    for (let i = 0;i < vm.trs.length;i ++) {
-                        if (vm.trs[i].state != 1) {
-                            vm.isCanConfirmAll = false;
-                            break;
-                        } 
-                    }
+
                     
                   
                     if (vm.trs.length < vm.task.max_accepter_number) {
@@ -777,6 +763,10 @@ export default {
             // let url = this.task.questionnaire_path;
             // let url = 'http://localhost:3000/uploads/questionnaire/69cc28649066e.json';          
             this.$router.push({name: 'questionnaire', params: {url: url, state: state}});
+        },
+
+        jumpToReleaserInfo() {
+            this.$router.push({name: 'userInfo', params: {username: this.task.publisher}});
         }
 
 

@@ -21,7 +21,7 @@ span {
    
 }
 
-.single-item, .mutiple-item, .simple-item {
+.single-item, .multiple-item, .simple-item {
     margin-bottom: 20px;
 }
 
@@ -45,6 +45,7 @@ span {
 <template>
     <div class="questionnaire-body">
         <div class="questionnaire-content">
+            <!--
             <h1 style="margin-bottom: 10px">{{title}}</h1>
             <div class="single-body">
                 <div class="single-item" v-for="item in single">
@@ -58,8 +59,8 @@ span {
                 </div>
             </div>
 
-            <div class="mutiple-body">
-                <div class="mutiple-item" v-for="item in mutiple">
+            <div class="multiple-body">
+                <div class="multiple-item" v-for="item in multiple">
                     <p v-bind:class="{'warning-question': answer[item.index - 1].length == 0 && !isFirst}">{{ item.index }}. {{ item.question }}</p>
                     <CheckboxGroup v-model="answer[item.index-1]">
                         <Checkbox v-for="choice in item.choice" :key="choice.label" :label="choice.label" :disabled="state == 2">
@@ -78,7 +79,43 @@ span {
                     <p class="p-answer" v-show="state == 2">{{answer[item.index-1]}}</p>
                 </div>
             </div>
+            -->
+
+            <h1 style="margin-bottom: 10px">{{questionnaire.questionnaire_title}}</h1>
+            <div class="single-body">
+                <div class="single-item" v-for="item in questionnaire.single">
+                    <p v-bind:class="{'warning-question': answer[item.index - 1] == '' && !isFirst}">{{ item.index }}. {{item.question}}</p>
+                    <RadioGroup v-model="answer[item.index-1]">
+                        <Radio v-for="(choice, index0) in item.choice" :key="choice.label" :label="choice.label" :disabled="state == 2">
+                            <span class="span-choice">{{choice.label}}</span>
+                        </Radio>
+                    </RadioGroup>
+                    <p class="p-answer" v-show="state == 2">Anwser:  {{answer[item.index-1]}}</p>
+                </div>
+            </div>
+
+            <div class="multiple-body">
+                <div class="multiple-item" v-for="item in questionnaire.multiple">
+                    <p v-bind:class="{'warning-question': answer[item.index - 1].length == 0 && !isFirst}">{{ item.index }}. {{ item.question }}</p>
+                    <CheckboxGroup v-model="answer[item.index-1]">
+                        <Checkbox v-for="choice in item.choice" :key="choice.label" :label="choice.label" :disabled="state == 2">
+                            <span class="span-choice">{{choice.label}}</span>
+                        </Checkbox>
+                    </CheckboxGroup>
+                    <p class="p-answer" v-show="state == 2">Anwser:  {{answer[item.index-1]}}</p>
+                </div>
+            </div>
+
+            <div class="simple-body">
+                <div class="simple-item" v-for="item in questionnaire.simple">
+                    <p v-bind:class="{'warning-question': answer[item.index - 1] == '' && !isFirst}">{{ item.index }}. {{item.question}}</p>
+                    <Input  placeholder="Input anwser" type="textarea" :rows="10" style="width: 100%; position:relative;" v-model="answer[item.index-1]" v-show="state != 2"></Input>
+                    <p class="p-answer" v-show="state == 2">Anwser:  </p>
+                    <p class="p-answer" v-show="state == 2">{{answer[item.index-1]}}</p>
+                </div>
+            </div>
         </div>
+        
         <Button type="primary" long style="font-size: 14px; margin-top: 10px" @click="postAnswer(questionnaire)" v-show="state == 1" >提交</Button>
     </div>
    
@@ -96,64 +133,71 @@ export default {
             ],
             title: '',
             questionnaire: {
-                questions: [
-                    {
-                        type: 0,
-                        question: '单选题1',
-                        choices: [
-                            {
-                                label:'A'
-                            },
-                            {
-                                label:'B'
-                            }
-                        ],
-                        answer: ''
-                    },
-                    {
-                        type: 0,
-                        question: '单选题2',
-                        choices: [
-                            {
-                                label: 'C',
-                            },
-                            {
-                                label: 'D'
-                            }
-                        ],
-                        answer: ''
-                    },
-                    {
-                        type: 1,
-                        question: '多选题',
-                        choices: [
-                            {
-                                label: 'C',
-                            },
-                            {
-                                label: 'D'
-                            },
-                            {
-                                label: 'E'
-                            }
-                        ],
-                        answer: []
+                questionnaire_title:'',
+                single:[],
+                multiple:[],
+                simple:[]
+                // questions: [
+                //     {
+                //         type: 0,
+                //         question: '单选题1',
+                //         choices: [
+                //             {
+                //                 label:'A'
+                //             },
+                //             {
+                //                 label:'B'
+                //             }
+                //         ],
+                //         answer: ''
+                //     },
+                //     {
+                //         type: 0,
+                //         question: '单选题2',
+                //         choices: [
+                //             {
+                //                 label: 'C',
+                //             },
+                //             {
+                //                 label: 'D'
+                //             }
+                //         ],
+                //         answer: ''
+                //     },
+                //     {
+                //         type: 1,
+                //         question: '多选题',
+                //         choices: [
+                //             {
+                //                 label: 'C',
+                //             },
+                //             {
+                //                 label: 'D'
+                //             },
+                //             {
+                //                 label: 'E'
+                //             }
+                //         ],
+                //         answer: []
                 
-                    },
-                    {
-                        type: 2,
-                        question: '简答题',
-                        answer: ''
+                //     },
+                //     {
+                //         type: 2,
+                //         question: '简答题',
+                //         answer: ''
 
-                    }
-                ]
+                //     }
+                // ]
             },
             single: [],
-            mutiple: [],
+            multiple: [],
             simple: [],
             questionnaire_path:'',
+            //0 releaser, 1 accepter, 2 releaser with answer 
             state: 1,
-            task_id:''
+            task_id:'',
+            
+
         }
 
     },
@@ -200,18 +244,40 @@ export default {
             let url = '/uploads/questionnaire/' + name;
             // url = 'uploads/questionnaire/44cde885f8133.blob'
             //异步
+            // this.$axios.get(url, {
+              
+            // })
+            // .then(function(response) {
+            //     let data = response.data;
+            //     console.log(data);
+            //     if (response.status == 200) {
+                    
+            //         vm.title = data.title;
+            //         vm.questionnaire = data.questions;
+            //         vm.getQuestions(vm.questionnaire.questions);
+                    
+                    
+            //     } 
+
+            
+            // })
+            // .catch(function (error) {
+            //     console.log('Fail to request');
+            // });
+            
+
+
             this.$axios.get(url, {
               
             })
             .then(function(response) {
                 let data = response.data;
-                console.log(data);
+                // console.log(data);
                 if (response.status == 200) {
                     
-                    vm.title = data.title;
-                    vm.questionnaire.questions = data.questions;
-                    vm.getQuestions(vm.questionnaire.questions);
-                    
+                   
+                    //vm.getQuestions(vm.questionnaire.questions);
+                    vm.getQuestions(data);
                     
                 } 
 
@@ -221,39 +287,86 @@ export default {
                 console.log('Fail to request');
             });
         },
-        getQuestions(questions) {
-            for(let i = 0;i < questions.length;i ++) { 
-                let ques = questions[i];
-                let type = ques['type'];
-                // console.log(ques);
-                ques['index'] = i + 1;
+        // getQuestions(questions) {
+            // for(let i = 0;i < questions.length;i ++) { 
+            //     let ques = questions[i];
+            //     let type = ques['type'];
+            //     // console.log(ques);
+            //     ques['index'] = i + 1;
         
-                if (type == 0) {
-                    this.answer.push('');
-                    this.single.push(ques);
-                } else if (type == 1) {
-                    this.answer.push([]);
-                    this.mutiple.push(ques);
-                } else if (type == 2) {
-                    this.answer.push('');
-                    this.simple.push(ques);
-                }
-            }
+            //     if (type == 0) {
+            //         this.answer.push('');
+            //         this.single.push(ques);
+            //     } else if (type == 1) {
+            //         this.answer.push([]);
+            //         this.multiple.push(ques);
+            //     } else if (type == 2) {
+            //         this.answer.push('');
+            //         this.simple.push(ques);
+            //     }
+            // }
 
-            if (this.state == 2) {
-                this.getAnswer(this.questionnaire.questions);
-            }
-        },
-        getAnswer(questions) {
+            // if (this.state == 2) {
+            //     this.getAnswer(this.questionnaire.questions);
+            // }
+
             
-            for (let i = 0;i < questions.length;i ++) {
-                this.answer[i] = questions[i].answer;
+        // },
+
+        getQuestions(questionnaire) {
+            let index = 1;
+            for (let i = 0;i < questionnaire.single.length;i ++) {
+                this.answer.push('');
+                questionnaire.single[i]['index'] = index;
+                index++;
+            }
+            for (let i = 0;i < questionnaire.multiple.length;i ++) {
+                this.answer.push([]);
+                questionnaire.multiple[i]['index'] = index;
+                index++;
+            }
+            for (let i = 0;i < questionnaire.simple.length;i ++) {
+                this.answer.push('');
+                questionnaire.simple[i]['index'] = index;
+                index++;
+            }
+            this.questionnaire = questionnaire;
+            if (this.state == 2) {
+                this.getAnswer(questionnaire);
             }
 
+        },
+        // getAnswer(questions) {
+            
+        //     // for (let i = 0;i < questions.length;i ++) {
+        //     //     this.answer[i] = questions[i].answer;
+        //     // }
+            
+        
+        // },
+
+        getAnswer(questionnaire) {
+            
+        
+            this.answer = questionnaire.answer
         },
         postAnswer(questionnaire) { 
             this.isFirst = false; 
-            for(let i = 0;i < questionnaire.questions.length;i ++) {
+            let length = questionnaire.simple.length + questionnaire.single.length + questionnaire.multiple.length;
+            // for(let i = 0;i < length;i ++) {
+            //     if (this.answer[i] == '' || this.answer[i] == []) {
+            //         this.$Notice.warning({
+            //             title: 'Questions Lack Answer',
+            //             desc: 'Please complete the questionnaire '
+            //         }); 
+            //         return;
+            //     }
+
+            //     questionnaire.questions[i]['answer'] = this.answer[i];
+    
+            // }
+
+            for(let i = 0;i < length;i ++) {
                 if (this.answer[i] == '' || this.answer[i] == []) {
                     this.$Notice.warning({
                         title: 'Questions Lack Answer',
@@ -262,10 +375,9 @@ export default {
                     return;
                 }
 
-                questionnaire.questions[i]['answer'] = this.answer[i];
-    
             }
-
+            
+            questionnaire['answer'] = this.answer;
             
             let vm = this;
             let url =  '/api/v1/task/questionnaire/result';

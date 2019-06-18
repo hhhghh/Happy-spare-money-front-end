@@ -119,6 +119,51 @@
     border:1px solid #ed4014;
     border-radius: 4px;
 }
+
+.span-choice {
+    font-size: 14px; 
+    margin-right: 10px;
+}
+
+.title-body {
+    margin-bottom: 20px;
+}
+.single-item, .multiple-item, .simple-item {
+    margin-bottom: 20px;
+}
+
+.design-action-body {
+    position:fixed;
+    z-index: 100;
+    background-color: #f8f8f9;
+}
+.question-body {
+    position:relative;
+    margin-top:60px;
+}
+
+.Input-style {
+    margin-bottom: 5px;
+    margin-top: 2px;
+}
+
+.select-btn {
+    margin-top:5px;
+
+}
+
+.select-input {
+    
+}
+
+.question-h2 {
+    margin-bottom: 10px;
+}
+
+.add-btn, .delete-btn {
+    margin-left: 20px;
+
+}
 </style>
 
 <template>
@@ -173,6 +218,8 @@
                     </div>
                     <Divider></Divider>
                     <div class="div-questionaire"  v-show="isQuestionaire">
+                         <span class="item-span" >问卷设计</span>
+                        <!--
                         <span class="item-span">上传调查问卷文件</span>
                         <Upload
                             multiple
@@ -191,10 +238,12 @@
                                 <p v-show="isFileExist">File is ready to be uploaded</p>
                             </div>
                         </Upload>   
+                        -->
+                        <Button type="primary" @click="isDrawerDisplay = true" long style="margin-top: 10px;font-size: 14px">问卷设计</Button>
                      </div>
                     <div class="div-formItem">
                         <span class="item-span" style="display: block">具体要求与联系方式</span>
-                        <Input  placeholder="Enter task title" type="textarea" :rows="10" style="width: 100%; position:relative; margin-top:15px;" v-model="taskInfo.content"></Input>
+                        <Input  placeholder="Input requirement and communication way" type="textarea" :rows="10" style="width: 100%; position:relative; margin-top:15px;" v-model="taskInfo.content"></Input>
                     </div>
                 </div>
                
@@ -235,10 +284,81 @@
                         <div class="task-number">
                             <Icon type="ios-copy" size="18" />
                             <span>{{ item.max_accepter_number }}</span>
-                    </div>    
+                        </div>    
+                    </div>
                 </div>
             </div>
-            </div>
+
+             <Drawer title="问卷设计" width="600" :closable="false" v-model="isDrawerDisplay">
+                <div class="design-action-body">
+                    <Button type="primary" icon="md-add" @click="addQuestion(1)">单选题</Button>
+                    <Button type="primary" icon="md-add" @click="addQuestion(2)">多选题</Button>
+                    <Button type="primary" icon="md-add" @click="addQuestion(3)">简答题</Button>
+                </div>
+                <div class="question-body">
+                    <div class="title-body">
+                        <h1>标题</h1>
+                        <Input v-model="questionnaire.questionnaire_title"></Input>
+                    </div>
+                    <div class="single-body">
+                        <h2 class="question-h2">单选题</h2>
+                        <div class="single-item" v-for="(item,index) in questionnaire.single" >
+                            <span>{{index + 1}}</span>
+                            <Button type="error" shape="circle" icon="md-close" size="small" @click="deleteQuestion(1, index)"></Button> 
+                            <Input v-model="item.question" class="Input-style" placeholder="请输入单选题题目"></Input>
+                            <RadioGroup vertical>
+                                <div v-for="choice in item.choice"  style="display: flex" class="select-btn">
+                                    <Radio :key="choice.label"  style="margin-bottom: 5px">
+                                        <span></span>
+                                    </Radio>
+                                    <Input class="select-input" v-model="choice.label"></Input>
+                                </div>
+                            </RadioGroup>
+                            <Button class="add-btn" type="primary" shape="circle" icon="ios-add" @click="addSelectBtn(1, index)"></Button>
+                            <Button class="delete-btn" type="error" shape="circle" icon="ios-close" @click="deleteSelectBtn(1, index)" :disabled="item.choice.length <= 2"></Button>
+                        </div>
+                    </div>
+
+
+                    <div class="multiple-body">
+                        <h2 class="question-h2">多选题</h2>
+                        <div class="multiple-item" v-for="(item,index) in questionnaire.multiple">
+                            <span>{{index + 1}}</span>
+                            <Button type="error" shape="circle" icon="md-close" size="small" @click="deleteQuestion(2, index)"></Button> 
+                            <Input v-model="item.question" class="Input-style" placeholder="请输入多选题题目"></Input>
+                            <CheckboxGroup vertical>
+                                <div v-for="choice in item.choice" style="display: flex" class="select-btn">
+                                    <Checkbox :key="choice.label" :label="choice.label" style="margin-top: 5px">
+                                        <span></span>
+                                    </Checkbox>
+                                    <Input class="select-input" v-model="choice.label" style="width: 200px"></Input>
+                                    
+                                </div>
+
+                                <!--<Checkbox v-for="choice in item.choice" :key="choice.label" :label="choice.label" class="select-btn">
+                                </Checkbox>
+                                -->
+                                
+                            </CheckboxGroup>
+                            <div style="margin-top: 10px">
+                                <Button class="add-btn" type="primary" shape="circle" icon="ios-add" @click="addSelectBtn(2, index)"></Button>
+                                <Button class="delete-btn" type="error" shape="circle" icon="ios-close" @click="deleteSelectBtn(2, index)" :disabled="item.choice.length <= 2"></Button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="simple-body">
+                        <h2 class="question-h2">简答题</h2>
+                        <div class="simple-item" v-for="(item,index) in questionnaire.simple">
+                            <span>{{index + 1}}</span>
+                            <Button type="error" shape="circle" icon="md-close" size="small" @click="deleteQuestion(3, index)"></Button> 
+                            <Input v-model="item.question" class="Input-style" placeholder="请输入简答题题目"></Input>
+                           
+                        </div>
+                    </div>
+                </div>
+
+             </Drawer>
             <!--
             <div>
                 <p>{{taskInfo.title}}</p>
@@ -264,6 +384,7 @@ export default {
     data() {
         return {
             username: 'yao',
+            type: 0,
             password: '',
             money: 0,
             isFirst: true,
@@ -272,7 +393,19 @@ export default {
             //isQuestionaire type
             isQuestionaire: true,
             isFileExist: false,
+            //password input 
             isModalShow: false,
+            //questionnaire design 
+            isDrawerDisplay: false,
+           
+            questionnaire:{
+                questionnaire_title:'',
+                single: [],
+                multiple: [],
+                simple: []
+                
+
+            },
             //selector item
             taskType: [
                 {
@@ -384,8 +517,10 @@ export default {
                     let userInfo = data.data;
                     vm.username = userInfo.username;
                     vm.money = userInfo.money;
+                    vm.type = userInfo.type;
                     vm.getRecentTask();
-                    vm.getGroup();
+                    vm.getGroup(0);
+                    
                 } 
             
             })
@@ -440,22 +575,34 @@ export default {
             });
         },
 
-        getGroup: function() {
+        getGroup: function(type) {
             let vm = this;
             let url = '/api/v1/team/MemberName'
             //异步
             this.$axios.get(url, {
                params: {
+                   type: type,
                    member_username : vm.username
                }
             
             })
             .then(function(response) {
                 let data = response.data;
-                if (data.code == 200) {
-                    let teamDatas = data.data;
-                    for(let i = 0;i < teamDatas.length;i ++) {
-                        vm.rangeType.push({value: teamDatas[i].team_id, label: teamDatas[i].team_name + '--' + teamDatas[i].leader});
+                if (data.code == 200 || data.code == 213) {
+                    if (data.code == 200) {
+                        let teamDatas = data.data;
+                        for(let i = 0;i < teamDatas.length;i ++) {
+                            if (type == 0) {
+                                vm.rangeType.push({value: teamDatas[i].team_id, label: teamDatas[i].team_name + '--' + teamDatas[i].leader});
+                            } else {
+                                vm.rangeType.push({value: teamDatas[i].team_id, label: teamDatas[i].team_name + '--' + teamDatas[i].leader + '  ***'});
+                            }
+                        }
+                    }
+                 
+                    
+                    if(vm.type == 1 && type != 1) {
+                        vm.getGroup(1);
                     }
                     // console.log(vm.rangeType);
                 } 
@@ -464,6 +611,10 @@ export default {
             .catch(function (error) {
                 console.log('Fail to request');
             });
+
+            
+
+
         },
         getFile(event) {
             this.file = event.target.files[0];
@@ -603,12 +754,24 @@ export default {
                 isError = true;
             } 
 
-            if (taskInfo.file == null && taskInfo.type == 1) {
-                this.$Notice.warning({
+            // if (taskInfo.file == null && taskInfo.type == 1) {
+            //     this.$Notice.warning({
+            //         title: 'Task Info Lack',
+            //         desc: 'Please Upload Task Questionnaire'
+            //     });
+            //     isError = true;
+            // }
+
+            if (taskInfo.type == 1) {
+                let len = this.questionnaire.single.length + this.questionnaire.multiple.length + this.questionnaire.simple.length;
+                if (len <= 0 || this.questionnaire.questionnaire_title == '') {
+                    this.$Notice.warning({
                     title: 'Task Info Lack',
-                    desc: 'Please Upload Task Questionnaire'
-                });
-                isError = true;
+                    desc: 'Please Design Task Questionnaire'
+                    });
+                    isError = true;
+                }
+                
             }
 
             if (this.money < taskInfo.max_accepter_number * taskInfo.money) {
@@ -634,29 +797,66 @@ export default {
                         
                 
             }
-           
+            
            
             
             
         },
         postQuestionnaire(taskInfo) {
-            let vm = this;
-            let url =  '/api/v1/file/Questionnaire';
+            // let vm = this;
+            // let url =  '/api/v1/file/Questionnaire';
 
-            let form = new FormData();
-            form.append('file', this.taskInfo.file);
+            // let form = new FormData();
+            // form.append('file', this.taskInfo.file);
             
+            // this.$axios.post(url, form, {
+            //     headers: {
+            //         'Content-Type': 'multipart/form-data'
+            //     }
+            // }).then((res) => {
+            //     let data = res.data;
+            //     // console.log(res.data);
+            //     if (data.code == 200) {
+            //         let ques_url = data.data.fileUrl;
+            //         console.log(ques_url);
+            //         vm.postTaskInfo(taskInfo, ques_url);
+            //     }
+               
+                
+                
+            // }).catch((err) => {
+            //     this.$Notice.warning({
+            //         title: 'Task Uploading Error',
+            //         desc: 'Fail to Upload the Questionnaire '
+            //     });
+            // });
+
+            let questionnaire = this.questionnaire;
+        
+            let vm = this;
+            let url =  '/api/v1/task/questionnaire/result';
+            // let url =  '/api/v1/file/TeamLogo';
+            // let url = '/api/v1/file/Questionnaire';
+            let form = new FormData();
+            let data = JSON.stringify(questionnaire);
+            let date = new Date();
+            //Chrome Ok but IE is not OK
+            let file = new Blob([data], {type: 'application/json', lastModified: date});
+            form.append('file', file);
+
             this.$axios.post(url, form, {
                 headers: {
                     'Content-Type': 'multipart/form-data'
                 }
             }).then((res) => {
+               
                 let data = res.data;
                 // console.log(res.data);
                 if (data.code == 200) {
-                    let ques_url = data.data.fileUrl;
-                    console.log(ques_url);
+                    let ques_url = data.data.fileUrl
                     vm.postTaskInfo(taskInfo, ques_url);
+                    
+                    
                 }
                
                 
@@ -666,7 +866,9 @@ export default {
                     title: 'Task Uploading Error',
                     desc: 'Fail to Upload the Questionnaire '
                 });
-            })
+            });
+            
+            
             
         },
         postTaskInfo(taskInfo, ques_url) {
@@ -737,7 +939,75 @@ export default {
                     this.taskInfo.range.splice(0, 1);
                 }
             }
+        },
+        addQuestion(type){
+            if (type == 1) {
+                // let item = this.single_item;
+                // this.single.push(item);
+                this.questionnaire.single.push({
+                    type: 1,
+                    question: '',
+                    choice:[
+                        {
+                            label: 'A'
+                        },
+                        {
+                            label: 'B'
+                        }
+                    ]
+
+                });
+                // console.log(this.single_item);
+            } else if (type == 2) {
+                this.questionnaire.multiple.push({
+                    type: 2,
+                    question: '',
+                    choice:[
+                        {
+                            label: 'A'
+                        },
+                        {
+                            label: 'B'
+                        }
+                    ]
+
+                });
+            } else if (type == 3) {
+                this.questionnaire.simple.push({
+                    type: 3,
+                    question: ''
+                });
+            }
+        },
+        deleteQuestion(type, index) {
+            if (type == 1) {
+                this.questionnaire.single.splice(index, 1);
+            } else if (type == 2) {
+                this.questionnaire.multiple.splice(index, 1);
+            } else if (type == 3) {
+                this.questionnaire.simple.splice(index, 1);
+            }
+        },
+        addSelectBtn(type, index) {
+            if (type == 1) {
+                let selectMsg = this.questionnaire.single[index].choice.length + 1;
+                this.questionnaire.single[index].choice.push({label: selectMsg});
+                
+            } else if(type == 2){
+                let selectMsg = this.questionnaire.multiple[index].choice.length + 1;
+                this.questionnaire.multiple[index].choice.push({label: selectMsg});
+            }
+        },
+        deleteSelectBtn(type, index) {
+            if (type == 1) {
+                let length = this.questionnaire.single[index].choice.length;
+                this.questionnaire.single[index].choice.splice(length - 1, 1);
+            } else if (type == 2) {
+                let length = this.questionnaire.multiple[index].choice.length;
+                this.questionnaire.multiple[index].choice.splice(length - 1, 1);
+            }
         }
+        
 
     }
 

@@ -161,6 +161,7 @@ export default {
             //异步
             this.$axios.get(url, {
                params: {
+                   type: 0,
                    member_username : vm.username
                }
             
@@ -236,9 +237,9 @@ export default {
     padding: 20px;
     position:relative;
     min-width: 800px;
+    min-height: 1000px;
     overflow: hidden;
     background-color: #f8f8f9;
-    min-height: 200px;
 }
 
 .content {
