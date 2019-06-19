@@ -62,9 +62,9 @@
                 <router-link to="/MainPage/myReleaseTask">
                   <MenuItem name="1-3-2">发布任务</MenuItem>
                 </router-link>
-
               </Submenu>
             </Submenu>
+
             <Submenu name="2">
               <template slot="title">
                 <Icon type="md-people" size="24"/>
@@ -88,8 +88,27 @@
                   <span>创建小组</span>
                 </MenuItem>
               </router-link>
-
             </Submenu>
+
+            <Submenu name="3">
+              <template slot="title">
+                <Icon type="ios-ribbon" size="24" />
+                <span>机构管理</span>
+              </template>
+              <router-link to="/MainPage/orgSearch">
+                <MenuItem name="3-1">
+                  <Icon type="ios-search" />
+                  <span>机构搜索</span>
+                </MenuItem>
+              </router-link>
+              <router-link to="/MainPage/myOrg">
+                <MenuItem name="3-2">
+                  <Icon type="md-heart-outline" />
+                  <span>我的机构</span>
+                </MenuItem>
+              </router-link>
+            </Submenu>
+
           </Menu>
         </Sider>
         <div class="layout-content">
@@ -246,7 +265,7 @@
       },
 
       updateMenu(value) {
-        this.menuOpen.push(value.open);
+        if (!this.menuOpen.includes(value.open)) this.menuOpen.push(value.open);
         this.menuActive = value.active;
         this.$nextTick(() => {
           this.$refs.menu.updateOpened();
