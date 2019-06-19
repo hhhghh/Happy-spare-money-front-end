@@ -270,7 +270,7 @@ export default {
         this.userType = this.userInfo.type;
         let team_id = this.$route.params.id;
         console.log(this.userType);
-        if (this.userType == 0) {
+        if (this.userType == 1) {
             if (team_id > 0 && team_id < 6) {
                 this.switchGroup();
             } else {

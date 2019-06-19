@@ -252,8 +252,9 @@
           this.$refs.menu.updateOpened();
           this.$refs.menu.updateActiveName();
         })
+      },
 
-      backTop(){
+      backTop() {
         window.scrollTo(0,0);
 
       }
@@ -303,7 +304,6 @@
     left:0px;
     right:0px;
     height:auto;
-    overflow:hidden;
     min-width: 960px;
     background-color: #f8f8f9;
   }
