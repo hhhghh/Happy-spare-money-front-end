@@ -90,7 +90,7 @@
               </router-link>
             </Submenu>
 
-            <Submenu name="3">
+            <Submenu v-if="isUser" name="3">
               <template slot="title">
                 <Icon type="ios-ribbon" size="24" />
                 <span>机构管理</span>
@@ -232,13 +232,17 @@
           .then(msg => {
             if (msg.data.code == 200) {
               this.message = msg.data.data;
+              let joinTeamType = [0, 7];
               this.message.sort((msg1, msg2) => {
-                if (msg1.type == 0 && msg2.type != 0) return msg1.type - msg2.type;
-                if (msg1.type != 0 && msg2.type == 0) return msg1.type - msg2.type;
-                return msg1.id - msg2.id;
+                let msg1isJoinMsg = joinTeamType.includes(msg1.type);
+                let msg2isJoinMsg = joinTeamType.includes(msg2.type);
+                if (msg1isJoinMsg && !msg2isJoinMsg) return -1;
+                if (!msg1isJoinMsg && msg2isJoinMsg) return 1;
+                return msg2.id - msg1.id;
               });
+
               for (let i = 0; i < this.message.length; i++) {
-                if (this.message[i].type != 0) {
+                if (!joinTeamType.includes(this.message[i].type)) {
                   this.accTeamJoin = new Array(i);
                   break;
                 }
