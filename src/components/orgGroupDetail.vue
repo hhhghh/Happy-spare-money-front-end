@@ -6,9 +6,8 @@
             <div class="content-selector-block">
                 <div style="margin-left: 15px;">
                     <Breadcrumb>
-                        <BreadcrumbItem to="/MainPage/myGroup">默认小组</BreadcrumbItem>
-                        <BreadcrumbItem :to="{name: 'defaultGroupDetail', params: {id: team_id, group: group}}">小组详情</BreadcrumbItem>
-                        <BreadcrumbItem>{{group.team_name}}</BreadcrumbItem>
+                        <BreadcrumbItem>专属小组</BreadcrumbItem>
+                        <BreadcrumbItem>{{userInfo.username}}</BreadcrumbItem>
                     </Breadcrumb>
                 </div>
             </div>
@@ -18,24 +17,14 @@
             <div class="main-content">
                 <div class="left-content">
                     <div class="logo-block">
-                        <img class="logo-image" id="logo" :src="group.logo" alt="Group Logo">
+                        <img class="logo-image" id="logo" :src="userInfo.avatar" alt="Organization Avatar">
                     </div>
-                    <div class="group-name">{{group.team_name}}</div>
+                    <div class="group-name">{{userInfo.username}}</div>
 
                     <div class="description-block">
-                        <div class="property">小组描述: </div>
+                        <div class="property">个性签名: </div>
                         <div class="inline-block description">
-                            <span class="span">{{group.description}}</span>
-                        </div>
-                    </div>
-                    <div class="limit-block">
-                        <div class="property">进组权限: </div>
-                        <div class="inline-block">{{group.limit == 0 ? '允许所有人' : (group.limit == 1 ? '需要审核' : '禁止所有人')}}</div>
-                    </div>
-                    <div class="tags-block">
-                        <div class="property">小组标签: </div>
-                        <div class="tags-list">
-                            <Tag type="dot" color="primary" class="tags" v-for="item in group.teamlabels" :key="item.label" :name="item.label">{{ item.label }}</Tag>
+                            <span class="span">{{userInfo.signature}}</span>
                         </div>
                     </div>
                 </div>
@@ -44,7 +33,7 @@
                 <div class="middle-content">
                     <div class="group-task-block">
                         <div class="group-task-title">
-                            <span>组内发布的任务</span>
+                            <span>发布的任务</span>
                         </div>
                         <Scroll height="500">
                             <div v-if="taskList.length != 0" class="group-task-list">
@@ -76,11 +65,14 @@
 
                 <div class="right-content">
 
-                    <Tabs value="name1">
-                        <TabPane label="成员列表" name="name1">
-                            <div class="member-list">
+                    <!-- <Tabs value="name1">
+                        <TabPane label="关注的用户列表" name="name1"> -->
+                            <div class="followingList">
+                                <span class="listTitle">关注的用户列表</span>
+                            </div>
+                            <div v-if="followingList.length != 0" class="member-list">
                                 <Scroll height="330">
-                                    <div class="member-item" v-for="item in group.members" v-bind:key="item.username">
+                                    <div class="member-item" v-for="item in followingList" v-bind:key="item.username">
                                         <div class="profile pointer" @click="jumpToUserInfoPage(item.username)">
                                             <Avatar :src="item.avatar" size="small"/>
                                         </div>
@@ -90,28 +82,13 @@
                                     </div>
                                 </Scroll>
                             </div>
-                        </TabPane>
-                        <TabPane label="机构列表" name="name2">
-                            <div v-if="organizationsList.length != 0" class="member-list">
-                                <Scroll height="330">
-                                    <div class="member-item" v-for="item in organizationsList" v-bind:key="item.username">
-                                        <div class="profile pointer" @click="jumpToUserInfoPage(item.orgorganizationname)">
-                                            <Avatar :src="item.orgorganizationavatar" size="small"/>
-                                        </div>
-                                        <div class="member-username">
-                                            <span class="username-span">{{item.orgorganizationname}}</span>
-                                        </div>
-                                    </div>
-                                </Scroll>
-                            </div>
                             <div v-else class="member-list">
                                 <Scroll height="330">
-                                    <div class="no-organization">无机构</div>
+                                    <div class="no-organization">暂时还没有用户关注你哦</div>
                                 </Scroll>
                             </div>
-                            
-                        </TabPane>
-                    </Tabs>
+                        <!-- </TabPane>
+                    </Tabs> -->
                 </div>
             </div>
         </div>
@@ -124,7 +101,7 @@ export default {
 
     data() {
         return {
-            team_id: '',
+            orgName: '',
             
             group: {
                 team_name: '',
@@ -134,7 +111,15 @@ export default {
                 limit: '',
                 teamlabels: [{}],
                 members: [{}]
-            },  
+            },
+            
+            org: {
+                avatar: '',
+                name: '',
+                signature: '',
+                type: 1,
+                username: '',
+            },
 
             enterid: 0,
 
@@ -142,39 +127,21 @@ export default {
 
             organizationsList: [],
 
+            followingList: [],
+
             userType: 1,
         };
     },
     methods: {
         
-        getGroupDetail(team_id) {
+        getGroupDetail(orgName) {
 
             let p1 = new Promise((resolve, reject) => {
-                this.$axios.get('/api/v1/team/Id?team_id=' + team_id + '&type=1')
+                this.$axios.get('/api/v1/task/findByOrg?orgname=' + orgName + '&&type=all')
                     .then((res) => {
-                        if (res.data.code == 200 && res.data.data.length != 0) {
-                            let param = {};
-                            param['members'] = [];
-                            for (let i = 0, len = res.data.data[0].members.length; i < len; i++) {
-                                param['members'].push({username: res.data.data[0].members[i]['member_username']});
-                            }
-                            this.$axios.post('/api/v1/user/getteammembersavatat', param)
-                                .then((response) => {
-                                    if (response.data.code == 200) {
-                                        res.data.data[0].members = [];
-                                        for (let i = 0, len = response.data.data.length; i < len; i++) {
-                                            res.data.data[0].members.push(response.data.data[i]);
-                                        }
-                                        console.log(res.data.data);
-                                        this.group = res.data.data[0];
-                                        resolve(res);
-                                    } else {
-                                        reject(response);
-                                    }
-                                })
-                                .catch((error) => {
-                                    reject(error);
-                                })
+                        console.log(res);
+                        if (res.data.code == 200) {
+                            resolve(res);
                         } else {
                             reject(res);
                         }
@@ -185,9 +152,9 @@ export default {
             });
 
             let p2 = new Promise((resolve, reject) => {
-                this.$axios.get('/api/v1/user/getCanPublishTasksOrg?teamId=' + team_id)
+                this.$axios.get('/api/v1/user/getOrganizationalFollowersList')
                     .then((res) => {
-                        this.organizationsList = res.data.data;
+                        console.log(res.data);
                         resolve(res);
                     })
                     .catch((err) => {
@@ -196,49 +163,23 @@ export default {
                 
             });
 
-            let p3 = new Promise((resolve, reject) => {
-                this.$axios.get('/api/v1/task?type=all&range=' + team_id + '&username=' + this.userInfo.username)
-                    .then((res) => {
-                        this.taskList = res.data.data;
-                        resolve(res);
-                    })
-                    .catch((err) => {
-                        reject(err);
-                    })
-            });
-
-            let p = Promise.all([p1, p2, p3]);
+            let p = Promise.all([p1, p2]);
             console.log(p);
 
             return p;
         },
 
-        getData() {
-            this.team_id = this.$route.params.id;
-            console.log(this.team_id);
+        getData(name) {
+            console.log(name);
 
-            this.getGroupDetail(this.team_id)
+            this.getGroupDetail(name)
                 .then((data) => {
-                    console.log(this.group);
+                    console.log(data);
+                    this.taskList = data[0].data.data;
+                    this.followingList = data[1].data.data;
                 })
                 .catch((err) => {
-                    if (err == 213) {
-                        this.$Modal.error({
-                            title: '错误',
-                            content: '没有该小组'
-                        })
-                        this.$router.push({
-                            name: 'myGroup'
-                        })
-                    } else if (err == 211) {
-                        this.$Modal.error({
-                            title: '错误',
-                            content: '<p>你不是该小组成员</p><p>无法查看该小组详情</p>'
-                        })
-                        this.$router.push({
-                            name: 'myGroup'
-                        })
-                    }
+                    console.log(err);
                 })
         },
 
@@ -248,7 +189,7 @@ export default {
 
         sendToMainPage() {
             let data = {
-                active: '2-2',
+                active: '2-4',
                 open: '2'
             };
             this.$emit('menuSelected', data);
@@ -257,24 +198,14 @@ export default {
 
     mounted: function() {
         this.userType = this.userInfo.type;
-        let team_id = this.$route.params.id;
-        console.log(this.userType);
+        let orgName = this.$route.params.name;
+        console.log(this.userInfo);
         if (this.userType == 1) {
-            if (team_id > 0 && team_id < 6) {
-                this.getData();
-            } else {
-                this.$Modal.error({
-                    title: '错误',
-                    content: '没有该小组'
-                })
-                this.$router.push({
-                    name: 'myGroup'
-                })
-            }
+            this.getData(orgName);
         } else {
             this.$Modal.error({
                 title: '错误',
-                content: '<p>没有权限查看默认小组详情</p>'
+                content: '<p>没有权限查看专属小组详情</p>'
             })
             this.$router.push({
                 name: 'myGroup'
@@ -456,7 +387,16 @@ span {
 
 .hidden {
     display: none;
+}
 
+.followingList {
+    text-align: center;
+    margin: 5px;
+}
+
+.listTitle {
+    font-size: 12pt;
+    font-weight: bold;
 }
 
 /* .member-item:hover {

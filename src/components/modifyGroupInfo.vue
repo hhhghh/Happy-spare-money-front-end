@@ -8,7 +8,7 @@
                     <Breadcrumb>
                         <BreadcrumbItem to="/MainPage/myGroup">我的小组</BreadcrumbItem>
                         <BreadcrumbItem :to="{name: 'groupDetail', params: {id: team_id, group: group}}">小组详情</BreadcrumbItem>
-                        <BreadcrumbItem :to="{name: 'groupDetail', params: {id: team_id, group: group}}">{{group.team_name}}</BreadcrumbItem>
+                        <BreadcrumbItem :to="{name: 'groupDetail', params: {id: team_id, group: group}}">{{team_name}}</BreadcrumbItem>
                         <BreadcrumbItem>修改资料</BreadcrumbItem>
                     </Breadcrumb>
                 </div>
@@ -18,25 +18,25 @@
 
             <div class="main-content">
                 <div class="basic-informations">
-                    <Form :label-width="120" style="margin-top:20px">
-                        <FormItem label="Name">
-                            <Input v-model="group.team_name" class="input-style" placeholder="Enter Group Name"></Input>
+                    <Form ref="group" :model="group" :rules="ruleValidate" :label-width="120" style="margin-top:20px">
+                        <FormItem label="小组名字" prop="team_name">
+                            <Input v-model="group.team_name" class="input-style" placeholder="请输入小组名字"></Input>
                         </FormItem>
-                        <FormItem label="Description">
-                            <Input v-model="group.description" class="input-style" placeholder="Enter Group Description" type="textarea" :rows="4"></Input>
+                        <FormItem label="描述" prop="description">
+                            <Input v-model="group.description" class="input-style" placeholder="请输入小组描述" type="textarea" :rows="4"></Input>
                         </FormItem>
-                        <FormItem label="Limit">
+                        <FormItem label="进组权限" prop="limit">
                             <RadioGroup v-model="group.limit" class="margin-left" vertical>
                                 <Radio label=0 style="width:80px">允许所有人</Radio>
                                 <Radio label=1 style="width:80px">需要审核</Radio>
                                 <Radio label=2 style="width:80px">禁止所有人</Radio>
                             </RadioGroup>
                         </FormItem>
-                        <FormItem label="Tags">
+                        <FormItem label="小组标签">
                             <!-- <Tag type="border" color="primary" class="tags" v-for="item in group.teamlabels" :key="item.label" :name="item.label">{{ item.label }}</Tag> -->
                             <div class="div-flex" >
                                 <Cascader style="width: 90%; margin-right: 10px" :data="defaultLabels" v-model="currentTeamLabel" :render-format="cascaderFormat" trigger="hover"></Cascader>
-                                <Button icon="md-add" @click="addTeamLabels">Add</Button>
+                                <Button icon="md-add" @click="addTeamLabels">添加</Button>
                             </div>
                             <Row>
                                 <Tag type="border" color="primary" class="margin-left" v-for="item in teamlabels" :key="item" :name="item" closable @on-close="handleCloseLabels">{{ item }}</Tag>
@@ -46,7 +46,7 @@
                 </div>
 
                 <div class="logo-content">
-                    <div class="logo-title">Logo</div>
+                    <div class="logo-title">小组头像</div>
                     <div class="logo-block">
                         <img class="logo-image" id="logo" :src="logoUrl" alt="Group Logo">
                         <div class="upload-block">
@@ -73,7 +73,17 @@ export default {
     data() {
         return {
             team_id: '',
-            group: '',
+            group: {
+                team_name: '',
+                leader: '',
+                logo: '',
+                description: '',
+                limit: '',
+                teamlabels: [],
+                members: []
+            },
+
+            team_name: '',
 
             screenWidth: document.body.clientWidth,
 
@@ -200,6 +210,12 @@ export default {
 
             logoUrl: '',
             logoFile: '',
+
+            ruleValidate: {
+                team_name: [
+                    { required: true, message: 'The name cannot be empty', trigger: 'blur'}
+                ]
+            },
         };
     },
     methods: {
@@ -277,30 +293,36 @@ export default {
         },
 
         modifyInfo() {
-            if (this.logoFile != '') {
-                this.uploadLogoImage()
-                    .then((data) => {
-                        return this.uploadGroupInfo(data.imgUrl);
-                    })
-                    .then((data) => {
-                        console.log(data);
-                        console.log('Modify the group information successfully');
-                        this.$router.push({name: 'groupDetail', params: {id: data.data.team_id}});
-                    })
-                    .catch((err) => {
-                        console.log(err);
-                    })
-            } else {
-                this.uploadGroupInfo(this.logoUrl)
-                    .then((data) => {
-                        console.log(data);
-                        console.log('Modify the group information successfully');
-                        this.$router.push({name: 'groupDetail', params: {id: data.data.team_id}});
-                    })
-                    .catch((err) => {
-                        console.log(err);
-                    })
-            }
+            this.$refs['group'].validate((valid) => {
+                if (valid) {
+                    if (this.logoFile != '') {
+                        this.uploadLogoImage()
+                            .then((data) => {
+                                return this.uploadGroupInfo(data.imgUrl);
+                            })
+                            .then((data) => {
+                                console.log(data);
+                                console.log('Modify the group information successfully');
+                                this.$router.push({name: 'groupDetail', params: {id: data.data.team_id}});
+                            })
+                            .catch((err) => {
+                                console.log(err);
+                            })
+                    } else {
+                        this.uploadGroupInfo(this.logoUrl)
+                            .then((data) => {
+                                console.log(data);
+                                console.log('Modify the group information successfully');
+                                this.$router.push({name: 'groupDetail', params: {id: data.data.team_id}});
+                            })
+                            .catch((err) => {
+                                console.log(err);
+                            })
+                    }
+                } else {
+                    this.$message.error('Fail!');
+                }
+            })
         },
 
         render() {
@@ -308,12 +330,22 @@ export default {
                 this.teamlabels.push(this.group.teamlabels[i]['label']);
             }
             this.logoUrl = this.group.logo;
-        }
+        },
+
+        sendToMainPage() {
+            let data = {
+                active: '2-3',
+                open: '2'
+            };
+            this.$emit('menuSelected', data);
+        },
     },
     mounted: function() {
         this.team_id = this.$route.params.id;
         this.group = this.$route.params.group;
+        this.team_name = this.group.team_name;
         this.render();
+        this.sendToMainPage();
     }
 
 

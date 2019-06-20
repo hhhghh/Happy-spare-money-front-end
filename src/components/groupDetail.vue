@@ -23,21 +23,21 @@
                     <div class="group-name">{{group.team_name}}</div>
 
                     <div class="description-block">
-                        <div class="property">Description: </div>
+                        <div class="property">小组描述: </div>
                         <div class="inline-block description">
                             <span class="span">{{group.description}}</span>
                         </div>
                     </div>
                     <div class="leader-block">
-                        <div class="property">Leader: </div>
+                        <div class="property">组长: </div>
                         <div class="inline-block">{{group.leader}}</div>
                     </div>
                     <div class="limit-block">
-                        <div class="property">Limit: </div>
+                        <div class="property">进群权限: </div>
                         <div class="inline-block">{{group.limit == 0 ? '允许所有人' : (group.limit == 1 ? '需要审核' : '禁止所有人')}}</div>
                     </div>
                     <div class="tags-block">
-                        <div class="property">Team Labels: </div>
+                        <div class="property">小组标签: </div>
                         <div class="tags-list">
                             <Tag type="dot" color="primary" class="tags" v-for="item in group.teamlabels" :key="item.label" :name="item.label">{{ item.label }}</Tag>
                         </div>
@@ -89,25 +89,25 @@
                             <div class="member-list">
                                 <Scroll :on-reach-bottom="handleReachBottom" height="250">
                                     <div class="member-item" v-for="item in group.members" v-bind:key="item.username">
-                                        <div class="profile">
+                                        <div class="profile pointer" @click="jumpToUserInfoPage(item.username)">
                                             <Avatar :src="item.avatar" size="small"/>
                                         </div>
                                         <div class="member-username">
                                             <span class="username-span">{{item.username}}</span>
                                         </div>
                                         <div class="buttonList">
-                                            <Button :class="{'hidden': item.inBlacklist}" class="button-blacklist" @click="blacklist(item.username)">拉黑</Button>
+                                            <Button :class="{'hidden': item.inBlacklist || isOrg}" class="button-blacklist" @click="blacklist(item.username)">拉黑</Button>
                                             <Button :class="{'hidden': !item.inBlacklist}" class="button-blacklist" @click="cancelBlacklist(item.username)">取消拉黑</Button>
                                             <Button :class="{'hidden': !isLeader}" class="button-blacklist" @click="dislodge(item.username)">移除</Button>
                                         </div>
                                     </div>
                                 </Scroll>
                                 <div class="withdraw">
-                                    <Button class="invite-button" type="dashed" long icon="ios-add" @click="showDrawer=true">Invite members</Button>
+                                    <Button :class="{'hidden': isOrg}" class="invite-button" type="dashed" long icon="ios-add" @click="showDrawer=true">邀请用户</Button>
                                     <Button v-bind:class="{'withdraw-button': true, 'hidden': !isLeader}" type="primary" long @click="showTransferDrawer=true; selectMember=''">转让该小组</Button>
                                 </div>
                                 <Drawer 
-                                    title="Invite users" 
+                                    title="邀请用户" 
                                     v-model="showDrawer" 
                                     width="100"
                                     :mask-closable="false"
@@ -115,13 +115,13 @@
                                     :inner="true"
                                 >
                                     <Form label-position="top">
-                                        <FormItem label="Invited Members">
+                                        <FormItem label="邀请用户进入小组">
                                             <div class="div-flex" >
-                                                <Input v-model="currentInvitedMember" placeholder="Enter Invited Member's ID" style="margin: 5px 0px"></Input>
+                                                <Input v-model="currentInvitedMember" placeholder="请输入要邀请的用户ID" style="margin: 5px 0px"></Input>
                                                 <Tag type="border" color="primary" class="margin-left" v-for="item in inviteList" :key="item" :name="item" closable @on-close="handleClose">用户{{ item }}</Tag>
                                             </div>
                                             <Row>
-                                                <Button type="dashed" long icon="md-add" @click="addInvitedMember">Add</Button>
+                                                <Button type="dashed" long icon="md-add" @click="addInvitedMember">添加</Button>
                                             </Row>
                                         </FormItem>
                                     </Form>
@@ -131,7 +131,7 @@
                                 </Drawer>
 
                                 <Drawer 
-                                    title="Choose member" 
+                                    title="选择用户" 
                                     v-model="showTransferDrawer" 
                                     width="100"
                                     :mask-closable="false"
@@ -168,13 +168,15 @@
                             <div v-if="organizationsList.length != 0" class="member-list">
                                 <Scroll :on-reach-bottom="handleReachBottom" height="330">
                                     <div class="member-item" v-for="item in organizationsList" v-bind:key="item.username">
-                                        <div class="profile">
+                                        <div class="profile pointer" @click="jumpToUserInfoPage(item.orgorganizationname)">
                                             <Avatar :src="item.orgorganizationavatar" size="small"/>
                                         </div>
                                         <div class="member-username">
                                             <span class="username-span">{{item.orgorganizationname}}</span>
                                         </div>
-                                        <Button :class="{'hidden': !isLeader}" class="button-blacklist" @click="dislodge(item.username)">移除</Button>
+                                        <div class="buttonList">
+                                            <Button :class="{'hidden': !isLeader}" class="button-blacklist" @click="dislodge(item.username)">移除</Button>
+                                        </div>
                                     </div>
                                 </Scroll>
                             </div>
@@ -202,7 +204,6 @@ export default {
         return {
             team_id: '',
             
-            groupList: [],
             group: {
                 team_name: '',
                 leader: '',
@@ -217,49 +218,12 @@ export default {
             enterUser: '',
 
             isLeader: true,
+            isOrg: false,
 
             showDrawer: false,
             showTransferDrawer: false,
 
             taskList: [],
-            defaultTaskList: [
-                {   
-                    task_id: 1,
-                    title: 'title1', 
-                    introduction: '简介',
-                    money: '10',
-                    publisher: 'user1',
-                    state: 'processing',
-                    max_accepter_number: '10',
-                    type: 2,
-                    score: 4,
-                    content: 'test'
-                },
-                {   
-                    task_id: 2,
-                    title: 'title2', 
-                    introduction: '简介',
-                    money: '10',
-                    publisher: 'user1',
-                    state: 'processing',
-                    max_accepter_number: '10',
-                    type: 2,
-                    score: 4,
-                    content: 'test'
-                },
-                {   
-                    task_id: 3,
-                    title: 'title3', 
-                    introduction: '简介',
-                    money: '10',
-                    publisher: 'user1',
-                    state: 'processing',
-                    max_accepter_number: '10',
-                    type: 2,
-                    score: 4,
-                    content: 'test'
-                },
-            ],
 
             organizationsList: [],
 
@@ -268,8 +232,6 @@ export default {
             inviteList: [],
 
             showTaskDrawer: -1,
-
-            loginUser: 'HeChX',
         };
     },
     methods: {
@@ -278,6 +240,27 @@ export default {
             console.log(this.userInfo);
             let p = new Promise((resolve, reject) => {
                 this.$axios.get('/api/v1/team/Member?team_id=' + team_id)
+                    .then((res) => {
+                        console.log(res);
+                        if (res.data.code == 200) {
+                            resolve(team_id);
+                        } else if (res.data.code == 213) {
+                            reject(213);
+                        } else if (res.data.code == 211) {
+                            reject(211);
+                        }
+                    })
+                    .catch((err) => {
+                        reject(err);
+                    })
+            })
+
+            return p;
+        },
+
+        orgJudge(team_id) {
+            let p = new Promise((resolve, reject) => {
+                this.$axios.get('/api/v1/team/OrgMember?team_id=' + team_id)
                     .then((res) => {
                         console.log(res);
                         if (res.data.code == 200) {
@@ -399,6 +382,72 @@ export default {
             return p;
         },
 
+        getGroupDetailByOrg(team_id) {
+            let p1 = new Promise((resolve, reject) => {
+                this.$axios.get('/api/v1/team/Id?team_id=' + team_id + '&type=0')
+                    .then((res) => {
+                        if (res.data.code == 200 && res.data.data.length != 0) {
+                            let param = {};
+                            param['members'] = [];
+                            for (let i = 0, len = res.data.data[0].members.length; i < len; i++) {
+                                param['members'].push({username: res.data.data[0].members[i]['member_username']});
+                            }
+                            this.$axios.post('/api/v1/user/getteammembersavatat', param)
+                                .then((response) => {
+                                    if (response.data.code == 200) {
+                                        res.data.data[0].members = [];
+                                        for (let i = 0, len = response.data.data.length; i < len; i++) {
+                                            res.data.data[0].members.push(response.data.data[i]);
+                                        }
+                                        console.log(res.data.data);
+                                        
+                                        this.group = res.data.data[0];
+                                        resolve(res);
+                                    } else {
+                                        reject(response);
+                                    }
+                                })
+                                .catch((error) => {
+                                    reject(error);
+                                })
+                        } else {
+                            reject(res);
+                        }
+                    })
+                    .catch((err) => {
+                        reject(err);
+                    })
+            });
+
+            let p2 = new Promise((resolve, reject) => {
+                this.$axios.get('/api/v1/user/getCanPublishTasksOrg?teamId=' + team_id)
+                    .then((res) => {
+                        this.organizationsList = res.data.data;
+                        resolve(res);
+                    })
+                    .catch((err) => {
+                        reject(err);
+                    })
+                
+            });
+
+            let p3 = new Promise((resolve, reject) => {
+                this.$axios.get('/api/v1/task?type=all&range=' + team_id + '&username=' + this.userInfo.username)
+                    .then((res) => {
+                        this.taskList = res.data.data;
+                        resolve(res);
+                    })
+                    .catch((err) => {
+                        reject(err);
+                    })
+            });
+
+            let p = Promise.all([p1, p2, p3]);
+            console.log(p);
+
+            return p;
+        },
+
         addInvitedMember() {
             if (this.currentInvitedMember !== '') {
                 if (-1 == this.inviteList.indexOf(this.currentInvitedMember)) {
@@ -468,6 +517,10 @@ export default {
                 }
             });
 
+        },
+
+        jumpToUserInfoPage(username) {
+            this.$router.push({path: `/user/` + username});
         },
 
         dislodge(username) {
@@ -649,7 +702,7 @@ export default {
             }
         },
 
-        switchGroup() {
+        userRender() {
             this.team_id = this.$route.params.id;
             console.log(this.team_id);
 
@@ -658,13 +711,34 @@ export default {
                     console.log(data);
                     this.getGroupDetail(data)
                 })
-            //this.getGroupDetail(this.team_id)
-                // .then((data) => {
-                //     this.render(data);
-                // })
+                .catch((err) => {
+                    if (err == 213) {
+                        this.$Modal.error({
+                            title: '错误',
+                            content: '没有该小组'
+                        })
+                        this.$router.push({
+                            name: 'myGroup'
+                        })
+                    } else if (err == 211) {
+                        this.$Modal.error({
+                            title: '错误',
+                            content: '<p>你不是该小组成员</p><p>无法查看该小组详情</p>'
+                        })
+                        this.$router.push({
+                            name: 'myGroup'
+                        })
+                    }
+                })
+        },
+
+        orgRender() {
+            this.team_id = this.$route.params.id;
+
+            this.orgJudge(this.team_id)
                 .then((data) => {
-                    console.log(this.group);
-                    this.getBlacklist();
+                    console.log(data);
+                    this.getGroupDetailByOrg(data)
                 })
                 .catch((err) => {
                     if (err == 213) {
@@ -697,11 +771,15 @@ export default {
     },
 
     mounted: function() {
+        if (this.userInfo.type) {
+            this.isOrg = true;
+            this.isLeader = false;
+            this.orgRender();
+        } else {
+            this.isOrg = false;
+            this.userRender();
+        }
         this.sendToMainPage();
-    },
-
-    created: function() {
-        this.switchGroup();
     },
 
     watch: {
@@ -740,7 +818,7 @@ span {
 }
 
 .left-content {
-    flex: 1 1 25%;
+    flex: 0 1 25%;
     margin: 0px 5px;
 }
 
@@ -773,19 +851,13 @@ span {
 }
 
 .middle-content {
-    flex: 1 0 40%;
+    flex: 1 1 40%;
     margin: 0px 5px;
 }
 
 .property {
     display: inline-block;
     width: 30%;
-    font-size: 12pt;
-    margin: 5px;
-}
-
-.list-title {
-    display: inline-block;
     font-size: 12pt;
     margin: 5px;
 }
@@ -801,15 +873,6 @@ span {
     vertical-align: top;
 }
 
-.description2 {
-    border: 1px solid #dcdee2;
-    border-radius: 5px;
-    background-color: #ffffff;
-    height: 96px;
-    font-size: 10pt;
-    padding: 5px;
-}
-
 .span {
     font-size: 10pt;
 }
@@ -822,10 +885,6 @@ span {
     display: inline-block;
     vertical-align: top;
 }
-
-/* .tags {
-    display: block;
-} */
 
 .group-task-title {
     margin: 10px 30px;
@@ -854,7 +913,7 @@ span {
     box-shadow: 4px 4px 10px #5cadff;
 }
 
-.task-title{
+.task-title {
     font-size: 20px;
     margin: 10px;
 }
@@ -881,16 +940,11 @@ span {
 
 }
 
-.drawer-button {
-    margin: 5px;
-    width: 100px;
-}
-
-
 .right-content {
-    flex: 1 1 30%;
+    flex: 0 0 30%;
+    width: 30%;
     margin: 0px 5px;
-    padding-left: 50px;
+    padding-left: 30px;
     padding-right: 10px;
 }
 
@@ -904,18 +958,13 @@ span {
     height: 30px;
     margin: 5px 0px;
     display: flex;
-    justify-content: space-between;
+    overflow: hidden;
 }
 
 .hidden {
     display: none;
 
 }
-
-/* .member-item:hover {
-    border-top: 1px solid #5cadff;
-    border-bottom: 1px solid #5cadff;
-} */
 
 .profile {
     /* display: inline-block; */
@@ -924,9 +973,8 @@ span {
     flex: 0 1 10%;
 }
 
-.profile-img {
-    height: 24px;
-    width: 24px;
+.pointer:hover {
+    cursor: pointer;
 }
 
 .member-username {
@@ -956,16 +1004,12 @@ span {
     margin-top: 20px;
 }
 
+.withdraw-button {
+    margin-top: 10px;
+}
+
 .invite-button {
     margin: 5px 0;
-}
-
-.withdraw-button {
-    margin: 5px 0;
-}
-
-.transfer-block {
-    margin-top: 15px;
 }
 
 .user-item-mouseenter {
@@ -988,9 +1032,5 @@ span {
 .no-organization {
     text-align: center;
 }
-
-/* .group-task-list {
-    margin-right: 10px;
-} */
 
 </style>

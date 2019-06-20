@@ -8,32 +8,32 @@
             <div class="main-content">
                 <div class="basic-informations">
                     <Form ref="group" :label-width="120" style="margin-top:20px" :model="group" :rules="ruleValidate">
-                        <FormItem label="Name" prop="team_name">
-                            <Input v-model="group.team_name" class="input-style" placeholder="Enter Group Name" ></Input>
+                        <FormItem label="小组名字" prop="team_name">
+                            <Input v-model="group.team_name" class="input-style" placeholder="请输入组名" ></Input>
                         </FormItem>
-                        <FormItem label="Description" prop="description">
-                            <Input v-model="group.description" class="input-style" placeholder="Enter Group Description" type="textarea" :rows="4"></Input>
+                        <FormItem label="描述" prop="description">
+                            <Input v-model="group.description" class="input-style" placeholder="请输入小组描述" type="textarea" :rows="4"></Input>
                         </FormItem>
-                        <FormItem label="Limit" prop="limit">
+                        <FormItem label="进组权限" prop="limit">
                             <RadioGroup v-model="group.limit" class="margin-left" vertical>
                                 <Radio label=0 style="width:80px">允许所有人</Radio>
                                 <Radio label=1 style="width:80px">需要审核</Radio>
                                 <Radio label=2 style="width:80px">禁止所有人</Radio>
                             </RadioGroup>
                         </FormItem>
-                        <FormItem label="Tags">
+                        <FormItem label="小组标签">
                             <div class="div-flex" >
                                 <Cascader style="width: 90%; margin-right: 10px" :data="defaultLabels" v-model="currentTeamLabel" :render-format="cascaderFormat" trigger="hover"></Cascader>
-                                <Button icon="md-add" @click="addTeamLabels">Add</Button>
+                                <Button icon="md-add" @click="addTeamLabels">添加</Button>
                             </div>
                             <Row>
                                 <Tag type="border" color="primary" class="margin-left" v-for="item in teamlabels" :key="item" :name="item" closable @on-close="handleCloseLabels">{{ item }}</Tag>
                             </Row>
                         </FormItem>
-                        <FormItem label="Invited Members" prop="invMem">
+                        <FormItem label="邀请成员" prop="invMem">
                             <div class="div-flex" >
-                                <Input v-model="currentInvitedMember" placeholder="Enter Invited Member's ID" class="input-style2"></Input>
-                                <Button icon="md-add" @click="addInvitedMember">Add</Button>
+                                <Input v-model="currentInvitedMember" placeholder="请输入要邀请的用户ID" class="input-style2"></Input>
+                                <Button icon="md-add" @click="addInvitedMember">添加</Button>
                             </div>
                             <Row>
                                 <Tag type="border" color="primary" class="margin-left" v-for="item in InvitedMemberList" :key="item.member_username" :name="item.member_username" closable @on-close="handleCloseMembers">用户{{ item.member_username }}</Tag>
@@ -43,7 +43,7 @@
                 </div>
 
                 <div class="logo-content">
-                    <div class="logo-title">Logo</div>
+                    <div class="logo-title">小组头像</div>
                     <div class="logo-block">
                         <img class="logo-image" id="logo" :src="logoUrl" alt="Group Logo">
                         <div class="upload-block">
@@ -56,7 +56,7 @@
                 </div>
             </div>
 
-            <Button type="success" long class="button-create" @click="createGroup('group')">CREATE</Button>
+            <Button type="success" long class="button-create" @click="createGroup('group')">创建</Button>
             
         </div>
     </div>
@@ -383,9 +383,16 @@ export default {
             };
             this.$emit('menuSelected', data);
         },
+
+        judge() {
+            if (this.userInfo.type == 1) {
+                this.$router.push({name:'orgGroupDetail', params: {name: this.userInfo.username}});
+            }
+        }
     },
     mounted () {
         this.sendToMainPage();
+        this.judge();
     }
 
 }

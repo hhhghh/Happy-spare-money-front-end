@@ -4,13 +4,27 @@
     <div class="content-body">
         <div class="content">
             <div class="content-selector-block">
-                <div class="selector">
+                <!-- <div class="selector">
                     <Input v-model="input" placeholder="Search Group">
                         <Select v-model="groupAttribute" slot="prepend" style="width:80px" label="小组ID">
                             <Option v-for="item in groupAttributeList" :value="item.value" :key="item.value">{{ item.label }}</Option>
                         </Select>
                         <Button slot="append" icon="ios-search" @click="searchGroup"></Button>
                     </Input>
+                </div>
+                <div class="selector" >
+                    <Cascader style="width: 90%; margin-right: 10px" :data="defaultLabels" v-model="currentTeamLabel" :render-format="cascaderFormat" trigger="hover"></Cascader>
+                </div> -->
+                <div class="selector">
+                    <Select v-model="groupAttribute" slot="prepend" style="width:100px" label="小组ID" @on-change="input=''; currentTeamLabel=[]">
+                        <Option v-for="item in groupAttributeList" :value="item.value" :key="item.value">{{ item.label }}</Option>
+                    </Select>
+                </div>
+                <div v-if="groupAttribute != 'group_tag'" class="inputblock">
+                    <Input v-model="input" search enter-button placeholder="Search Group" @on-search="searchGroup" />
+                </div>
+                <div v-else class="inputblock">
+                    <Cascader style="width: 90%; margin-right: 10px" :data="defaultLabels" v-model="currentTeamLabel" :render-format="cascaderFormat" trigger="hover" @on-change="searchGroupByTags"></Cascader>
                 </div>
             </div>
 
@@ -49,7 +63,7 @@
                         </div>
                         
                         <Drawer 
-                            width="50" 
+                            width="60" 
                             :mask-closable="false" 
                             :closable="false" 
                             :transfer="false" 
@@ -199,17 +213,143 @@ export default {
 
             teams: [],
 
-            tags: ['sport'],
+            currentTeamLabel: [],
 
             showDrawer: -1,
 
             getGroupURLParams: '',
+
+            defaultLabels: [
+                {
+                    value: '体育',
+                    label: '体育',
+                    children: [
+                        {
+                            value: '足球',
+                            label: '足球'
+                        },
+                        {
+                            value: '网球',
+                            label: '网球'
+                        },
+                        {
+                            value: '乒乓球',
+                            label: '乒乓球'
+                        },
+                        {
+                            value: '篮球',
+                            label: '篮球'
+                        },
+                        {
+                            value: '排球',
+                            label: '排球'
+                        },
+                        {
+                            value: '游泳',
+                            label: '游泳'
+                        },
+                        {
+                            value: '太极',
+                            label: '太极'
+                        },
+                        {
+                            value: '龙舟',
+                            label: '龙舟'
+                        },
+                        {
+                            value: '棒球',
+                            label: '棒球'
+                        },
+                        {
+                            value: '跆拳道',
+                            label: '跆拳道'
+                        },
+                        {
+                            value: '健美操',
+                            label: '健美操'
+                        },
+                    ]
+                },
+                {
+                    value: '学习',
+                    label: '学习',
+                    children: [
+                        {
+                            value: '专业',
+                            label: '专业',
+                            children: [
+                                {
+                                    value: '计算机类',
+                                    label: '计算机类'
+                                },
+                                {
+                                    value: '软件工程',
+                                    label: '软件工程'
+                                },
+                                {
+                                    value: '其他专业',
+                                    label: '其他专业'
+                                },
+                            ]
+                        },
+                        {
+                            value: '课程',
+                            label: '课程',
+                            children: [
+                                {
+                                    value: '高等数学',
+                                    label: '高等数学'
+                                },
+                                {
+                                    value: '线性代数',
+                                    label: '线性代数'
+                                },
+                                {
+                                    value: '其他课程',
+                                    label: '其他课程'
+                                },
+                            ]
+                        },
+                    ]
+                },
+                {
+                    value: '兴趣',
+                    label: '兴趣',
+                    children: [
+                        {
+                            value: '舞蹈',
+                            label: '舞蹈'
+                        },
+                        {
+                            value: '音乐',
+                            label: '音乐'
+                        },
+                        {
+                            value: '钢琴',
+                            label: '钢琴'
+                        },
+                        {
+                            value: '吉他',
+                            label: '吉他'
+                        },
+                    ]
+                }
+            ],
         };
     },
     methods: {
         getGroupItem(id_) {
             if (this.showDrawer != id_) this.showDrawer = id_;
             else this.showDrawer = -1;
+        },
+
+        searchGroupByTags(value, selectedData) {
+            console.log(value);
+            console.log(selectedData);
+            if (this.groupAttribute == 'group_tag' && selectedData.length != 0) {
+                this.input = selectedData[selectedData.length - 1].value;
+            }
+            this.searchGroup();
         },
 
         searchGroup() {
@@ -230,7 +370,7 @@ export default {
                         break;
                     case 'group_tag': 
                         this.getGroupURLParams = '/Label?label=' + this.input; searchType = '小组标签'; 
-                        this.errorMessage = '抱歉，没有找到符合条件(小组标签为\'' + this.input + '\')的小组，请确认' + searchType + '是否输入正确';
+                        this.errorMessage = '抱歉，没有找到符合条件(小组标签为\'' + this.input + '\')的小组，你可以尝试搜索其他' + searchType;
                         break;
                     default: break;
                 }
@@ -354,6 +494,11 @@ export default {
             }
         },
 
+        cascaderFormat(labels, selectedData) {
+            const index = labels.length - 1;
+            return labels[index];
+        },
+
         sendToMainPage() {
             let data = {
                 active: '2-1',
@@ -384,11 +529,16 @@ span {
 }
 
 .selector {
-    float:left;
     margin: 10px;
 }
 
+.inputblock {
+    margin: 10px;
+    flex: 0 1 35%;
+}
+
 .content-selector-block {
+    display: flex;
     position:relative;
     z-index: 999;
 }
@@ -426,6 +576,10 @@ span {
 .group-name{
     font-size: 20px;
     margin: 10px;
+}
+
+.group-description {
+    margin: 0px 5px;
 }
 
 .group-simpleinfo {
