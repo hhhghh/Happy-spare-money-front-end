@@ -22,6 +22,8 @@ import userInfo from '@/components/userInfo'
 import deposit from '@/components/deposit'
 import withdraw from '@/components/withdraw'
 import questionnaire from '@/components/questionnaire'
+import orgSearch from '@/components/orgSearch'
+import myOrg from '@/components/myOrg'
 
 Vue.use(Router)
 
@@ -103,6 +105,16 @@ export default new Router({
           path: '/MainPage/questionnaire/:url',
           name: 'questionnaire',
           component: questionnaire
+        },
+        {
+          path: '/MainPage/orgSearch',
+          name: 'orgSearch',
+          component: orgSearch
+        },
+        {
+          path: '/MainPage/myOrg',
+          name: 'myOrg',
+          component: myOrg
         }
       ]
     },
