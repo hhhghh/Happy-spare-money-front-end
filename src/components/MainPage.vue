@@ -62,9 +62,9 @@
                 <router-link to="/MainPage/myReleaseTask">
                   <MenuItem name="1-3-2">发布任务</MenuItem>
                 </router-link>
-
               </Submenu>
             </Submenu>
+
             <Submenu name="2">
               <template slot="title">
                 <Icon type="md-people" size="24"/>
@@ -88,8 +88,27 @@
                   <span>创建小组</span>
                 </MenuItem>
               </router-link>
-
             </Submenu>
+
+            <Submenu v-if="isUser" name="3">
+              <template slot="title">
+                <Icon type="ios-ribbon" size="24" />
+                <span>机构管理</span>
+              </template>
+              <router-link to="/MainPage/orgSearch">
+                <MenuItem name="3-1">
+                  <Icon type="ios-search" />
+                  <span>机构搜索</span>
+                </MenuItem>
+              </router-link>
+              <router-link to="/MainPage/myOrg">
+                <MenuItem name="3-2">
+                  <Icon type="md-heart-outline" />
+                  <span>我的机构</span>
+                </MenuItem>
+              </router-link>
+            </Submenu>
+
           </Menu>
         </Sider>
         <div class="layout-content">
@@ -213,13 +232,17 @@
           .then(msg => {
             if (msg.data.code == 200) {
               this.message = msg.data.data;
+              let joinTeamType = [0, 7];
               this.message.sort((msg1, msg2) => {
-                if (msg1.type == 0 && msg2.type != 0) return msg1.type - msg2.type;
-                if (msg1.type != 0 && msg2.type == 0) return msg1.type - msg2.type;
-                return msg1.id - msg2.id;
+                let msg1isJoinMsg = joinTeamType.includes(msg1.type);
+                let msg2isJoinMsg = joinTeamType.includes(msg2.type);
+                if (msg1isJoinMsg && !msg2isJoinMsg) return -1;
+                if (!msg1isJoinMsg && msg2isJoinMsg) return 1;
+                return msg2.id - msg1.id;
               });
+
               for (let i = 0; i < this.message.length; i++) {
-                if (this.message[i].type != 0) {
+                if (!joinTeamType.includes(this.message[i].type)) {
                   this.accTeamJoin = new Array(i);
                   break;
                 }
@@ -246,7 +269,7 @@
       },
 
       updateMenu(value) {
-        this.menuOpen.push(value.open);
+        if (!this.menuOpen.includes(value.open)) this.menuOpen.push(value.open);
         this.menuActive = value.active;
         this.$nextTick(() => {
           this.$refs.menu.updateOpened();
