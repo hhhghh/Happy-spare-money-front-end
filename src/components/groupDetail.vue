@@ -175,7 +175,7 @@
                                             <span class="username-span">{{item.orgorganizationname}}</span>
                                         </div>
                                         <div class="buttonList">
-                                            <Button :class="{'hidden': !isLeader}" class="button-blacklist" @click="dislodge(item.username)">移除</Button>
+                                            <Button :class="{'hidden': !isLeader}" class="button-blacklist" @click="blacklistOrg(item.orgorganizationname)">移除</Button>
                                         </div>
                                     </div>
                                 </Scroll>
@@ -588,6 +588,31 @@ export default {
                     content: '<p>不能拉黑自己</p>'
                 });
             }
+        },
+
+        blacklistOrg(orgName) {
+            let param = {};
+            param['ins_name'] = orgName;
+            param['team_id'] = this.team_id;
+            this.$axios.post('/api/v1/user/teamblacklist', param)
+                .then((res) => {
+                    console.log(res);
+                    if (res.data.code == 200) {
+                        for (let i = 0, len = this.organizationsList.length; i < len; i++) {
+                            if (orgName == this.organizationsList[i]['orgorganizationname']) {
+                                this.organizationsList.splice(i, 1);
+                                break;
+                            }
+                        }
+                        this.$Modal.info({
+                            title: '提示',
+                            content: '<p>移除成功</p>'
+                        });
+                    }
+                })
+                .catch((err) => {
+                    console.log(err);
+                })
         },
 
         cancelBlacklist(name) {
