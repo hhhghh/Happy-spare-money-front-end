@@ -5,12 +5,13 @@
                 <div class="div-selectors">
                     <div class="selector">
                         <span class="selector-span">任务类型</span>
-                        <Select v-model="typeSelect" style="width:100px;margin-right:5px" @on-change="getReleaseTask(typeSelect,rangeSelect,stateSelect)">
+                        <Select v-model="typeSelect" style="width:100px;margin-right:5px" @on-change="getReleaseTask(typeSelect,rangeSelect,stateSelect,kindSelect)">
                             <Option v-for="item in taskType" :value="item.value" :key="item.value">{{ item.label }}</Option>
                         </Select>
                     </div>
+                    <!--
                     <div class="selector">
-                    <span class="selector-span">任务发布范围</span>
+                        <span class="selector-span">任务发布范围</span>
                         <Select v-model="rangeSelect" style="width:100px;margin-right:5px" @on-change="getReleaseTask(typeSelect,rangeSelect,stateSelect)">
                             
                             <OptionGroup label="全部">
@@ -19,17 +20,20 @@
                             <OptionGroup label="小组">
                                 <Option v-for="item in groupRangeType" :value="item.value" :key="item.value">{{ item.label }}</Option>
                              </OptionGroup>
-                             <OptionGroup label="机构小组">
+                             <OptionGroup label="机构">
                                 <Option v-for="item in organRangeType" :value="item.value" :key="item.value">{{ item.label }}</Option>
                              </OptionGroup>
                         </Select>
                     </div>
+                    -->
                     <div class="selector">
                     <span class="selector-span">任务状态</span>
-                        <Select v-model="stateSelect" style="width:100px;margin-right:5px" @on-change="getReleaseTask(typeSelect,rangeSelect,stateSelect)">
+                        <Select v-model="stateSelect" style="width:100px;margin-right:5px" @on-change="getReleaseTask(typeSelect,rangeSelect,stateSelect,kindSelect)">
                             <Option v-for="item in stateType" :value="item.value" :key="item.value">{{ item.label }}</Option>
                         </Select>
                     </div>
+                     <Button type="primary" @click="isDrawerDisplay = true" >任务发布范围</Button>
+                     <span style="margin-left: 10px; margin-top: 8px;">{{rangeLabel}}</span>
                 </div>
                 <div class="state-type-hint" style="display:flex">
                     <div class="div-box">
@@ -44,6 +48,10 @@
                         <div class="box blue-state-box"></div>
                         <span>正在做</span>
                     </div>
+                    <div class="div-box">
+                        <div class="box gray-state-box"></div>
+                        <span>已过期(已审核)</span>
+                    </div>
                 </div>
             </div>
             <Divider></Divider>
@@ -52,6 +60,8 @@
                 'completed-mouseenter':isEnter(item.task_id) && isComplete(item.state), 
                 'waiting': isWaiting(item.state),
                 'waiting-mouseenter':isEnter(item.task_id) && isWaiting(item.state),
+                'overtime': isOvertime(item.state),
+                'overtime-mouseenter': isEnter(item.task_id) && isOvertime(item.state),
                 'item-mouseenter': isEnter(item.task_id)}"
                 @mouseenter="enterItemId = item.task_id" @mouseleave="enterItemId = ''" @click="jumpToTaskDetail(item.task_id)"
                 v-show="isShow(stateSelect, item.state)">
@@ -77,6 +87,27 @@
                     </div>    
                 </div>
             </div>
+
+            <Drawer title="范围筛选" width="600" :closable="false" v-model="isDrawerDisplay">
+                <div class="drawer-body">
+                    <div class="div-action-btn">
+                        <Button type="primary" @click="selectGroup('','all')">全部</Button>
+                        <Button type="primary" @click="showGroup = true">小组</Button>
+                        <Button type="primary" @click="selectOrg()" v-show="type == 1">机构</Button>
+                    </div>
+                    <div class="div-group-body" v-show="showGroup"> 
+                        <div v-for="item in groupItems" @click="selectGroup(item.team_name, item.team_id)">
+                            <div class="div-group">
+                               <img class="logo" :src="item.logo"/>
+                               <p>{{item.team_name}} -- {{item.leader}}</p>
+                            </div>
+                        </div>
+                    
+                    </div>
+                    
+                </div>
+
+             </Drawer>   
         </div>
     </div>
 </template>
@@ -131,41 +162,26 @@ export default {
                 {
                     value: 3,
                     label: '已完成'
-                }
+                },
+                {
+                    value: 4,
+                    label: '已过期'
+                },
             ],
             typeSelect: 'all',
             rangeSelect: 'all',
             stateSelect:'all',
+            rangeLabel: '',
+            kindSelect: 0,
             enterItemId: '',
+            isDrawerDisplay: false,
             taskItems: [
-                // {
-                //     id : 1,
-                //     title: 'xxx问卷调查',
-                //     endtime: '2019-05-01 23:00',
-                //     money: 1,
-                //     state: 0,
-                //     type: '问卷调查',
-                //     number: 2
-                // },
-                // {
-                //     id: 2,
-                //     title: 'xxx取快递',
-                //     endtime: '2019-05-01 23:00',
-                //     money: 2,
-                //     type: '取快递',
-                //     state: 2,
-                //     number: 1
-                // },
-                // {
-                //     id: 3,
-                //     title: 'xxx取快递',
-                //     endtime: '2019-05-01 23:00',
-                //     money: 2,
-                //     type: '取快递',
-                //     state: 1,
-                //     number: 1
-                // }
+               
             ],
+            groupItems:[],
+           
+            showGroup:true,
+            
          
 
         }
@@ -177,7 +193,8 @@ export default {
         this.backTop();
         //http.get my release task
         //this.getReleaseTask(this.typeSelect, this.rangeSelect, this.stateSelect);
-        this.getUserInfo()
+        this.getUserInfo();
+        this.sendToMainPage();
     },
 
     methods: {
@@ -188,7 +205,9 @@ export default {
         isWaiting (state) {
             return state == 1;
         },
-
+        isOvertime(state) {
+            return state == 4;
+        },
         isEnter(id) {
             return id == this.enterItemId;
         },
@@ -205,13 +224,16 @@ export default {
                     vm.username = userInfo.username;
                     vm.type = userInfo.type;
                     
-                    if (vm.type == 0) {
-                        vm.getGroup(0);
-                    } else {
-                        vm.getGroup(0);
-                        vm.getGroup(1);
+                    vm.getGroup();  
+                    if (vm.type == 1) {
+                        vm.kindSelect = 1;
+                        vm.rangeSelect = vm.username;
+                        vm.selectOrg();
+                    }  else {
+                        vm.kindSelect = 0;
+                        vm.selectGroup('','all');
                     }
-                    vm.getReleaseTask(vm.typeSelect, vm.rangeSelect, vm.stateSelect);
+                    // vm.getReleaseTask(vm.typeSelect, vm.rangeSelect, vm.stateSelect, vm.kindSelect);
                 } 
             
             })
@@ -225,14 +247,19 @@ export default {
                 }
             });
         },
-        getGroup(type) {
-            console.log("test");
+        getGroup() {
+            // console.log("test");
             let vm = this;
-            let url = '/api/v1/team/MemberName'
+            let url = '';
+            if (vm.type == 0) {
+                url = '/api/v1/team/MemberName';
+            } else if (vm.type == 1) {
+                url = '/api/v1/team/OrgName';
+            }
             //异步
             this.$axios.get(url, {
                params: {
-                   type: type,
+                   type: 0,
                    member_username : vm.username
                }
             
@@ -241,19 +268,13 @@ export default {
                 let data = response.data;
                 if (data.code == 200 ) {
                     
-                    if (type == 0) {
-                        let teamDatas = data.data;
-                        for(let i = 0;i < teamDatas.length;i ++) {
-                          
-                            vm.groupRangeType.push({value: teamDatas[i].team_id, label: teamDatas[i].team_name + '--' + teamDatas[i].leader});
-                        }
-                    } else {
-                        let organDatas = data.data;
-                         for(let i = 0;i < organDatas.length;i ++) {
-                          
-                            vm.organRangeType.push({value: organDatas[i].team_id, label: organDatas[i].team_name + '--' + organDatas[i].leader});
-                        }
+                   
+                    let teamDatas = data.data;
+                    for(let i = 0;i < teamDatas.length;i ++) {
+                        
+                        vm.groupRangeType.push({value: teamDatas[i].team_id, label: teamDatas[i].team_name + '--' + teamDatas[i].leader});
                     }
+                    vm.groupItems = teamDatas;
                     
 
                     // console.log(vm.rangeType);
@@ -264,17 +285,28 @@ export default {
                 console.log('Fail to request');
             });
         },
-
-        getReleaseTask(typeSelect, rangeSelect, stateSelect) {
-            //http request get
+        getReleaseTask(typeSelect, rangeSelect, stateSelect, kindSelect) {
+           if(kindSelect == 0) {
+               this.getReleaseTaskByGroup(typeSelect, rangeSelect,stateSelect)
+           } else if (kindSelect == 1) {
+              
+               this.getReleaseTaskByOrg(typeSelect, rangeSelect, stateSelect);
+           }
+            
+        },
+        getReleaseTaskByGroup(typeSelect, rangeSelect, stateSelect) {
+             //http request get
             let vm = this;
             let url = '/api/v1/task/findByPublisher';
             //异步
 
             let flag = false;            
-            if (stateSelect == 1 || stateSelect == 'all') {
-                stateSelect = 'all'
+            if (stateSelect == 1 || stateSelect == 'all' || stateSelect == 4) {
+               
                 flag = true;
+                if (stateSelect != 4 ) {
+                     stateSelect = 'all'
+                }
             }
             this.$axios.get(url, {
                 params: {
@@ -299,13 +331,74 @@ export default {
                         }
 
                         if (flag) {
-                            let trs = taskItems[i].trs;
-                            for (let j = 0;j < trs.length;j ++) {
-                                if (trs[j].state == 1) {
-                                    taskItems[i].state = 1;
-                                    break;
-                                }
-                            }        
+                            if (taskItems[i].state == 1 || taskItems[i].state == 4) {
+                                let trs = taskItems[i].trs;
+                                for (let j = 0;j < trs.length;j ++) {
+                                    if (trs[j].state == 1) {
+                                        taskItems[i].state = 1;
+                                        break;
+                                    } else if (taskItems[i].state != 4){
+                                        taskItems[i].state = 0;
+                                    }
+                                }       
+                            }
+                           
+                        }
+                        
+                    }
+                   
+                    vm.taskItems = taskItems;
+                } 
+
+               
+              
+            })
+            .catch(function (error) {
+                console.log('error');
+            });
+        },
+        getReleaseTaskByOrg(typeSelect,rangeSelect,stateSelect) {
+            let vm = this;
+            let url = '/api/v1/task/findByOrg';
+
+            let flag = true;            
+            
+            this.$axios.get(url, {
+                params: {
+                    type: typeSelect,
+                    // range: rangeSelect,
+                    // state: stateSelect,
+                    orgname: rangeSelect
+                }
+            
+            })
+            .then(function(response) {
+                
+                let data = response.data;
+                // console.log(data);
+                if (data.code == 200) {
+                    // console.log(data.data);
+                    let taskItems = data.data;
+                    for (let i = 0;i < taskItems.length;i ++) {
+                        if (taskItems[i].type == 1) {
+                            taskItems[i].type = '问卷调查';
+                        } else if (taskItems[i].type == 2){
+                            taskItems[i].type = '跑腿';
+                        }
+
+                        if (flag) {
+                            if (taskItems[i].state == 1 || taskItems.state == 4) {
+                                let trs = taskItems[i].trs;
+                                for (let j = 0;j < trs.length;j ++) {
+                                    if (trs[j].state == 1) {
+                                        taskItems[i].state = 1;
+                                        break;
+                                    } else if (taskItems[i].state != 4) {
+                                        
+                                        taskItems[i].state = 0;
+                                    }
+                                }        
+                            }
                         }
                         
                     }
@@ -320,9 +413,6 @@ export default {
                 console.log('error');
             });
             
-           
-            
-
         },
 
         jumpToTaskDetail(id) {
@@ -333,7 +423,40 @@ export default {
                 return state == stateSelect;
             }
             return true;
-        }
+        },
+        sendToMainPage() {
+            let data = {
+                active: '1-3-2',
+                open: '1-3'
+            };
+            this.$emit('menuSelected', data);
+        },
+        selectGroup(team_name,team_id){
+            this.kindSelect = 0;
+            this.rangeSelect = team_id;
+            if(team_id == 'all')  {
+                this.rangeLabel = '全部';
+            } else {
+                this.rangeLabel = '小组: ' + team_name;
+            }
+           
+            this.getReleaseTask(this.typeSelect, this.rangeSelect, this.stateSelect, this.kindSelect);
+        },
+
+        selectOrg(){
+            this.kindSelect = 1;
+            this.rangeSelect = this.username;
+            this.rangeLabel= '本机构'
+            this.getReleaseTask(this.typeSelect, this.rangeSelect,this.stateSelect, this.kindSelect);
+        },
+        // setShowGroup(showGroup) {
+            
+        //     if(this.type == 1) {
+        //         this.getReleaseTaskByOrg(this.username);
+        //     } else if (this.type == 0) {
+        //         this.showGroup = showGroup;
+        //     }
+        // }
     }
 
 }
@@ -416,6 +539,10 @@ h2 {
 
 .blue-state-box {
     background: #5cadff;
+}
+
+.gray-state-box {
+    background: #999999;
 }
 
 .task-content {
@@ -513,6 +640,60 @@ h2 {
     box-shadow: 3px 3px 5px #ff9900;
 }
 
+.overtime {
+    border: 1px solid #999999;
+    box-shadow: 5px 5px 5px #999999;
+}
 
+.overtime-mouseenter {
+    box-shadow: 3px 3px 5px #555555;
+}
+
+.drawer-body {
+    position:relative;
+    width: 100%;
+    
+}
+
+.div-group-body {
+    position:relative;
+    margin-top: 10px;
+   
+    
+}
+
+.div-group {
+    position:relative;
+    border: 1px solid #2d8cf0;
+    box-shadow: 4px 4px 10px #2b85e4;
+    height: 140px;
+    width: 140px;
+    margin: 20px;
+    float: left;
+    cursor: pointer;
+    text-align: center;
+    padding: 4px
+}
+
+.div-organization {
+    position:relative;
+    border: 1px solid #2d8cf0;
+    box-shadow: 4px 4px 10px #19ff6b;
+    height: 140px;
+    width: 140px;
+    margin: 20px;
+    float: left;
+    cursor: pointer;
+    text-align: center;
+    padding: 4px
+}
+
+.logo {
+    width: 100px;
+    height: 100px;
+    position:relative;
+    margin:0 auto;
+    
+}
 
 </style>

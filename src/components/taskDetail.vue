@@ -29,7 +29,7 @@
                             <h1 id="type">类型</h1>
                             <p>{{ task.type_label }} </p>
                         </div>
-                        <div class="div-taskInfo-cell" >
+                        <div class="div-taskInfo-cell" style="cursor: pointer">
                             <h1 id="releaser">发布人</h1>
                             <div @click="jumpToReleaserInfo()">
                                 <Avatar :src="avatar" > </Avatar>
@@ -83,7 +83,7 @@
             
 
             <div style="margin-top: 20px;">
-                <Button class="btn" type="success" long v-show="!isAcceptor && !isReleaser" @click="acceptTask()" :disabled="isOver || type == 1">接受任务</Button>
+                <Button class="btn" type="success" long v-show="!isAcceptor && !isReleaser" @click="acceptTask()" :disabled="isOver || userInfo.type == 1">接受任务</Button>
                 <Button class="btn" type="primary" long v-show="isAcceptor && isDoing" @click="completeTask()">完成任务</Button>
                 <Button class="btn" type="error" long v-show="isAcceptor && isDoing" @click="quitingTask()">放弃任务</Button>
                
@@ -116,8 +116,9 @@
                                      <th  width="120">
                                         <div class="header-th">
                                             <span>Action</span>
-                                            <!--<Checkbox @click="selectAll()" v-model="isSelectAll"></Checkbox>-->
-                                            <input type="checkbox" v-model="isSelectAll" @click="selectAll()">
+                                            
+                                            <Checkbox  @click.prevent.native="selectAll()" :value="isSelectAll"></Checkbox>
+                                            <!--<input type="checkbox"  v-model="isSelectAll" >-->
                                         </div>
                                     </th>
                                 </tr>
@@ -151,7 +152,7 @@
                                                  </div>
                                             </Poptip>
                                             <Button type="primary" size="small" style="margin-left:5px" v-show="task.type == 1" :disabled="item.state == 0" @click="jumpToQuestionnaire(item.questionnaire_path, 2)">问卷答案</Button>
-                                            <Checkbox :disabled="item.state != 1" v-model="item.isSelected" style="margin-top: 3px;position: relative;left: 10px;"></Checkbox>
+                                            <Checkbox :disabled="item.state != 1" v-model="item.isSelected" style="margin-top: 3px;position: relative;left: 10px;" ></Checkbox>
 
                                         </div>
                                     </td>
@@ -201,11 +202,8 @@ export default {
 
     data () {
         return {
-            
-            username: 'yao',
-            type:0,
-            
-           
+            userInfo:{},
+
             task_id: '',
             isReleaser: false,     
             isAcceptor: false,      //control the show of accepter and cancel buttons
@@ -249,6 +247,7 @@ export default {
         this.backTop();
         this.task_id = this.$route.params.id;    
         this.getMyUserInfo();
+        
 
     },
     watch: {
@@ -260,6 +259,7 @@ export default {
     },
 
     methods: {
+        
         getMyUserInfo(){
             let vm = this;
             let url = '/api/v1/user/getPersonalInfo'
@@ -269,9 +269,10 @@ export default {
             .then(function(response) {
                 let data = response.data;
                 if (data.code == 200) {
-                    let userInfo = data.data;
-                    vm.username = userInfo.username;
-                    vm.type = userInfo.type;
+                    vm.userInfo = data.data;
+                    // vm.userInfo = userInfo
+                    // vm.username = userInfo.username;
+                    // vm.type = userInfo.type;
                     vm.getTaskDetail();
                 } 
             
@@ -359,12 +360,12 @@ export default {
         },
         // OK
         setCharactor: function() {
-
+            
             let vm = this; 
             let info = vm.task;
            
             vm.getTaskRelation();
-            if (info.publisher == vm.username) {
+            if (info.publisher == vm.userInfo.username) {
                 vm.isReleaser = true;
                 
                 if (info.state == 2) {
@@ -381,7 +382,7 @@ export default {
                 this.$axios.get(url, {
                     params:{
                         task_id: vm.task_id,
-                        username: vm.username
+                        username: vm.userInfo.username
                     }
                 })
                 .then(function(response) {
@@ -419,6 +420,16 @@ export default {
         },
         // OK
         acceptTask: function() {
+            
+
+            if (this.userInfo.score < this.task.score) {
+                this.$Notice.warning({
+                        title: 'Task Acceptance',
+                        desc:  "Your score is not enough"
+                    });
+                return;
+            }
+
             let vm = this;
             let url = '/api/v1/task/acceptance';
 
@@ -428,7 +439,7 @@ export default {
                     'accept': 'application/json',
                     'Content-Type': 'application/json'
                 },
-                username: vm.username,
+                username: vm.userInfo.username,
                 task_id: vm.task.task_id
                 
             
@@ -467,6 +478,16 @@ export default {
         },
 
         completeTask: function() {
+
+            if (this.task.state == 4) {
+                this.$Notice.warning({
+                        title: 'Task Complemet',
+                        desc:  "Task OverTime"
+                    });
+                vm.$router.push({name: 'login'});
+                return;
+            }
+
             if(this.task.type == 1) {
                 // let url = 'http://localhost:3000/uploads/questionnaire/69cc28649066e.json';
                 let url = this.task.questionnaire_path;
@@ -478,7 +499,7 @@ export default {
                 //异步
                 this.$axios.post(url, {
                     task_id: vm.task_id,
-                    username: vm.username
+                    username: vm.userInfo.username
                     
                 })
                 .then(function(response) {
@@ -524,7 +545,7 @@ export default {
             //删除接受者与任务的联系
             this.$axios.delete(url, {
                 params: {
-                    username: vm.username,
+                    username: vm.userInfo.username,
                     task_id: vm.task.task_id
                 }
                 
@@ -664,12 +685,15 @@ export default {
             });
         },
         selectAll() {
-           
+            
+            this.isSelectAll = !this.isSelectAll;
             for (let i = 0;i < this.trs.length; i++) {
                 if (this.trs[i].state == 1) {
                     this.trs[i].isSelected = this.isSelectAll;
                 }
             } 
+          
+          
         },
         confirmTaskSingle:function(username_, score_, index) {
             let username_arr = []
@@ -695,6 +719,7 @@ export default {
                 }
             }
             
+           
             this.postConfirmTask(username_arr, score_arr, index_arr);
         },
         postConfirmTask(username_arr, score_arr, index_arr) {

@@ -178,7 +178,7 @@
                     </div>
                     <div  class="div-formItem div-flex">
                         <span class="item-span"   style="width:5%;">简介</span>
-                        <Input  class="input-style" v-bind:class="{ 'error-input': taskInfo.introduction == ''&& !isFirst}" placeholder="Enter task title" type="textarea" :rows="4" style="width: 95%" v-model="taskInfo.introduction"></Input>
+                        <Input  class="input-style" v-bind:class="{ 'error-input': taskInfo.introduction == ''&& !isFirst}" placeholder="Enter task introduction" type="textarea" :rows="4" style="width: 95%" v-model="taskInfo.introduction"></Input>
                     </div>
                 
                     <div class="div-formItem div-flex">
@@ -204,11 +204,18 @@
                                 <Option v-for="item in taskType" :value="item.value" :key="item.value" >{{ item.label }}</Option>
                             </Select>
                         </div>                   
-                        <div class="div-task-type">
+                        <div class="div-task-range">
                             <span class="item-span"   style="width:25%;">任务发布范围</span>
                             <Select class="input-style"  v-bind:class="{ 'error-input': taskInfo.range.length == 0 && !isFirst}" v-model="taskInfo.range" style="width:70%" label="全部" :on-change="releaseRangeChange()" multiple >
-                                <Option v-for="item in rangeType" :value="item.value" :key="item.value" >{{ item.label }}</Option>
+                                
+                                <OptionGroup label="小组">
+                                    <Option v-for="item in groupRangeType" :value="item.value" :key="item.value">{{ item.label }}</Option>
+                                </OptionGroup >
+                                <OptionGroup label="本机构">
+                                    <Option v-for="item in myOrgType" :value="item.value" :key="item.value">本机构</Option>
+                                </OptionGroup>
                             </Select>
+                            
                         </div>
                     </div>
                     
@@ -420,13 +427,14 @@ export default {
                
             ],
 
-            rangeType: [
+            groupRangeType: [
                 {
                     value: 1,
                     label: '全部'
                 },
                 
             ],
+            myOrgType:[],
             //the highlight color item id
             enterItemId: '',
             disabledTime: {
@@ -452,33 +460,7 @@ export default {
                 
             },
             taskItems: [
-                {
-                    id : 1,
-                    title: 'xxx问卷调查',
-                    endtime: '2019-05-01 23:00',
-                    money: 1,
-                    state: 'doing',
-                    type: '问卷调查',
-                    max_accepter_number: 2
-                },
-                {
-                    id: 2,
-                    title: 'xxx取快递',
-                    endtime: '2019-05-01 23:00',
-                    money: 2,
-                    type: '取快递',
-                    state: 'completed',
-                    max_accepter_number: 1
-                },
-                {
-                    id: 3,
-                    title: 'xxx取快递',
-                    endtime: '2019-05-01 23:00',
-                    money: 2,
-                    type: '取快递',
-                    state: 'waiting',
-                    max_accepter_number: 1
-                }
+                
             ],
             
 
@@ -504,6 +486,7 @@ export default {
                 return fmt;
         };
         this.getUserInfo();
+        this.sendToMainPage();
         
     },
     methods: {
@@ -520,8 +503,14 @@ export default {
                     vm.username = userInfo.username;
                     vm.money = userInfo.money;
                     vm.type = userInfo.type;
+                    if(vm.type == 1) {
+                        vm.myOrgType.push({value: 'myOrg'});
+                    }
+
                     vm.getRecentTask();
-                    vm.getGroup(0);
+                    vm.getGroup();
+
+                    
                     
                 } 
             
@@ -577,35 +566,31 @@ export default {
             });
         },
 
-        getGroup: function(type) {
+        getGroup: function() {
             let vm = this;
-            let url = '/api/v1/team/MemberName'
+            let url = '';
+             if (vm.type == 0) {
+                url = '/api/v1/team/MemberName';
+            } else if (vm.type == 1) {
+                url = '/api/v1/team/OrgName';
+            }
             //异步
             this.$axios.get(url, {
                params: {
-                   type: type,
+                   type: 0,
                    member_username : vm.username
                }
             
             })
             .then(function(response) {
                 let data = response.data;
-                if (data.code == 200 || data.code == 213) {
-                    if (data.code == 200) {
-                        let teamDatas = data.data;
-                        for(let i = 0;i < teamDatas.length;i ++) {
-                            if (type == 0) {
-                                vm.rangeType.push({value: teamDatas[i].team_id, label: teamDatas[i].team_name + '--' + teamDatas[i].leader});
-                            } else {
-                                vm.rangeType.push({value: teamDatas[i].team_id, label: teamDatas[i].team_name + '--' + teamDatas[i].leader + '  ***'});
-                            }
-                        }
-                    }
-                 
+                if (data.code == 200 ) {
+                    let teamDatas = data.data;
+                    for(let i = 0;i < teamDatas.length;i ++) {
                     
-                    if(vm.type == 1 && type != 1) {
-                        vm.getGroup(1);
+                        vm.groupRangeType.push({value: teamDatas[i].team_id, label: teamDatas[i].team_name + '--' + teamDatas[i].leader});
                     }
+   
                     // console.log(vm.rangeType);
                 } 
             
@@ -683,11 +668,15 @@ export default {
                 if (data.code == 200) {
                     vm.isUploading = true;
                     vm.isModalShow = false;
+
+                    
                     if (vm.taskInfo.type == 1) {
                         vm.postQuestionnaire(vm.taskInfo);
                     } else {
-                        vm.postTaskInfo(vm.taskInfo, '');
+    
+                        vm.postTaskInfo(vm.taskInfo, '');     
                     }
+                    
                 } else {
                     vm.$Message.info('密码错误');
                     vm.loading = false;
@@ -855,7 +844,8 @@ export default {
                 let data = res.data;
                 // console.log(res.data);
                 if (data.code == 200) {
-                    let ques_url = data.data.fileUrl
+                    let ques_url = data.data.fileUrl;
+                    
                     vm.postTaskInfo(taskInfo, ques_url);
                     
                     
@@ -880,8 +870,14 @@ export default {
             taskInfo.starttime = starttime;
             
             let vm = this;
-            let url ='/api/v1/task';
-            
+            let url = '';
+            url ='/api/v1/task';
+           
+            if(vm.type == 1 && taskInfo.range[0] == 'myOrg') {
+                taskInfo.range = [];
+
+            } 
+           
             this.$axios.post(url, {
                 title: taskInfo.title,
                 introduction: taskInfo.introduction,
@@ -911,9 +907,7 @@ export default {
                     });
                     vm.jumpToTaskDetail(data.data.task_id);
                 }
-                
-                
-            
+    
             })
             .catch(function (error) {
                 if (error.response.status == 401) {
@@ -932,12 +926,12 @@ export default {
             let length = range.length;
             if (length < 2) return;
 
-            if (range[length - 1] == 1 ) {
+            if (range[length - 1] == 1 || range[length - 1] == 'myOrg') {
                 for (let i = 0;i < length - 1;i ++) {
                     this.taskInfo.range.splice(0, length - 1);
                 }
             } else {
-                if (range[0] == 1) {
+                if (range[0] == 1 || range[0] == 'myOrg') {
                     this.taskInfo.range.splice(0, 1);
                 }
             }
@@ -1008,6 +1002,13 @@ export default {
                 let length = this.questionnaire.multiple[index].choice.length;
                 this.questionnaire.multiple[index].choice.splice(length - 1, 1);
             }
+        },
+        sendToMainPage() {
+            let data = {
+                active: '1-2',
+                open: '1'
+            };
+            this.$emit('menuSelected', data);
         }
         
 
