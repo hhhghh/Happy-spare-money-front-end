@@ -279,6 +279,22 @@ export default {
                 })
         },
 
+        getAllGroupJoinedByOrg() {
+            this.teams = [];
+            this.$axios.get('/api/v1/team/OrgName?type=0')
+                .then((res) => {
+                    console.log(res.data);
+                    if (res.data.code == 200) {
+                        for (let i = 0, len = res.data.data.length; i < len; i++) {
+                            this.teams.push(res.data.data[i]);
+                        }
+                    }
+                })
+                .catch((err) => {
+                    console.log(err);
+                })
+        },
+
         getDefaultGroup() {
             this.$axios.get('/api/v1/team/DefaultGroup')
                 .then((res) => {
@@ -313,11 +329,13 @@ export default {
     },
     mounted: function() {
         console.log(this.userInfo);
-        this.getAllGroupJoined();
         this.userType = this.userInfo.type;
         //this.userType = 1;
         if (this.userType) {
+            this.getAllGroupJoinedByOrg();
             this.getDefaultGroup();
+        } else {
+            this.getAllGroupJoined();
         }
         this.sendToMainPage();
     }

@@ -14,6 +14,7 @@ import myGroup from '@/components/myGroup'
 import createGroup from '@/components/createGroup'
 import groupDetail from '@/components/groupDetail'
 import defaultGroupDetail from '@/components/defaultGroupDetail'
+import orgGroupDetail from '@/components/orgGroupDetail'
 import modifyGroupInfo from '@/components/modifyGroupInfo'
 import login from '@/components/login'
 import register from '@/components/register'
@@ -38,7 +39,7 @@ export default new Router({
       path: '/MainPage',
       name: 'MainPage',
       component: MainPage,
-      redirect: '/MainPage/taskSearch',
+      redirect: '/MainPage/myReleaseTask',
       children: [
         {
           path: '/MainPage/taskSearch',
@@ -89,6 +90,11 @@ export default new Router({
           path: '/MainPage/defaultGroupDetail/:id',
           name: 'defaultGroupDetail',
           component: defaultGroupDetail
+        },
+        {
+          path: '/MainPage/orgGroupDetail/:name',
+          name: 'orgGroupDetail',
+          component: orgGroupDetail
         },
         {
           path: '/MainPage/groupDetail/:id/modifyInfo',
