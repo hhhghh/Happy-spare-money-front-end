@@ -6,12 +6,13 @@
                 <div class="div-selectors" style="z-index:">
                     <div class="selector">
                         <span class="selector-span">任务类型</span>
-                        <Select v-model="typeSelect" style="width:100px;margin-right:5px" @on-change="getTasks(typeSelect,rangeSelect)">
+                        <Select v-model="typeSelect" style="width:100px;margin-right:5px" @on-change="getTasks(typeSelect,rangeSelect,kindSelect)">
                             <Option v-for="item in taskType" :value="item.value" :key="item.value">{{ item.label }}</Option>
                         </Select>
                     </div>
+                    <!--
                     <div class="selector">
-                    <span class="selector-span">任务发布范围</span>
+                        <span class="selector-span">任务发布范围</span>
                         <Select v-model="rangeSelect" style="width:100px;margin-right:5px" @on-change="getTasks(typeSelect,rangeSelect)">
                             <OptionGroup label="全部">
                                 <Option v-for="item in allRangeType" :value="item.value" :key="item.value">{{ item.label }}</Option>
@@ -19,18 +20,23 @@
                             <OptionGroup label="小组">
                                 <Option v-for="item in groupRangeType" :value="item.value" :key="item.value">{{ item.label }}</Option>
                              </OptionGroup>
-                             <OptionGroup label="机构">
+                            <OptionGroup label="机构">
                                 <Option v-for="item in organRangeType" :value="item.value" :key="item.value">{{ item.label }}</Option>
                              </OptionGroup>
+                            
+                             
                         </Select>
                     </div>
+                    -->
+                    <Button type="primary" @click="isDrawerDisplay = true" >任务发布范围</Button>
+                    <span style="margin-left: 10px; margin-top: 8px;">{{rangeLabel}}</span>
                 </div>
             </div>
             <Divider></Divider>
             <div class="task-content">
                 <div v-for="item in taskItems">
-                    <div v-bind:class="{'task-card':true,'task-card-mouseenter': enterItemId == item.id, 'task-card-mouseleave':!(enterItemId == item.id)}"
-                    v-on:mouseenter="enterItemId = item.id" v-on:mouseleave="enterItemId = ''" @click="jumpToTaskDetail(item.task_id)">
+                    <div v-bind:class="{'task-card':true,'task-card-mouseenter': enterItemId == item.task_id, 'task-card-mouseleave':!(enterItemId == item.task_id)}"
+                    v-on:mouseenter="enterItemId = item.task_id" v-on:mouseleave="enterItemId = ''" @click="jumpToTaskDetail(item.task_id)">
                         <div class="task-title">
                             <span>{{item.title}}</span>
                         </div>
@@ -48,7 +54,35 @@
                          <Avatar class="avatar" :src="item.user.avatar"></Avatar>
                     </div>
                 </div>
-            </div>          
+            </div>  
+
+             <Drawer title="范围筛选" width="600" :closable="false" v-model="isDrawerDisplay">
+                <div class="drawer-body">
+                    <div class="div-action-btn">
+                        <Button type="primary" @click="selectGroup('','all')">全部</Button>
+                        <Button type="primary" @click="showGroup = true">小组</Button>
+                        <Button type="primary" @click="showGroup = false">机构</Button>
+                    </div>
+                    <div class="div-group-body" v-show="showGroup"> 
+                        <div v-for="item in groupItems" @click="selectGroup(item.team_name, item.team_id)">
+                            <div class="div-group">
+                               <img class="logo" :src="item.logo"/>
+                               <p>{{item.team_name}} -- {{item.leader}}</p>
+                            </div>
+                        </div>
+                    
+                    </div>
+                    <div class="div-organization-body" v-show="!showGroup">
+                        <div v-for="item in organsItems" @click="selectOrg(item.orgname)">
+                            <div class="div-organization">
+                               <img class="logo" :src="item.orgavatar"/>
+                               <p>{{item.orgname}}</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+             </Drawer>        
         </div>
     </div>
 </template>
@@ -59,6 +93,7 @@ export default {
     data() {
         return {
             username: null,
+            type: 0,
             taskType: [
                 {
                     value: 'all',
@@ -83,56 +118,18 @@ export default {
                 
                 
             ],
-            organRangeType:[
-
-            ],
             typeSelect: 'all',
             rangeSelect: 'all',
+            rangeLabel: '全部',
+            kindSelect:0,
             enterItemId: '',
-
+            isDrawerDisplay: false,
             taskItems: [
-                {
-                    task_id : 1,
-                    title: 'xxx问卷调查',
-                    introduction: '关于xxxxxxx的问卷调查',
-                    money: 1,
-                    state: 'doing',
-                    type: '问卷调查',
-                    max_accepter_number: 2,
-                    user: {
-                        username: 'yao',
-                        avatar: 'http://139.196.79.193:3000/awesomeface.png'
-                    }
-                    
-                },
-                {
-                    task_id: 2,
-                    title: 'xxx取快递',
-                    intro: '在xxxxxxxxx范围内取快递',
-                    money: 2,
-                    type: '取快递',
-                    state: 'completed',
-                    max_accepter_number: 1,
-                    user: {
-                        username: 'yao',
-                        avatar: 'http://139.196.79.193:3000/awesomeface.png'
-                    }
-                },
-                {
-                    task_id: 3,
-                    title: 'xxx取快递',
-                    intro: '在xxxxxxxxx范围内取快递',
-                    money: 2,
-                    type: '取快递',
-                    state: 'waiting',
-                    max_accepter_number: 1,
-                    user: {
-                        username: 'yao',
-                        avatar: 'http://139.196.79.193:3000/awesomeface.png'
-                    }
-                }
+               
             ],
-
+            groupItems:[],
+            organsItems:[],
+            showGroup:true,
             
         };
     },
@@ -140,6 +137,7 @@ export default {
     mounted() {
         this.getUserInfo();
         this.backTop();
+        this.sendToMainPage();
         
     },
 
@@ -156,9 +154,11 @@ export default {
                 if (data.code == 200) {
                     let userInfo = data.data;
                     vm.username = userInfo.username;
-                    vm.getGroup(0);
-                    vm.getGroup(1);
-                    vm.getTasks(vm.typeSelect, vm.rangeSelect);
+                    vm.getGroup();
+                    if (vm.type == 0) {
+                        vm.getOrganization();
+                    }
+                    vm.getTasks(vm.typeSelect, vm.rangeSelect, vm.kindSelect);
                 } 
             
             })
@@ -172,13 +172,19 @@ export default {
                 }
             });
         },
-        getGroup(type) {
+        getGroup() {
             let vm = this;
-            let url = '/api/v1/team/MemberName'
+            let url = '';
+            if (vm.type == 0) {
+                url = '/api/v1/team/MemberName';
+            } else if (vm.type == 1) {
+                url = '/api/v1/team/OrgName';
+            }
+             
             //异步
             this.$axios.get(url, {
                params: {
-                   type: type,
+                   type: 0,
                    member_username : vm.username
                }
             
@@ -187,19 +193,13 @@ export default {
                 let data = response.data;
                 if (data.code == 200) {
                    
-                    if (type == 0) {
-                        let teamDatas = data.data;
-                        for(let i = 0;i < teamDatas.length;i ++) {
-                            vm.groupRangeType.push({value: teamDatas[i].team_id, label: teamDatas[i].team_name + '--' + teamDatas[i].leader});
-                        }
-                    } else if (type == 1) {
-                        let organDatas = data.data;
-                         for(let i = 0;i < organDatas.length;i ++) {
-                            vm.organRangeType.push({value: organDatas[i].team_id, label:  organDatas[i].leader});
-                        }
+                    
+                    let teamDatas = data.data;
+                    for(let i = 0;i < teamDatas.length;i ++) {
+                        vm.groupRangeType.push({value: teamDatas[i].team_id, label: teamDatas[i].team_name + '--' + teamDatas[i].leader});
                     }
-                  
-                    // console.log(vm.rangeType);
+                    vm.groupItems = teamDatas;
+                    // console.log(teamDatas);
                 } 
             
             })
@@ -208,7 +208,40 @@ export default {
             });
         },
 
-        getTasks(typeSelect, rangeSelect) {
+         getOrganization() {
+            let vm = this;
+            let url = '/api/v1/user/getUsersFollowedOrganizationsList';
+            //异步
+            this.$axios.get(url, {
+        
+            
+            })
+            .then(function(response) {
+        
+                let data = response.data;
+                if (data.code == 200) {
+                   
+                   let organDatas = data.data;
+                   vm.organsItems = organDatas;
+                } 
+            
+            })
+            .catch(function (error) {
+
+            });
+        },
+
+
+        getTasks(typeSelect, rangeSelect, kindSelect) {
+             
+            if (kindSelect == 0) {
+                this.getTasksByGroup(typeSelect, rangeSelect);
+            } else if (kindSelect == 1) {
+                this.getTasksByOrg(typeSelect, rangeSelect)
+            }
+
+        },
+        getTasksByGroup(typeSelect, rangeSelect) {
             let vm = this;
             let url = '/api/v1/task';
             //异步
@@ -245,12 +278,76 @@ export default {
             .catch(function (error) {
 
             });
-
         },
+        getTasksByOrg(typeSelect, rangeSelect) {
+            let vm = this;
+            let url = '/api/v1/task/findByOrg';
+            //异步
+            this.$axios.get(url, {
+               params: {
+                //    type: typeSelect,
+                //    range: rangeSelect,
+                   orgname: rangeSelect
+               }
+            
+            })
+            .then(function(response) {
+        
+                let data = response.data;
+                if (data.code == 200) {
+                    let tasks = data.data;
+                    console.log(tasks);
+                    vm.taskItems = [];
+                    for (let i = 0;i < tasks.length;i ++) {
+                        if (tasks[i].trs.length >= tasks[i].max_accepter_number)
+                            continue;
+                            
+                        if (tasks[i].type == 1) {
+                            tasks[i].type = '问卷调查';
+                        } else if (tasks[i].type == 2){
+                            tasks[i].type = '跑腿';
+                        }
+                        vm.taskItems.push(tasks[i]);
+                    }
 
+                    console.log(vm.taskItems);
+                    //console.log(vm.taskItems[0].user.avatar);
+                } 
+            
+            })
+            .catch(function (error) {
+                console.log("get by org error");
+            });
+        },
+       
         jumpToTaskDetail(id) {
             this.$router.push({path: `/MainPage/taskDetail/${id}`})
+        },
+        sendToMainPage() {
+            let data = {
+                active: '1-1',
+                open: '1'
+            };
+            this.$emit('menuSelected', data);
+        },
+
+        selectGroup(team_name, team_id){
+            this.kindSelect = 0;
+            this.rangeSelect = team_id;
+            if (team_id == 'all') {
+                this.rangeLabel = '全部';
+            } else {
+                this.rangeLabel = '小组: ' + team_name;
+            }
+            this.getTasks(this.typeSelect, this.rangeSelect,this.kindSelect)
+        },
+        selectOrg(org_name){
+            this.kindSelect = 1;
+            this.rangeSelect = org_name;
+            this.rangeLabel = '机构: ' + org_name;
+            this.getTasks(this.typeSelect, this.rangeSelect,this.kindSelect)
         }
+
     },
     
     
@@ -397,5 +494,52 @@ export default {
     right:0px;
     margin:5px 5px 5px 5px;4
     margin-right:10px;
+}
+
+.drawer-body {
+    position:relative;
+    width: 100%;
+    
+}
+
+.div-group-body {
+    position:relative;
+    margin-top: 10px;
+   
+    
+}
+
+.div-group{
+    position:relative;
+    border: 1px solid #2d8cf0;
+    box-shadow: 4px 4px 10px #2b85e4;
+    height: 140px;
+    width: 140px;
+    margin: 20px;
+    float: left;
+    cursor: pointer;
+    text-align: center;
+    padding: 4px
+}
+
+
+.div-organization {
+    position:relative;
+    border: 1px solid #2d8cf0;
+    box-shadow: 4px 4px 10px #19ff6b;
+    height: 140px;
+    width: 140px;
+    margin: 20px;
+    float: left;
+    cursor: pointer;
+    text-align: center;
+    padding: 4px
+}
+.logo {
+    width: 100px;
+    height: 100px;
+    position:relative;
+    margin:0 auto;
+    
 }
 </style>

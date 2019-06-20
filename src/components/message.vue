@@ -2,7 +2,7 @@
   <div class="div-message">
     <ul>
       <li v-for="(msg, index) in message" :key="msg.id" class="li-msg">
-        <template v-if="msg.type==0">
+        <template v-if="joinTeamType.includes(msg.type)">
           <span style="float: left;">
             <span class="jump-link user-link" @click="jumpToUser(msg.msg_username)">{{msg.msg_username}}</span>
             <span>申请加入小组</span>
@@ -10,7 +10,7 @@
           </span>
           <span style="float: right; width: 60px">
             <Select v-model="accTeamJoin[index]"
-                    @on-change="handleTeamJoin(msg.msg_team_id,msg.msg_username,index)">
+                    @on-change="handleTeamJoin(msg.type,msg.msg_team_id,msg.msg_username,index)">
               <Option :value="-1" :key="-1">选择</Option>
               <Option :value="1" :key="1">同意</Option>
               <Option :value="0" :key="0">拒绝</Option>
@@ -106,7 +106,7 @@
           </span>
         </template>
 
-        <Icon @click="deleteMsg(index)" type="ios-close" size="24" class="close-icon" v-if="msg.type!=0"/>
+        <Icon @click="deleteMsg(index)" type="ios-close" size="24" class="close-icon" v-if="!joinTeamType.includes(msg.type)"/>
       </li>
     </ul>
     <Button @click="deleteAllMsg" type="error" class="btn-deleteAllMsg">清空消息</Button>
@@ -119,7 +119,7 @@
     props: ['message', 'accTeamJoin'],
     data() {
       return {
-
+        joinTeamType: [0, 7]
       }
 
     },
@@ -133,57 +133,58 @@
     },
 
     methods: {
-      handleTeamJoin(teamid, username, index) {
-        if (this.accTeamJoin[index] == 1) {
-          this.$axios({
-            method: 'post',
-            url: "/api/v1/team/Member/Invitation",
-            data: {
-              "team_id": teamid,
-              "user": [
-                {
-                  "username": username
-                }
-              ]
-            }
-          })
-          .then(msg => {
-            if (msg.data.code == 200) {
-              this.$Message.success(msg.data.msg);
-            }
-            else {
-              this.$Message.error(msg.data.msg);
-            }
-            this.deleteMsg(index, true);
-          })
-          .catch(err => {
-            this.$Message.error(err.response.data.msg);
-            this.deleteMsg(index, true);
-          });
+      handleTeamJoin(type, teamid, username, index) {
+        let accUrl = '/api/v1/' + (type == 0 ? 'team/Member/Invitation' : 'user/teamcancelblack');
+        let accData = null;
+        if (type == 0) {
+          accData = {
+            "team_id": teamid,
+            "user": [
+              {
+                "username": username
+              }
+            ]
+          };
         }
-        else if (this.accTeamJoin[index] == 0) {
-          this.$axios({
-            method: 'post',
-            url: "/api/v1/team/Member/Rejection",
-            data: {
-              "team_id": teamid,
-              "username": username
-            }
-          })
-          .then(msg => {
-            if (msg.data.code == 200) {
-              this.$Message.success(msg.data.msg);
-            }
-            else {
-              this.$Message.error(msg.data.msg);
-            }
-            this.deleteMsg(index, true);
-          })
-          .catch(err => {
-            this.$Message.error(err.response.data.msg);
-            this.deleteMsg(index, true);
-          });
+        else {
+          accData = {
+            ins_name: username,
+            team_id: teamid
+          };
         }
+
+        let rejUrl = '/api/v1/' + (type == 0 ? 'team/Member/Rejection' : 'user/refuseOrgToTeam');
+        let rejData = null;
+        if (type == 0) {
+          rejData = {
+            "team_id": teamid,
+            "username": username
+          };
+        }
+        else {
+          rejData = {
+            ins_name: username,
+            team_id: teamid
+          };
+        }
+
+        let url = this.accTeamJoin[index] == 1 ? accUrl : rejUrl;
+        let data = this.accTeamJoin[index] == 1 ? accData : rejData;
+
+        this.$axios.post(url, data)
+        .then(msg => {
+          if (msg.data.code == 200) {
+            this.$Message.success(msg.data.msg);
+          }
+          else {
+            this.$Message.error(msg.data.msg);
+          }
+          this.deleteMsg(index, true);
+        })
+        .catch(err => {
+          this.$Message.error(err.response.data.msg);
+          this.deleteMsg(index, true);
+        });
       },
 
       deleteMsg(index, isHandleTeamJoin) {

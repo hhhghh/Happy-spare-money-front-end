@@ -5,12 +5,13 @@
                 <div class="div-selectors">
                     <div class="selector">
                         <span class="selector-span">任务类型</span>
-                        <Select v-model="typeSelect" style="width:100px;margin-right:5px" @on-change="getAcceptTask(typeSelect,rangeSelect,stateSelect)">
+                        <Select v-model="typeSelect" style="width:100px;margin-right:5px" @on-change="getAcceptTask(typeSelect,rangeSelect,stateSelect, kindSelect)">
                             <Option v-for="item in taskType" :value="item.value" :key="item.value">{{ item.label }}</Option>
                         </Select>
                     </div>
+                    <!--
                     <div class="selector">
-                    <span class="selector-span">任务发布范围</span>
+                        span class="selector-span">任务发布范围</span>
                         
                         <Select v-model="rangeSelect" style="width:100px;margin-right:5px" @on-change="getAcceptTask(typeSelect,rangeSelect,stateSelect)">
                             
@@ -26,12 +27,15 @@
                         </Select>
                        
                     </div>
+                    -->
                     <div class="selector">
-                    <span class="selector-span">任务状态</span>
-                        <Select v-model="stateSelect" style="width:100px;margin-right:5px" @on-change="getAcceptTask(typeSelect,rangeSelect,stateSelect)">
+                        <span class="selector-span">任务状态</span>
+                        <Select v-model="stateSelect" style="width:100px;margin-right:5px" @on-change="getAcceptTask(typeSelect,rangeSelect,stateSelect, kindSelect)">
                             <Option v-for="item in stateType" :value="item.value" :key="item.value">{{ item.label }}</Option>
                         </Select>
                     </div>
+                    <Button type="primary" @click="isDrawerDisplay = true" >任务发布范围</Button>
+                    <span style="margin-left: 10px; margin-top: 8px;">{{rangeLabel}}</span>
                 </div>
                 <div class="state-type-hint" style="display:flex">
                     <div class="div-box">
@@ -77,6 +81,34 @@
                 
                 </div>
             </div>
+
+            <Drawer title="范围筛选" width="600" :closable="false" v-model="isDrawerDisplay">
+                <div class="drawer-body">
+                    <div class="div-action-btn">
+                        <Button type="primary" @click="selectGroup('','all')">全部</Button>
+                        <Button type="primary" @click="showGroup = true">小组</Button>
+                        <Button type="primary" @click="showGroup = false">机构</Button>
+                    </div>
+                    <div class="div-group-body" v-show="showGroup"> 
+                        <div v-for="item in groupItems" @click="selectGroup(item.team_name,item.team_id)">
+                            <div class="div-group">
+                               <img class="logo" :src="item.logo"/>
+                               <p>{{item.team_name}} -- {{item.leader}}</p>
+                            </div>
+                        </div>
+                    
+                    </div>
+                    <div class="div-organization-body" v-show="!showGroup">
+                        <div v-for="item in organsItems" @click="selectOrg(item.orgname)">
+                            <div class="div-organization">
+                               <img class="logo" :src="item.orgavatar"/>
+                               <p>{{item.orgname}}</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+             </Drawer>        
         </div>
     </div>
 </template>
@@ -87,6 +119,7 @@ export default {
     data() {
         return {
             username: null,
+            type:0,
             taskType: [
                 {
                     value: 'all',
@@ -111,9 +144,7 @@ export default {
                 
                 
             ],
-            organRangeType:[
-
-            ],
+            
             stateType: [
                 {
                     value: 'all',
@@ -135,49 +166,16 @@ export default {
             typeSelect: 'all',
             rangeSelect: 'all',
             stateSelect:'all',
+            rangeLabel: '全部',
+            kindSelect:0,
             enterItemId: '',
+            isDrawerDisplay: false,
             taskItems: [
-                {
-                    id : 1,
-                    title: 'xxx问卷调查',
-                    endtime: '2019-05-01 23:00',
-                    money: 1,
-                    state: 0,
-                    type: '问卷调查',
-                    max_accepter_number: 2,
-                    user: {
-                        username: 'yao',
-                        avatar: 'http://139.196.79.193:3000/awesomeface.png'
-                    }
-                },
-                {
-                    id: 2,
-                    title: 'xxx取快递',
-                    endtime: '2019-05-01 23:00',
-                    money: 2,
-                    type: '取快递',
-                    state: 2,
-                    max_accepter_number: 1,
-                    user: {
-                        username: 'yao',
-                        avatar: 'http://139.196.79.193:3000/awesomeface.png'
-                    }
-                },
-                {
-                    id: 3,
-                    title: 'xxx取快递',
-                    endtime: '2019-05-01 23:00',
-                    money: 2,
-                    type: '取快递',
-                    state: 1,
-                    max_accepter_number: 1,
-                    user: {
-                        username: 'yao',
-                        avatar: 'http://139.196.79.193:3000/awesomeface.png'
-                    }
-                }
+               
             ],
-          
+            groupItems:[],
+            organsItems:[],
+            showGroup:true,
 
         }
 
@@ -189,6 +187,7 @@ export default {
         //http.get my release task
         //this.getReleaseTask(this.typeSelect, this.rangeSelect, this.stateSelect);
         this.getUserInfo();
+        this.sendToMainPage();
     },
 
     methods: {
@@ -222,9 +221,11 @@ export default {
                 if (data.code == 200) {
                     let userInfo = data.data;
                     vm.username = userInfo.username;
-                    vm.getGroup(0);
-                    vm.getGroup(1);
-                    vm.getAcceptTask(vm.typeSelect, vm.rangeSelect, vm.stateSelect);
+                    vm.getGroup();
+                    if (vm.type == 0) {
+                        vm.getOrganization();
+                    }
+                    vm.getAcceptTask(vm.typeSelect, vm.rangeSelect, vm.stateSelect, vm.kindSelect);
                 } 
             
             })
@@ -238,13 +239,18 @@ export default {
                 }
             });
         },
-        getGroup(type) {
+        getGroup() {
             let vm = this;
-            let url = '/api/v1/team/MemberName'
+            let url = '';
+            if (vm.type == 0) {
+                url = '/api/v1/team/MemberName';
+            } else if (vm.type == 1) {
+                url = '/api/v1/team/OrgName';
+            }
             //异步
             this.$axios.get(url, {
                params: {
-                   type: type,
+                   type: 0,
                    member_username : vm.username
                }
             
@@ -253,17 +259,12 @@ export default {
                 let data = response.data;
                 if (data.code == 200) {
                    
-                    if (type == 0) {
-                        let teamDatas = data.data;
-                        for(let i = 0;i < teamDatas.length;i ++) {
-                            vm.groupRangeType.push({value: teamDatas[i].team_id, label: teamDatas[i].team_name + '--' + teamDatas[i].leader});
-                        }
-                    } else if (type == 1) {
-                        let organDatas = data.data;
-                         for(let i = 0;i < organDatas.length;i ++) {
-                            vm.organRangeType.push({value: organDatas[i].team_id, label:  organDatas[i].leader});
-                        }
+                
+                    let teamDatas = data.data;
+                    for(let i = 0;i < teamDatas.length;i ++) {
+                        vm.groupRangeType.push({value: teamDatas[i].team_id, label: teamDatas[i].team_name + '--' + teamDatas[i].leader});
                     }
+                    vm.groupItems = teamDatas;
                   
                     // console.log(vm.rangeType);
                 } 
@@ -273,10 +274,41 @@ export default {
                 console.log('Fail to request');
             });
         },
+        getOrganization() {
+            let vm = this;
+            let url = '/api/v1/user/getUsersFollowedOrganizationsList';
+            //异步
+            this.$axios.get(url, {
+        
+            
+            })
+            .then(function(response) {
+        
+                let data = response.data;
+                if (data.code == 200) {
+                   
+                   let organDatas = data.data;
+                   vm.organsItems = organDatas;
+                } 
+            
+            })
+            .catch(function (error) {
 
+            });
+        },
         //get Accept Task
-        getAcceptTask(typeSelect, rangeSelect, stateSelect) {
-            //http request get
+        getAcceptTask(typeSelect, rangeSelect, stateSelect, kindSelect) {
+           
+            if (kindSelect == 0) {
+                this.getAcceptTaskByGroup(typeSelect, rangeSelect, stateSelect);
+            } else if (kindSelect == 1) {
+                this.getAcceptTaskByOrg(typeSelect, rangeSelect, stateSelect)
+            }
+
+        },
+
+        getAcceptTaskByGroup(typeSelect, rangeSelect, stateSelect) {
+             //http request get
             let vm = this;
             let url = '/api/v1/task/findByAccepter'
 
@@ -316,10 +348,52 @@ export default {
             .catch(function (error) {
                 console.log('error');
             });
-            
-
         },
 
+        getAcceptTaskByOrg(typeSelect, rangeSelect, stateSelect) {
+            let vm = this;
+            let url = '/api/v1/task/acceptance/findByOrg';
+
+             //异步
+            this.$axios.get(url, {
+                params: {
+                    type: typeSelect,
+                    username: vm.username,
+                    orgname: rangeSelect
+                }
+            
+            })
+            .then(function(response) {
+                vm.taskItems = [];
+                let data = response.data;
+                // console.log(data);
+                if (data.code == 200) {
+                    let taskItems = data.data;
+                    for (let i = 0;i < taskItems.length;i ++) {
+                        if (taskItems[i].type == 1) {
+                            taskItems[i].type = '问卷调查';
+                        } else if (taskItems[i].type == 2){
+                            taskItems[i].type = '跑腿';
+                        }        
+                    }
+                   
+                    vm.taskItems = taskItems;
+                    
+
+                } 
+                
+                
+            
+            })
+            .catch(function (error) {
+                console.log('error');
+            });
+        },
+
+        getAllTasks() {
+            this.rangeSelect = 'all';
+            this.getAcceptTask(this.typeSelect, this.rangeSelect, this.stateSelect);
+        },
         jumpToTaskDetail(id) {
             this.$router.push({path: `/MainPage/taskDetail/${id}`})
         },
@@ -329,6 +403,30 @@ export default {
                 return stateSelect == trs[0].state;
             }
             return true;
+        },
+        sendToMainPage() {
+            let data = {
+                active: '1-3-1',
+                open: '1-3'
+            };
+            this.$emit('menuSelected', data);
+        },
+        selectGroup(team_name,team_id){
+            this.kindSelect = 0;
+            this.rangeSelect = team_id;
+            if (team_id == 'all') {
+                this.rangeLabel = '全部';
+            } else {
+                this.rangeLabel = '小组: ' + team_name;
+            }
+           
+            this.getAcceptTask(this.typeSelect, this.rangeSelect,this.stateSelect, this.kindSelect)
+        },
+        selectOrg(org_name){
+            this.kindSelect = 1;
+            this.rangeSelect = org_name;
+            this.rangeLabel = '机构: ' + org_name;
+            this.getAcceptTask(this.typeSelect, this.rangeSelect,this.stateSelect, this.kindSelect)
         }
     }
 
@@ -512,5 +610,51 @@ h2 {
 }
 
 
+.drawer-body {
+    position:relative;
+    width: 100%;
+    
+}
+
+.div-group-body {
+    position:relative;
+    margin-top: 10px;
+   
+    
+}
+
+.div-group {
+    position:relative;
+    border: 1px solid #2d8cf0;
+    box-shadow: 4px 4px 10px #2b85e4;
+    height: 140px;
+    width: 140px;
+    margin: 20px;
+    float: left;
+    cursor: pointer;
+    text-align: center;
+    padding: 4px
+}
+
+.div-organization {
+    position:relative;
+    border: 1px solid #2d8cf0;
+    box-shadow: 4px 4px 10px #19ff6b;
+    height: 140px;
+    width: 140px;
+    margin: 20px;
+    float: left;
+    cursor: pointer;
+    text-align: center;
+    padding: 4px
+}
+
+.logo {
+    width: 100px;
+    height: 100px;
+    position:relative;
+    margin:0 auto;
+    
+}
 
 </style>
