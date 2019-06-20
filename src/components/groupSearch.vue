@@ -21,7 +21,9 @@
                     </Select>
                 </div>
                 <div v-if="groupAttribute != 'group_tag'" class="inputblock">
-                    <Input v-model="input" search enter-button placeholder="Search Group" @on-search="searchGroup" />
+                    <Input v-model="input" search enter-button placeholder="Search Group">
+                        <Button @on-search="searchGroup" slot="append" icon="ios-search"></Button>
+                    </Input>
                 </div>
                 <div v-else class="inputblock">
                     <Cascader style="width: 90%; margin-right: 10px" :data="defaultLabels" v-model="currentTeamLabel" :render-format="cascaderFormat" trigger="hover" @on-change="searchGroupByTags"></Cascader>
