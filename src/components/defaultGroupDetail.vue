@@ -120,10 +120,11 @@
 
 <script>
 export default {
-    props: ['userInfo'],
+    // props: ['userInfo'],
 
     data() {
         return {
+            userInfo: {},
             team_id: '',
             
             group: {
@@ -146,9 +147,45 @@ export default {
         };
     },
     methods: {
+        getUserInfo() {
+            this.$axios.get('api/v1/user/getPersonalInfo')
+                .then(msg => {
+                    if (msg.data.code == 200) {
+                        this.userInfo = msg.data.data;
+                        this.userType = this.userInfo.type;
+                        let team_id = this.$route.params.id;
+                        if (this.userType == 1) {
+                            if (team_id > 0 && team_id < 6) {
+                                this.getData();
+                            } else {
+                                this.$Modal.error({
+                                    title: '错误',
+                                    content: '没有该小组'
+                                })
+                                this.$router.push({
+                                    name: 'myGroup'
+                                })
+                            }
+                        } else {
+                            this.$Modal.error({
+                                title: '错误',
+                                content: '<p>没有权限查看默认小组详情</p>'
+                            })
+                            this.$router.push({
+                                name: 'myGroup'
+                            })
+                        }
+                    }
+                })
+                .catch(err => {
+                    if (err.response.status == 401) {
+                        this.$router.push({name: 'login'});
+                        this.$Message.error('请登录');
+                    }
+                });
+        },
         
         getGroupDetail(team_id) {
-
             let p1 = new Promise((resolve, reject) => {
                 this.$axios.get('/api/v1/team/Id?team_id=' + team_id + '&type=1')
                     .then((res) => {
@@ -165,7 +202,6 @@ export default {
                                         for (let i = 0, len = response.data.data.length; i < len; i++) {
                                             res.data.data[0].members.push(response.data.data[i]);
                                         }
-                                        console.log(res.data.data);
                                         this.group = res.data.data[0];
                                         resolve(res);
                                     } else {
@@ -208,18 +244,16 @@ export default {
             });
 
             let p = Promise.all([p1, p2, p3]);
-            console.log(p);
 
             return p;
         },
 
         getData() {
             this.team_id = this.$route.params.id;
-            console.log(this.team_id);
 
             this.getGroupDetail(this.team_id)
                 .then((data) => {
-                    console.log(this.group);
+
                 })
                 .catch((err) => {
                     if (err == 213) {
@@ -256,30 +290,7 @@ export default {
     },
 
     mounted: function() {
-        this.userType = this.userInfo.type;
-        let team_id = this.$route.params.id;
-        console.log(this.userType);
-        if (this.userType == 1) {
-            if (team_id > 0 && team_id < 6) {
-                this.getData();
-            } else {
-                this.$Modal.error({
-                    title: '错误',
-                    content: '没有该小组'
-                })
-                this.$router.push({
-                    name: 'myGroup'
-                })
-            }
-        } else {
-            this.$Modal.error({
-                title: '错误',
-                content: '<p>没有权限查看默认小组详情</p>'
-            })
-            this.$router.push({
-                name: 'myGroup'
-            })
-        }
+        this.getUserInfo();
         this.sendToMainPage();
     },
 

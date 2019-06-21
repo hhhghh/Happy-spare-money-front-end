@@ -133,9 +133,11 @@
 
 <script>
 export default {
-    props: ['userInfo'],
+    // props: ['userInfo'],
     data() {
         return {
+            userInfo: {},
+
             groupAttributeList: [
                 {
                     value: 'group_id,',
@@ -261,12 +263,33 @@ export default {
         };
     },
     methods: {
+        getUserInfo() {
+            this.$axios.get('api/v1/user/getPersonalInfo')
+                .then(msg => {
+                    if (msg.data.code == 200) {
+                        this.userInfo = msg.data.data;
+                        this.userType = this.userInfo.type;
+                        if (this.userType) {
+                            this.getAllGroupJoinedByOrg();
+                            this.getDefaultGroup();
+                        } else {
+                            this.getAllGroupJoined();
+                        }
+                    }
+                })
+                .catch(err => {
+                    if (err.response.status == 401) {
+                        this.$router.push({name: 'login'});
+                        this.$Message.error('请登录');
+                    }
+                });
+        },
+
         getAllGroupJoined() {
             let t = this;
             t.teams = [];
             t.$axios.get('/api/v1/team/MemberName?type=0')
                 .then(function (response) {
-                    console.log(response.data);
                     if (response.data.code == 200) {
                         let data = response.data.data;
                         for (let i = 0, len = data.length; i < len; i++) {
@@ -283,7 +306,6 @@ export default {
             this.teams = [];
             this.$axios.get('/api/v1/team/OrgName?type=0')
                 .then((res) => {
-                    console.log(res.data);
                     if (res.data.code == 200) {
                         for (let i = 0, len = res.data.data.length; i < len; i++) {
                             this.teams.push(res.data.data[i]);
@@ -298,7 +320,6 @@ export default {
         getDefaultGroup() {
             this.$axios.get('/api/v1/team/DefaultGroup')
                 .then((res) => {
-                    console.log(res);
                     if (res.data.code == 200) {
                         for (let i = 0, len = res.data.data.length; i < len; i++) {
                             this.defaultGroupList.push(res.data.data[i]);
@@ -328,15 +349,7 @@ export default {
 
     },
     mounted: function() {
-        console.log(this.userInfo);
-        this.userType = this.userInfo.type;
-        //this.userType = 1;
-        if (this.userType) {
-            this.getAllGroupJoinedByOrg();
-            this.getDefaultGroup();
-        } else {
-            this.getAllGroupJoined();
-        }
+        this.getUserInfo();
         this.sendToMainPage();
     }
 
@@ -403,6 +416,7 @@ span {
 
 .group-card-mouseenter {
     box-shadow: 4px 4px 10px #1c2438;
+    cursor: pointer;
 }
 
 .group-card-mouseleave {
