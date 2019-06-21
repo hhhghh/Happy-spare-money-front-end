@@ -33,10 +33,15 @@
                             </RadioGroup>
                         </FormItem>
                         <FormItem label="小组标签">
-                            <!-- <Tag type="border" color="primary" class="tags" v-for="item in group.teamlabels" :key="item.label" :name="item.label">{{ item.label }}</Tag> -->
                             <div class="div-flex" >
-                                <Cascader style="width: 90%; margin-right: 10px" :data="defaultLabels" v-model="currentTeamLabel" :render-format="cascaderFormat" trigger="hover"></Cascader>
-                                <Button icon="md-add" @click="addTeamLabels">添加</Button>
+                                <Cascader 
+                                    style="width: 100%" 
+                                    :data="defaultLabels" 
+                                    v-model="currentTeamLabel" 
+                                    :render-format="cascaderFormat" 
+                                    trigger="hover"
+                                    @on-change="addTeamLabels">
+                                </Cascader>
                             </div>
                             <Row>
                                 <Tag type="border" color="primary" class="margin-left" v-for="item in teamlabels" :key="item" :name="item" closable @on-close="handleCloseLabels">{{ item }}</Tag>
@@ -155,6 +160,34 @@ export default {
                                     label: '软件工程'
                                 },
                                 {
+                                    value: '法学',
+                                    label: '法学'
+                                },
+                                {
+                                    value: '经济学',
+                                    label: '经济学'
+                                },
+                                {
+                                    value: '数学',
+                                    label: '数学'
+                                },
+                                {
+                                    value: '物理',
+                                    label: '物理'
+                                },
+                                {
+                                    value: '工商管理',
+                                    label: '工商管理'
+                                },
+                                {
+                                    value: '临床医学',
+                                    label: '临床医学'
+                                },
+                                {
+                                    value: '传播学',
+                                    label: '传播学'
+                                },
+                                {
                                     value: '其他专业',
                                     label: '其他专业'
                                 },
@@ -171,6 +204,34 @@ export default {
                                 {
                                     value: '线性代数',
                                     label: '线性代数'
+                                },
+                                {
+                                    value: '大学物理',
+                                    label: '大学物理'
+                                },
+                                {
+                                    value: '大学英语',
+                                    label: '大学英语'
+                                },
+                                {
+                                    value: '程序设计',
+                                    label: '程序设计'
+                                },
+                                {
+                                    value: '数据结构与算法',
+                                    label: '数据结构与算法'
+                                },
+                                {
+                                    value: '计算机组成与原理',
+                                    label: '计算机组成与原理'
+                                },
+                                {
+                                    value: '计算机网络',
+                                    label: '计算机网络'
+                                },
+                                {
+                                    value: '公选',
+                                    label: '公选'
                                 },
                                 {
                                     value: '其他课程',
@@ -200,6 +261,38 @@ export default {
                             value: '吉他',
                             label: '吉他'
                         },
+                        {
+                            value: '轮滑',
+                            label: '轮滑'
+                        },
+                        {
+                            value: '定向越野',
+                            label: '定向越野'
+                        },
+                        {
+                            value: '飞镖',
+                            label: '飞镖'
+                        },
+                        {
+                            value: '电竞',
+                            label: '电竞'
+                        },
+                        {
+                            value: '象棋',
+                            label: '象棋'
+                        },
+                        {
+                            value: '滑板',
+                            label: '滑板'
+                        },
+                        {
+                            value: '自行车',
+                            label: '自行车'
+                        },
+                        {
+                            value: '夜跑',
+                            label: '夜跑'
+                        },
                     ]
                 }
             ],
@@ -210,6 +303,7 @@ export default {
 
             logoUrl: '',
             logoFile: '',
+            logoBlob: '',
 
             ruleValidate: {
                 team_name: [
@@ -224,13 +318,11 @@ export default {
             return labels[index];
         },
 
-        addTeamLabels() {
-            console.log(this.currentTeamLabel);
+        addTeamLabels(value, selectedData) {
             let len;
-            if ((len = this.currentTeamLabel.length) != 0) {
-                if (-1 == this.teamlabels.indexOf(this.currentTeamLabel[len - 1])) {
-                    this.teamlabels.push(this.currentTeamLabel[len - 1]);
-                    this.currentTeamLabel = [];
+            if ((len = selectedData.length) != 0) {
+                if (-1 == this.teamlabels.indexOf(selectedData[len - 1])) {
+                    this.teamlabels.push(selectedData[len - 1].value);
                 }
             }
         },
@@ -247,20 +339,62 @@ export default {
                 fr.readAsDataURL(this.logoFile);
                 fr.onload = (e) => {
                     this.logoUrl = fr.result;
+                    let result = fr.result;
+                    let img = new Image();
+                    img.src = result;
+
+                    img.onload = (e) => {
+                        let data = this.compress(img);
+                        this.imgUrl = result;
+                        this.logoBlob = this.dataURItoBlob(data);
+                    }
                 }
             }
         },
 
+        compress(img) {
+            let canvas = document.createElement("canvas");
+            let ctx = canvas.getContext("2d");
+            let initSize = img.src.length;
+            let width = img.width;
+            let height = img.height;
+            canvas.width = width;
+            canvas.height = height;
+            // 铺底色
+            ctx.fillStyle = "#fff";
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+            ctx.drawImage(img, 0, 0, width, height);
+
+            //进行最小压缩
+            let ndata = canvas.toDataURL("image/jpeg", 0.1);
+            return ndata;
+        },
+        
+        dataURItoBlob(base64Data) {
+            var byteString;
+            if (base64Data.split(",")[0].indexOf("base64") >= 0)
+                byteString = atob(base64Data.split(",")[1]);
+            else byteString = unescape(base64Data.split(",")[1]);
+            var mimeString = base64Data
+                .split(",")[0]
+                .split(":")[1]
+                .split(";")[0];
+            var ia = new Uint8Array(byteString.length);
+            for (var i = 0; i < byteString.length; i++) {
+                ia[i] = byteString.charCodeAt(i);
+            }
+            return new Blob([ia], { type: mimeString });
+        },
+
         uploadLogoImage() {
             let form = new FormData();
-            form.append('file', this.logoFile);
+            form.append('file', this.logoBlob);
             let p = new Promise((resolve, reject) => {
                 this.$axios.post('/api/v1/file/TeamLogo', form, {
                     headers: {
                         'Content-Type': 'multipart/form-data'
                     }
                 }).then((res) => {
-                    console.log(res.data);
                     resolve(res.data.data);
                 }).catch((err) => {
                     reject(err);
@@ -277,7 +411,6 @@ export default {
             for (let i = 0; i < len; i++) {
                 this.group.teamlabels.push({label: this.teamlabels[i]});
             }
-            console.log(this.group);
 
             let p = new Promise((resolve, reject) => {
                 this.$axios.put('/api/v1/team', this.group)
@@ -301,26 +434,43 @@ export default {
                                 return this.uploadGroupInfo(data.imgUrl);
                             })
                             .then((data) => {
-                                console.log(data);
-                                console.log('Modify the group information successfully');
-                                this.$router.push({name: 'groupDetail', params: {id: data.data.team_id}});
+                                if (data.code == 200) {
+                                    this.$Modal.info({
+                                        title: '提示',
+                                        content: '修改小组信息成功'
+                                    });
+                                    this.$router.push({name: 'groupDetail', params: {id: data.data.team_id}});
+                                } else if (data.code == 213) {
+                                    this.$Modal.error({
+                                        title: '错误',
+                                        content: '该小组不存在'
+                                    });
+                                }
                             })
                             .catch((err) => {
-                                console.log(err);
+                                if (err.response.status == 401) {
+                                    this.$router.push({name: 'login'});
+                                    this.$Message.error('请登录');
+                                }
                             })
                     } else {
                         this.uploadGroupInfo(this.logoUrl)
                             .then((data) => {
-                                console.log(data);
-                                console.log('Modify the group information successfully');
-                                this.$router.push({name: 'groupDetail', params: {id: data.data.team_id}});
+                                if (data.code == 200) {
+                                    this.$Modal.info({
+                                        title: '提示',
+                                        content: '修改小组信息成功'
+                                    });
+                                    this.$router.push({name: 'groupDetail', params: {id: data.data.team_id}});
+                                }
                             })
                             .catch((err) => {
-                                console.log(err);
+                                if (err.response.status == 401) {
+                                    this.$router.push({name: 'login'});
+                                    this.$Message.error('请登录');
+                                }
                             })
                     }
-                } else {
-                    this.$message.error('Fail!');
                 }
             })
         },

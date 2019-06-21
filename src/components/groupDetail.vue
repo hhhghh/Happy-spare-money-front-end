@@ -152,7 +152,7 @@
                                             <div class="profile">
                                                 <Avatar :src="item.avatar" size="small"/>
                                             </div>
-                                            <div class="member-username">
+                                            <div class="member-username-choosebox">
                                                 <span class="username-span">{{item.username}}</span>
                                             </div>
                                         </div>
@@ -198,10 +198,11 @@
 
 <script>
 export default {
-    props: ['userInfo'],
+    // props: ['userInfo'],
 
     data() {
         return {
+            userInfo: {},
             team_id: '',
             
             group: {
@@ -235,13 +236,33 @@ export default {
         };
     },
     methods: {
+        getUserInfo() {
+            this.$axios.get('api/v1/user/getPersonalInfo')
+                .then(msg => {
+                    if (msg.data.code == 200) {
+                        this.userInfo = msg.data.data;
+                        if (this.userInfo.type) {
+                            this.isOrg = true;
+                            this.isLeader = false;
+                            this.orgRender();
+                        } else {
+                            this.isOrg = false;
+                            this.userRender();
+                        }
+                    }
+                })
+                .catch(err => {
+                    if (err.response.status == 401) {
+                        this.$router.push({name: 'login'});
+                        this.$Message.error('请登录');
+                    }
+                });
+        },
+
         judge(team_id) {
-            
-            console.log(this.userInfo);
             let p = new Promise((resolve, reject) => {
                 this.$axios.get('/api/v1/team/Member?team_id=' + team_id)
                     .then((res) => {
-                        console.log(res);
                         if (res.data.code == 200) {
                             resolve(team_id);
                         } else if (res.data.code == 213) {
@@ -262,7 +283,6 @@ export default {
             let p = new Promise((resolve, reject) => {
                 this.$axios.get('/api/v1/team/OrgMember?team_id=' + team_id)
                     .then((res) => {
-                        console.log(res);
                         if (res.data.code == 200) {
                             resolve(team_id);
                         } else if (res.data.code == 213) {
@@ -297,10 +317,8 @@ export default {
                                         for (let i = 0, len = response.data.data.length; i < len; i++) {
                                             res.data.data[0].members.push(response.data.data[i]);
                                         }
-                                        console.log(res.data.data);
                                         this.$axios.get('/api/v1/user/getUserBlacklist')
                                             .then((response2) => {
-                                                console.log(response2.data.data);
                                                 if (response2.data.code == 200 && response2.data.data.length != 0) {
                                                     for (let i = 0, len = res.data.data[0].members.length; i < len; i++) {
                                                         for (let j = 0, len2 = response2.data.data.length; j < len2; j++) {
@@ -318,7 +336,6 @@ export default {
                                             .catch((error2) => {
                                                 console.log(error2);
                                             })
-                                        console.log(res.data.data);
                                         
                                         this.group = res.data.data[0];
                                         resolve(res);
@@ -377,7 +394,6 @@ export default {
             });
 
             let p = Promise.all([p1, p2, p3, p4]);
-            console.log(p);
 
             return p;
         },
@@ -399,7 +415,6 @@ export default {
                                         for (let i = 0, len = response.data.data.length; i < len; i++) {
                                             res.data.data[0].members.push(response.data.data[i]);
                                         }
-                                        console.log(res.data.data);
                                         
                                         this.group = res.data.data[0];
                                         resolve(res);
@@ -443,7 +458,6 @@ export default {
             });
 
             let p = Promise.all([p1, p2, p3]);
-            console.log(p);
 
             return p;
         },
@@ -463,6 +477,7 @@ export default {
         },
 
         inviteMembersComplete() {
+            this.addInvitedMember();
             this.showDrawer = false;
             let params = {};
             params['team_id'] = this.team_id;
@@ -472,28 +487,67 @@ export default {
             }
             this.$axios.post('/api/v1/team/Member/Invitation', params)
                 .then((res) => {
-                    console.log(res.data);
-                    let param = {};
-                    param['members'] = [];
-                    for (let i = 0, len = this.group.members.length; i < len; i++) {
-                        param['members'].push({username: this.group.members[i]['username']});
-                    }
-                    for (let i = 0, len = this.inviteList.length; i < len; i++) {
-                        param['members'].push({username: this.inviteList[i]});
-                    }
-                    this.$axios.post('/api/v1/user/getteammembersavatat', param)
-                        .then((response) => {
-                            if (response.data.code == 200) {
-                                console.log(response.data.data);
-                                this.group.members = [];
-                                for (let i = 0, len = response.data.data.length; i < len; i++) {
-                                    this.group.members.push(response.data.data[i]);
-                                }
+                    switch(res.data.code) {
+                        case 200:
+                            let param = {};
+                            param['members'] = [];
+                            for (let i = 0, len = this.group.members.length; i < len; i++) {
+                                param['members'].push({username: this.group.members[i]['username']});
                             }
-                        })
-                        .catch((error) => {
-                            console.log(error);
-                        });
+                            for (let i = 0, len = this.inviteList.length; i < len; i++) {
+                                param['members'].push({username: this.inviteList[i]});
+                            }
+                            this.$axios.post('/api/v1/user/getteammembersavatat', param)
+                                .then((response) => {
+                                    if (response.data.code == 200) {
+                                        this.group.members = [];
+                                        for (let i = 0, len = response.data.data.length; i < len; i++) {
+                                            this.group.members.push(response.data.data[i]);
+                                        }
+                                    }
+                                })
+                                .catch((error) => {
+                                    console.log(error);
+                                });
+
+                            this.$Modal.info({
+                                title: '成功',
+                                content: '<p>邀请成功</p><p>被邀请用户成功加入该小组</p>'
+                            });
+                            break;
+                        case 210:
+                            this.$Modal.error({
+                                title: '错误',
+                                content: '<p>添加失败</p><p>邀请列表中包含不存在的用户</p>'
+                            });
+                            break;
+                        case 211:
+                            this.$Modal.error({
+                                title: '错误',
+                                content: '<p>添加失败</p><p>邀请列表中包含已经在该小组中的用户</p>'
+                            });
+                            break;
+                        case 212:
+                            this.$Modal.info({
+                                title: '提示',
+                                content: '<p>邀请成功</p><p>等待组长审核通过</p>'
+                            });
+                            break;
+                        case 213:
+                            this.$Modal.error({
+                                title: '错误',
+                                content: '<p>添加失败</p><p>小组不存在</p>'
+                            });
+                            break;
+                        case 215:
+                            this.$Modal.error({
+                                title: '错误',
+                                content: '<p>添加失败</p><p>该小组已经禁止所有人加入</p>'
+                            });
+                            break;
+                        default:
+                            break;
+                    }
                     
                     this.inviteList = [];
                 })
@@ -533,7 +587,6 @@ export default {
                             let param = {team_id: this.team_id, username: username};
                             this.$axios.delete('/api/v1/team/Member/Dislodge', {params: param})
                                 .then((res) => {
-                                    console.log(res.data);
                                     for (let i = 0, len = this.group.members.length; i < len; i++) {
                                         if (username == this.group.members[i]['username']) {
                                             this.group.members.splice(i, 1);
@@ -559,7 +612,6 @@ export default {
             if (name != this.userInfo.username) {
                 this.$axios.post('/api/v1/user/userblacklist', {username1: name, username2: this.userInfo.username})
                     .then((res) => {
-                        console.log(res);
                         if (res.data.code == 200) {
                             this.$Modal.info({
                                 title: '提示',
@@ -574,7 +626,6 @@ export default {
                         }
                     })
                     .catch((err) => {
-                        console.log(err);
                         if (err.data.code == 406) {
                             this.$Modal.error({
                                 title: '提示',
@@ -596,7 +647,6 @@ export default {
             param['team_id'] = this.team_id;
             this.$axios.post('/api/v1/user/teamblacklist', param)
                 .then((res) => {
-                    console.log(res);
                     if (res.data.code == 200) {
                         for (let i = 0, len = this.organizationsList.length; i < len; i++) {
                             if (orgName == this.organizationsList[i]['orgorganizationname']) {
@@ -619,7 +669,6 @@ export default {
             if (name != this.userInfo.username) {
                 this.$axios.post('/api/v1/user/usercancelblack', {username1: name, username2: this.userInfo.username})
                     .then((res) => {
-                        console.log(res);
                         if (res.data.code == 200) {
                             this.$Modal.info({
                                 title: '提示',
@@ -644,7 +693,6 @@ export default {
         },
 
         transferMembersComplete(username) {
-            console.log(username);
             if (username != '' && this.isLeader) {
                 if (this.userInfo.username != username) {
                     this.$Modal.confirm({
@@ -653,7 +701,6 @@ export default {
                         onOk: () => {
                             this.$axios.post('/api/v1/team/Leader', {team_id: this.team_id, username: username})
                                 .then((res) => {
-                                    console.log(res.data);
                                     this.group.leader = username;
                                     this.isLeader = false;
                                 })
@@ -688,7 +735,6 @@ export default {
                         let param = {team_id: this.team_id};
                         this.$axios.delete('/api/v1/team/Member/Departure', {params: param})
                             .then((res) => {
-                                console.log(res.data);
                                 if (res.data.code == 200) {
                                     this.$router.push({
                                         name: 'myGroup'
@@ -712,7 +758,6 @@ export default {
                         let param = {team_id: this.team_id};
                         this.$axios.delete('/api/v1/team', {params: param})
                             .then((res) => {
-                                console.log(res.data);
                                 if (res.data.code == 200) {
                                     this.$router.push({
                                         name: 'myGroup'
@@ -729,11 +774,9 @@ export default {
 
         userRender() {
             this.team_id = this.$route.params.id;
-            console.log(this.team_id);
 
             this.judge(this.team_id)
                 .then((data) => {
-                    console.log(data);
                     this.getGroupDetail(data)
                 })
                 .catch((err) => {
@@ -762,7 +805,6 @@ export default {
 
             this.orgJudge(this.team_id)
                 .then((data) => {
-                    console.log(data);
                     this.getGroupDetailByOrg(data)
                 })
                 .catch((err) => {
@@ -796,14 +838,7 @@ export default {
     },
 
     mounted: function() {
-        if (this.userInfo.type) {
-            this.isOrg = true;
-            this.isLeader = false;
-            this.orgRender();
-        } else {
-            this.isOrg = false;
-            this.userRender();
-        }
+        this.getUserInfo();
         this.sendToMainPage();
     },
 
@@ -1008,6 +1043,14 @@ span {
     margin: auto;
     overflow: hidden;
     flex: 0 1 50%;
+}
+
+.member-username-choosebox {
+    display: inline-block;
+    vertical-align: middle;
+    margin: auto;
+    overflow: hidden;
+    flex: 0 1 90%;
 }
 
 .buttonList {

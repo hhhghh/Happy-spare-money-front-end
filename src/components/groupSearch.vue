@@ -287,6 +287,34 @@ export default {
                                     label: '软件工程'
                                 },
                                 {
+                                    value: '法学',
+                                    label: '法学'
+                                },
+                                {
+                                    value: '经济学',
+                                    label: '经济学'
+                                },
+                                {
+                                    value: '数学',
+                                    label: '数学'
+                                },
+                                {
+                                    value: '物理',
+                                    label: '物理'
+                                },
+                                {
+                                    value: '工商管理',
+                                    label: '工商管理'
+                                },
+                                {
+                                    value: '临床医学',
+                                    label: '临床医学'
+                                },
+                                {
+                                    value: '传播学',
+                                    label: '传播学'
+                                },
+                                {
                                     value: '其他专业',
                                     label: '其他专业'
                                 },
@@ -303,6 +331,34 @@ export default {
                                 {
                                     value: '线性代数',
                                     label: '线性代数'
+                                },
+                                {
+                                    value: '大学物理',
+                                    label: '大学物理'
+                                },
+                                {
+                                    value: '大学英语',
+                                    label: '大学英语'
+                                },
+                                {
+                                    value: '程序设计',
+                                    label: '程序设计'
+                                },
+                                {
+                                    value: '数据结构与算法',
+                                    label: '数据结构与算法'
+                                },
+                                {
+                                    value: '计算机组成与原理',
+                                    label: '计算机组成与原理'
+                                },
+                                {
+                                    value: '计算机网络',
+                                    label: '计算机网络'
+                                },
+                                {
+                                    value: '公选',
+                                    label: '公选'
                                 },
                                 {
                                     value: '其他课程',
@@ -332,20 +388,65 @@ export default {
                             value: '吉他',
                             label: '吉他'
                         },
+                        {
+                            value: '轮滑',
+                            label: '轮滑'
+                        },
+                        {
+                            value: '定向越野',
+                            label: '定向越野'
+                        },
+                        {
+                            value: '飞镖',
+                            label: '飞镖'
+                        },
+                        {
+                            value: '电竞',
+                            label: '电竞'
+                        },
+                        {
+                            value: '象棋',
+                            label: '象棋'
+                        },
+                        {
+                            value: '滑板',
+                            label: '滑板'
+                        },
+                        {
+                            value: '自行车',
+                            label: '自行车'
+                        },
+                        {
+                            value: '夜跑',
+                            label: '夜跑'
+                        },
                     ]
                 }
             ],
         };
     },
     methods: {
+        getUserInfo() {
+            this.$axios.get('api/v1/user/getPersonalInfo')
+                .then(msg => {
+                    if (msg.data.code == 200) {
+                        
+                    }
+                })
+                .catch(err => {
+                    if (err.response.status == 401) {
+                        this.$router.push({name: 'login'});
+                        this.$Message.error('请登录');
+                    }
+                });
+        },
+
         getGroupItem(id_) {
             if (this.showDrawer != id_) this.showDrawer = id_;
             else this.showDrawer = -1;
         },
 
         searchGroupByTags(value, selectedData) {
-            console.log(value);
-            console.log(selectedData);
             if (this.groupAttribute == 'group_tag' && selectedData.length != 0) {
                 this.input = selectedData[selectedData.length - 1].value;
             }
@@ -354,8 +455,6 @@ export default {
 
         searchGroup() {
             if (this.input != "") {
-                console.log(this.groupAttribute);
-                
                 if (this.first) this.first = false;
 
                 let searchType = '';
@@ -379,7 +478,6 @@ export default {
                 t.teams = [];
                 this.$axios.get('/api/v1/team' + this.getGroupURLParams + '&type=0')
                     .then((response) => {
-                        console.log(response.data);
                         switch(response.data.code) {
                             case 200:
                                 let data = response.data.data;
@@ -388,20 +486,17 @@ export default {
                                 };
                                 break;
                             case 213:
-                                //this.errorMessage = '抱歉，没有找到符合条件(' + this.groupAttribute + ' = ' + this.input + ')的小组，请确认' + searchType + '是否正确';
                                 break;
                         }
                         
                     })
                     .catch((error) => {
                         console.log(error);
-
                     })
             }
         },
 
         applyJoinGroup(id_) {
-            console.log(id_);
             let inGroup = false;
             for (let i = 0, len = this.teams.length; i < len; i++) {
                 if (id_ == this.teams[i].team_id) {
@@ -419,7 +514,6 @@ export default {
             if (!inGroup) {
                 this.$axios.post('/api/v1/team/Member/Addition', {team_id: id_})
                     .then((res) => {
-                        console.log(res.data);
                         switch (res.data.code) {
                             case 200: 
                                 this.$Modal.success({
@@ -461,30 +555,9 @@ export default {
                                 });
                                 break;
                         }
-                        // if (res.data.code == 200) {
-                        //     this.$Modal.success({
-                        //         title: '提示',
-                        //         content: '<p>申请成功</p><p>你已经成功加入该小组</p>'
-                        //     })
-                        // }
                     })
                     .catch((err) => {
                         console.log(err);
-                        // if (err.response) {
-                        //     if (err.response.status == 413) {
-                        //         this.$Modal.info({
-                        //             title: '提示',
-                        //             content: '<p>申请已发送</p><p>等待小组组长审核</p>'
-                        //         })
-                        //     } else if (err.response.status == 414) {
-                        //         this.$Modal.error({
-                        //             title: '提示',
-                        //             content: '<p>申请失败</p><p>该小组禁止所有人加入</p>'
-                        //         })
-                        //     }
-                        // } else if (err.request) {
-
-                        // }
                     })
             } else {
                 this.$Modal.info({
@@ -508,9 +581,7 @@ export default {
         },
     },
     mounted: function() {
-        // for (let i = 0, len = this.default_teams.length; i < len; i++) {
-        //     this.default_teams[i]['showDrawer'] = false;
-        // }    
+        this.getUserInfo();
         this.sendToMainPage();
     }
 
