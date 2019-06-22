@@ -58,6 +58,7 @@ export default {
       .then(msg => {
         if (msg.data.code == 200) {
           this.userInfo = msg.data.data;
+          this.userInfo.score = this.userInfo.score.toFixed(1);
         }
       })
       .catch(err => {

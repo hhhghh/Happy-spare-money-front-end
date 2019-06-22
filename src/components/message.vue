@@ -238,12 +238,15 @@
 <style scoped>
   .div-message {
     width: 400px;
-    max-height: 400px;
     position: absolute;
     right: 5px;
     top: 75px;
     background: #fff;
     border: 1px solid rgb(235, 235, 235);
+  }
+
+  .div-message ul {
+    max-height: 400px;
     overflow: auto;
   }
 
@@ -257,6 +260,7 @@
 
   .li-msg:last-child {
     border-bottom: none;
+    margin-bottom: 10px;
   }
 
   .close-icon {
@@ -292,6 +296,8 @@
   }
 
   .btn-deleteAllMsg {
-    float: right;
+    position: absolute;
+    bottom: 5px;
+    right: 5px;
   }
 </style>
