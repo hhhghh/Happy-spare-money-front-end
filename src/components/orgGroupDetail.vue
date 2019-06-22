@@ -74,7 +74,7 @@
                                 <Scroll height="330">
                                     <div class="member-item" v-for="item in followingList" v-bind:key="item.username">
                                         <div class="profile pointer" @click="jumpToUserInfoPage(item.username)">
-                                            <Avatar :src="item.avatar" size="small"/>
+                                            <Avatar :src="item.useravatar" size="small"/>
                                         </div>
                                         <div class="member-username">
                                             <span class="username-span">{{item.username}}</span>
@@ -97,10 +97,11 @@
 
 <script>
 export default {
-    props: ['userInfo'],
+    // props: ['userInfo'],
 
     data() {
         return {
+            userInfo: {},
             orgName: '',
             
             group: {
@@ -133,13 +134,39 @@ export default {
         };
     },
     methods: {
+        getUserInfo() {
+            this.$axios.get('api/v1/user/getPersonalInfo')
+                .then(msg => {
+                    if (msg.data.code == 200) {
+                        this.userInfo = msg.data.data;
+                        this.userType = this.userInfo.type;
+                        let orgName = this.$route.params.name;
+                        if (this.userType == 1) {
+                            this.getData(orgName);
+                        } else {
+                            this.$Modal.error({
+                                title: '错误',
+                                content: '<p>没有权限查看专属小组详情</p>'
+                            })
+                            this.$router.push({
+                                name: 'myGroup'
+                            })
+                        }
+                    }
+                })
+                .catch(err => {
+                    if (err.response.status == 401) {
+                        this.$router.push({name: 'login'});
+                        this.$Message.error('请登录');
+                    }
+                });
+        },
         
         getGroupDetail(orgName) {
 
             let p1 = new Promise((resolve, reject) => {
                 this.$axios.get('/api/v1/task/findByOrg?orgname=' + orgName + '&&type=all')
                     .then((res) => {
-                        console.log(res);
                         if (res.data.code == 200) {
                             resolve(res);
                         } else {
@@ -154,7 +181,6 @@ export default {
             let p2 = new Promise((resolve, reject) => {
                 this.$axios.get('/api/v1/user/getOrganizationalFollowersList')
                     .then((res) => {
-                        console.log(res.data);
                         resolve(res);
                     })
                     .catch((err) => {
@@ -164,17 +190,13 @@ export default {
             });
 
             let p = Promise.all([p1, p2]);
-            console.log(p);
 
             return p;
         },
 
         getData(name) {
-            console.log(name);
-
             this.getGroupDetail(name)
                 .then((data) => {
-                    console.log(data);
                     this.taskList = data[0].data.data;
                     this.followingList = data[1].data.data;
                 })
@@ -197,20 +219,7 @@ export default {
     },
 
     mounted: function() {
-        this.userType = this.userInfo.type;
-        let orgName = this.$route.params.name;
-        console.log(this.userInfo);
-        if (this.userType == 1) {
-            this.getData(orgName);
-        } else {
-            this.$Modal.error({
-                title: '错误',
-                content: '<p>没有权限查看专属小组详情</p>'
-            })
-            this.$router.push({
-                name: 'myGroup'
-            })
-        }
+        this.getUserInfo();
         this.sendToMainPage();
     },
 
