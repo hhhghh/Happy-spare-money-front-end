@@ -727,7 +727,7 @@ export default {
         },
 
         withdrawGroup() {
-            if (!this.isLeader) {
+            if (!this.isOrg && !this.isLeader) {
                 this.$Modal.confirm({
                     title: '确认',
                     content: '<p>确认退出该小组？</p>',
@@ -740,12 +740,30 @@ export default {
                                         name: 'myGroup'
                                     })
                                 }
+                                console.log(res);
                             })
                             .catch((err) => {
                                 console.log(err);
                             })
                     }
                 })
+            } else if (this.isOrg) {
+                this.$axios.post('/api/v1/user/orgquitteam', {team_id: this.team_id})
+                    .then((res) => {
+                        console.log(res);
+                        if (res.data.code == 200) {
+                            this.$Modal.info({
+                                title: '提示',
+                                content: '<p>退出成功</p>'
+                            });
+                            this.$router.push({
+                                name: 'myGroup'
+                            })
+                        }
+                    })
+                    .catch((err) => {
+                        console.log(err);
+                    })
             }
         },
 
