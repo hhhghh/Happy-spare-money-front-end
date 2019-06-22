@@ -37,7 +37,7 @@
                 </Form>
               </TabPane>
             </Tabs>
-            <router-link class="register-link" to="/register">没有账号？快去注册</router-link>
+            <router-link class="register-link" to="/register">没有账号？立即注册</router-link>
           </div>
         </div>
       </Content>

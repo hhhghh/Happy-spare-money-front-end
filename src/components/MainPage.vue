@@ -90,7 +90,7 @@
               </router-link>
               <router-link v-else :to="{name:'orgGroupDetail', params: {name: userInfo.username}}">
                 <MenuItem name="2-4">
-                  <Icon type="ios-people-outline" />
+                  <Icon type="ios-ribbon-outline" />
                   <span>专属小组</span>
                 </MenuItem>
               </router-link>
