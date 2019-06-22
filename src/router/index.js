@@ -28,6 +28,7 @@ import myOrg from '@/components/myOrg'
 Vue.use(Router)
 
 export default new Router({
+  mode: 'history',
   routes: [
     {
       path: '/',

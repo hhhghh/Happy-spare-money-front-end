@@ -39,9 +39,8 @@
 
           </div>
 
-
-          <Tabs value="info">
-            <TabPane label="个人信息" name="info">
+          <Row :gutter="18">
+            <Col span="5">
               <div class="info">
                 <h2>个人信息</h2>
                 <div v-if="userInfo.type==0" class="info-row">性名： <span>{{userInfo.name}}</span></div>
@@ -52,105 +51,112 @@
                 <div class="info-row">微信： <span>{{userInfo.wechat}}</span></div>
                 <div class="info-row">qq： <span>{{userInfo.qq}}</span></div>
               </div>
-            </TabPane>
-
-            <TabPane label="正在发布的任务" name="publishingTasks">
-              <ul>
-                <li v-for="task in publishingTasks">
-                  <router-link :to="'/MainPage/taskDetail/' + task.task_id">
-                    <Row class="history">
-                      <Col span="16">
-                        <h2 style="margin-bottom: 10px;">
-                          {{task.title}}
-                          <span style="color:#ed4014; margin-left: 10px;">
+            </Col>
+            <Col span="19">
+              <Tabs value="publishingTasks">
+                <TabPane label="正在发布的任务" name="publishingTasks">
+                  <ul>
+                    <li v-for="task in publishingTasks">
+                      <router-link :to="'/MainPage/taskDetail/' + task.task_id">
+                        <Row class="history">
+                          <Col span="16">
+                            <h2 style="margin-bottom: 10px;">
+                              {{task.title}}
+                              <span style="color:#ed4014; margin-left: 10px;">
                               {{task.money}}￥
                           </span>
-                        </h2>
-                        <p>{{task.introduction}}</p>
-                      </Col>
-                      <Col span="8" style="text-align: center; position: absolute; right: 0; bottom: 25px;">
-                        <p>{{task.starttime}} ~</p>
-                        <p>{{task.endtime}}&nbsp;&nbsp;&nbsp;</p>
-                      </Col>
-                    </Row>
-                  </router-link>
-                </li>
-              </ul>
-            </TabPane>
+                            </h2>
+                            <p>{{task.introduction}}</p>
+                          </Col>
+                          <Col span="8" style="text-align: center; position: absolute; right: 0; bottom: 25px;">
+                            <p>{{task.starttime}} ~</p>
+                            <p>{{task.endtime}}&nbsp;&nbsp;&nbsp;</p>
+                          </Col>
+                        </Row>
+                      </router-link>
+                    </li>
+                  </ul>
+                  <div v-if="publishingTasks.length==0" class="empty-hint">当前用户没有正在发布的任务</div>
+                </TabPane>
 
-            <TabPane v-if="userInfo.type==0" label="正在完成的任务" name="finishingTasks">
-              <ul>
-                <li v-for="task in finishingTasks">
-                  <router-link :to="'/MainPage/taskDetail/' + task.task_id">
-                    <Row class="history">
-                      <Col span="16">
-                        <h2 style="margin-bottom: 10px;">
-                          {{task.title}}
-                          <span style="color:#ed4014; margin-left: 10px;">
+                <TabPane v-if="userInfo.type==0" label="正在完成的任务" name="finishingTasks">
+                  <ul>
+                    <li v-for="task in finishingTasks">
+                      <router-link :to="'/MainPage/taskDetail/' + task.task_id">
+                        <Row class="history">
+                          <Col span="16">
+                            <h2 style="margin-bottom: 10px;">
+                              {{task.title}}
+                              <span style="color:#ed4014; margin-left: 10px;">
                               {{task.money}}￥
                           </span>
-                        </h2>
-                        <p>{{task.introduction}}</p>
-                      </Col>
-                      <Col span="8" style="text-align: center; position: absolute; right: 0; bottom: 25px;">
-                        <p>{{task.starttime}} ~</p>
-                        <p>{{task.endtime}}&nbsp;&nbsp;&nbsp;</p>
-                      </Col>
-                    </Row>
-                  </router-link>
-                </li>
-              </ul>
-            </TabPane>
+                            </h2>
+                            <p>{{task.introduction}}</p>
+                          </Col>
+                          <Col span="8" style="text-align: center; position: absolute; right: 0; bottom: 25px;">
+                            <p>{{task.starttime}} ~</p>
+                            <p>{{task.endtime}}&nbsp;&nbsp;&nbsp;</p>
+                          </Col>
+                        </Row>
+                      </router-link>
+                    </li>
+                  </ul>
+                  <div v-if="finishedTasks.length==0" class="empty-hint">当前用户没有正在完成的任务</div>
+                </TabPane>
 
-            <TabPane label="发布过的任务" name="publishedTasks">
-              <ul>
-                <li v-for="task in publishedTasks">
-                  <router-link :to="'/MainPage/taskDetail/' + task.task_id">
-                    <Row class="history">
-                      <Col span="16">
-                        <h2 style="margin-bottom: 10px;">
-                          {{task.title}}
-                          <span style="color:#ed4014; margin-left: 10px;">
+                <TabPane label="发布过的任务" name="publishedTasks">
+                  <ul>
+                    <li v-for="task in publishedTasks">
+                      <router-link :to="'/MainPage/taskDetail/' + task.task_id">
+                        <Row class="history">
+                          <Col span="16">
+                            <h2 style="margin-bottom: 10px;">
+                              {{task.title}}
+                              <span style="color:#ed4014; margin-left: 10px;">
                               {{task.money}}￥
                           </span>
-                        </h2>
-                        <p>{{task.introduction}}</p>
-                      </Col>
-                      <Col span="8" style="text-align: center; position: absolute; right: 0; bottom: 25px;">
-                        <p>{{task.updatedAt}}</p>
-                      </Col>
-                    </Row>
-                  </router-link>
-                </li>
-              </ul>
-            </TabPane>
+                            </h2>
+                            <p>{{task.introduction}}</p>
+                          </Col>
+                          <Col span="8" style="text-align: center; position: absolute; right: 0; bottom: 25px;">
+                            <p>{{task.updatedAt}}</p>
+                          </Col>
+                        </Row>
+                      </router-link>
+                    </li>
+                  </ul>
+                  <div v-if="publishedTasks.length==0" class="empty-hint">当前用户还没有发布过的任务</div>
+                </TabPane>
 
-            <TabPane v-if="userInfo.type==0" label="已完成的任务" name="finishedTasks">
-              <ul>
-                <li v-for="task in finishedTasks">
-                  <router-link :to="'/MainPage/taskDetail/' + task.task_id">
-                    <Row class="history">
-                      <Col span="16">
-                        <h2 style="margin-bottom: 10px;">
-                          {{task.title}}
-                          <span style="color:#ed4014; margin-left: 10px;">
+                <TabPane v-if="userInfo.type==0" label="已完成的任务" name="finishedTasks">
+                  <ul>
+                    <li v-for="task in finishedTasks">
+                      <router-link :to="'/MainPage/taskDetail/' + task.task_id">
+                        <Row class="history">
+                          <Col span="16">
+                            <h2 style="margin-bottom: 10px;">
+                              {{task.title}}
+                              <span style="color:#ed4014; margin-left: 10px;">
                               {{task.money}}￥
                           </span>
-                        </h2>
-                        <p>{{task.introduction}}</p>
-                      </Col>
-                      <Col span="8" style="text-align: center; position: absolute; right: 0; bottom: 10px;">
-                        <p>{{task.updatedAt}}</p>
-                        <Rate allow-half show-text disabled v-model="task.tr.score">
-                          <span style="color: #f5a623">{{task.tr.score}}</span>
-                        </Rate>
-                      </Col>
-                    </Row>
-                  </router-link>
-                </li>
-              </ul>
-            </TabPane>
-          </Tabs>
+                            </h2>
+                            <p>{{task.introduction}}</p>
+                          </Col>
+                          <Col span="8" style="text-align: center; position: absolute; right: 0; bottom: 10px;">
+                            <p>{{task.updatedAt}}</p>
+                            <Rate allow-half show-text disabled v-model="task.tr.score">
+                              <span style="color: #f5a623">{{task.tr.score}}</span>
+                            </Rate>
+                          </Col>
+                        </Row>
+                      </router-link>
+                    </li>
+                  </ul>
+                  <div v-if="finishedTasks.length==0" class="empty-hint">当前用户还没有完成的任务</div>
+                </TabPane>
+              </Tabs>
+            </Col>
+          </Row>
         </div>
       </Content>
     </Layout>
@@ -182,6 +188,7 @@
           .then(msg => {
             if (msg.data.code == 200) {
               this.userInfo = msg.data.data;
+              this.userInfo.score = parseFloat(this.userInfo.score.toFixed(1));
             }
           })
           .catch(err => {
@@ -372,7 +379,6 @@
     padding: 20px;
     border-radius: 10px;
     margin-top: 10px;
-    min-width: 400px;
     overflow: hidden;
     background: #fff;
   }
@@ -395,6 +401,18 @@
 
   a {
     color: #515a6e;
+  }
+
+  .empty-hint {
+    height: 228px;
+    line-height: 228px;
+    text-align: center;
+    font-size: 16px;
+    padding: 20px;
+    border-radius: 5px;
+    margin-top: 10px;
+    overflow: hidden;
+    background: #fff;
   }
 
 </style>

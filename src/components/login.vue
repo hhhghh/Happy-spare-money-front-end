@@ -37,6 +37,7 @@
                 </Form>
               </TabPane>
             </Tabs>
+            <router-link class="register-link" to="/register">没有账号？立即注册</router-link>
           </div>
         </div>
       </Content>
@@ -124,6 +125,7 @@
   border: 1px solid #eee;
   margin: 100px auto;
   background-color: #fff;
+  overflow: hidden;
 }
 
 .login-head {
@@ -143,5 +145,8 @@
   margin-left: 10px;
 }
 
+.register-link {
+  float: right;
+}
 
 </style>
