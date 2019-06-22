@@ -211,6 +211,9 @@
                                 <OptionGroup label="小组">
                                     <Option v-for="item in groupRangeType" :value="item.value" :key="item.value">{{ item.label }}</Option>
                                 </OptionGroup >
+                                <OptionGroup label="默认小组">
+                                      <Option v-for="item in defaultGroupRangeType" :value="item.value" :key="item.value">{{ item.label }}</Option>
+                                </OptionGroup>
                                 <OptionGroup label="本机构">
                                     <Option v-for="item in myOrgType" :value="item.value" :key="item.value">本机构</Option>
                                 </OptionGroup>
@@ -434,6 +437,7 @@ export default {
                 },
                 
             ],
+            defaultGroupRangeType:[],
             myOrgType:[],
             //the highlight color item id
             enterItemId: '',
@@ -508,7 +512,8 @@ export default {
                     }
 
                     vm.getRecentTask();
-                    vm.getGroup();
+                    vm.getGroup(0);
+                    vm.getGroup(1);
 
                     
                     
@@ -533,7 +538,7 @@ export default {
             this.$axios.get(url, {
                 params: {
                     type: 'all',
-                    range: 'all',
+                    range: 1,
                     state: 'all',
                     publisher: vm.username
                 }
@@ -566,7 +571,7 @@ export default {
             });
         },
 
-        getGroup: function() {
+        getGroup: function(type) {
             let vm = this;
             let url = '';
              if (vm.type == 0) {
@@ -577,7 +582,7 @@ export default {
             //异步
             this.$axios.get(url, {
                params: {
-                   type: 0,
+                   type: type,
                    member_username : vm.username
                }
             
@@ -586,9 +591,18 @@ export default {
                 let data = response.data;
                 if (data.code == 200 ) {
                     let teamDatas = data.data;
-                    for(let i = 0;i < teamDatas.length;i ++) {
-                    
-                        vm.groupRangeType.push({value: teamDatas[i].team_id, label: teamDatas[i].team_name + '--' + teamDatas[i].leader});
+                    if (type == 0) {
+                        for(let i = 0;i < teamDatas.length;i ++) {
+                            
+                            vm.groupRangeType.push({value: teamDatas[i].team_id, label: teamDatas[i].team_name + '--' + teamDatas[i].leader});
+                        }
+                    } else if (type == 1) {
+                        for(let i = 0;i < teamDatas.length;i ++) {
+                            
+                            vm.defaultGroupRangeType.push({value: teamDatas[i].team_id, label: teamDatas[i].team_name + '--' + teamDatas[i].leader});
+                        }
+                        vm.defaultGroupRangeType.splice(0, 1);
+                       
                     }
    
                     // console.log(vm.rangeType);

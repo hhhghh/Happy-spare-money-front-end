@@ -304,6 +304,14 @@ export default {
                 if (data.code == 200) {
                     let task = data.data;
 
+                    if(task == null) {
+                        vm.$router.go(-1);
+                         vm.$Notice.warning({
+                            title: 'Task Info',
+                            desc:  "The Task not exist"
+                        });
+                        return;
+                    }
 
                     if (task.type == 1) {
                         task["type_label"] = '问卷调查';
@@ -422,13 +430,7 @@ export default {
         acceptTask: function() {
             
 
-            if (this.userInfo.score < this.task.score) {
-                this.$Notice.warning({
-                        title: 'Task Acceptance',
-                        desc:  "Your score is not enough"
-                    });
-                return;
-            }
+           
 
             let vm = this;
             let url = '/api/v1/task/acceptance';
@@ -473,7 +475,26 @@ export default {
                     });
                     vm.$router.push({name: 'login'});
                
-               }
+               } else if (error.response.status == 500) {
+
+                //    console.log(error.response);
+                   if(error.response.data.data == 'Max accepter number reached') {
+                       vm.$Notice.warning({
+                            title: 'Task Acceptance',
+                            desc:  "Max accepter number reached"
+                        });
+                        vm.reload();
+                   } else {
+                       
+
+                        vm.$Notice.warning({
+                            title: 'Task Acceptance',
+                            desc:  "Task no exist"
+                        });
+                        vm.$router.go(-1);
+                    } 
+                }
+                    // 
             });
         },
 
@@ -762,11 +783,22 @@ export default {
                             break;
                         }
                     }
+
+                    vm.isCanConfrmAll = false;
+                    for (let i = 0;i < vm.trs.length;i ++) {
+                        if (vm.trs[i].state == 1) {
+                            vm.isCanConfrmAll = true;
+                            break;
+                        }
+                    }
                   
 
                     if (isCompleted) {
                         vm.isCompleted = true;
                     }
+
+                    
+
                 }  else {
                     vm.$Notice.warning({
                         title: 'Task Comfirm',
