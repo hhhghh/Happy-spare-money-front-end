@@ -85,12 +85,22 @@
             <Drawer title="范围筛选" width="600" :closable="false" v-model="isDrawerDisplay">
                 <div class="drawer-body">
                     <div class="div-action-btn">
-                        <Button type="primary" @click="selectGroup('','all')">全部</Button>
-                        <Button type="primary" @click="showGroup = true">小组</Button>
-                        <Button type="primary" @click="showGroup = false">机构</Button>
+                        <Button type="primary" @click="selectGroup('', 1)">公有</Button>
+                          <Button type="primary" @click="showGroup = true;showDefault = false">小组</Button>
+                        <Button type="primary" @click="showDefault = true;showGroup = false;">默认小组</Button>
+                        <Button type="primary" @click="showGroup = false;showDefault = false">机构</Button>
                     </div>
                     <div class="div-group-body" v-show="showGroup"> 
                         <div v-for="item in groupItems" @click="selectGroup(item.team_name,item.team_id)">
+                            <div class="div-group">
+                               <img class="logo" :src="item.logo"/>
+                               <p>{{item.team_name}} -- {{item.leader}}</p>
+                            </div>
+                        </div>
+                    
+                    </div>
+                    <div class="div-group-body" v-show="showDefault"> 
+                        <div v-for="item in defaultGroupItems" @click="selectGroup(item.team_name, item.team_id)">
                             <div class="div-group">
                                <img class="logo" :src="item.logo"/>
                                <p>{{item.team_name}} -- {{item.leader}}</p>
@@ -136,8 +146,8 @@ export default {
             ],
             allRangeType:[
                 {
-                    value: 'all',
-                    label: '全部'
+                    value: 1,
+                    label: '公有'
                 }
             ],
             groupRangeType: [
@@ -166,7 +176,7 @@ export default {
             typeSelect: 'all',
             rangeSelect: 'all',
             stateSelect:'all',
-            rangeLabel: '全部',
+            rangeLabel: '公有',
             kindSelect:0,
             enterItemId: '',
             isDrawerDisplay: false,
@@ -175,8 +185,9 @@ export default {
             ],
             groupItems:[],
             organsItems:[],
+            defaultGroupItems:[],
             showGroup:true,
-
+            showDefault: false,
         }
 
 
@@ -221,7 +232,8 @@ export default {
                 if (data.code == 200) {
                     let userInfo = data.data;
                     vm.username = userInfo.username;
-                    vm.getGroup();
+                    vm.getGroup(0);
+                    vm.getGroup(1);
                     if (vm.type == 0) {
                         vm.getOrganization();
                     }
@@ -239,7 +251,7 @@ export default {
                 }
             });
         },
-        getGroup() {
+        getGroup(type) {
             let vm = this;
             let url = '';
             if (vm.type == 0) {
@@ -250,7 +262,7 @@ export default {
             //异步
             this.$axios.get(url, {
                params: {
-                   type: 0,
+                   type: type,
                    member_username : vm.username
                }
             
@@ -264,7 +276,12 @@ export default {
                     for(let i = 0;i < teamDatas.length;i ++) {
                         vm.groupRangeType.push({value: teamDatas[i].team_id, label: teamDatas[i].team_name + '--' + teamDatas[i].leader});
                     }
-                    vm.groupItems = teamDatas;
+                    if (type == 0) {
+                        vm.groupItems = teamDatas;
+                    } else if (type == 1) {
+                        vm.defaultGroupItems = teamDatas;
+                    }
+                 
                   
                     // console.log(vm.rangeType);
                 } 
@@ -390,10 +407,7 @@ export default {
             });
         },
 
-        getAllTasks() {
-            this.rangeSelect = 'all';
-            this.getAcceptTask(this.typeSelect, this.rangeSelect, this.stateSelect);
-        },
+      
         jumpToTaskDetail(id) {
             this.$router.push({path: `/MainPage/taskDetail/${id}`})
         },
@@ -414,8 +428,8 @@ export default {
         selectGroup(team_name,team_id){
             this.kindSelect = 0;
             this.rangeSelect = team_id;
-            if (team_id == 'all') {
-                this.rangeLabel = '全部';
+            if (team_id == 1) {
+                this.rangeLabel = '公有';
             } else {
                 this.rangeLabel = '小组: ' + team_name;
             }
