@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 # myproject
 
 > A Vue.js project
@@ -29,6 +28,4 @@ npm test
 ```
 
 For a detailed explanation on how things work, check out the [guide](http://vuejs-templates.github.io/webpack/) and [docs for vue-loader](http://vuejs.github.io/vue-loader).
-=======
 
->>>>>>> 71b5a3fc08bf884e4e29b15e2eeac1c75748c8f1
