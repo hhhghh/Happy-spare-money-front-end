@@ -167,8 +167,8 @@
 
         userType: '0',
 
-        defaultAvatarImg: 'https://i.loli.net/2017/08/21/599a521472424.jpg',
-        avatarImg: 'https://i.loli.net/2017/08/21/599a521472424.jpg',
+        defaultAvatarImg: '/awesomeface.png',
+        avatarImg: '/awesomeface.png',
 
         userInfo: {
           username: '',
