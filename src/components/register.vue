@@ -167,8 +167,8 @@
 
         userType: '0',
 
-        defaultAvatarImg: '/awesomeface.png',
-        avatarImg: '/awesomeface.png',
+        defaultAvatarImg: 'http://139.196.79.193:3000/awesomeface.png',
+        avatarImg: 'http://139.196.79.193:3000/awesomeface.png',
 
         userInfo: {
           username: '',

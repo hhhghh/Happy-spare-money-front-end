@@ -28,7 +28,6 @@ import myOrg from '@/components/myOrg'
 Vue.use(Router)
 
 export default new Router({
-  mode: 'history',
   routes: [
     {
       path: '/',
@@ -151,11 +150,11 @@ export default new Router({
       name: 'register',
       component: register
     },
-    {	
+    {
       path: '/user/:username',
-      name: 'userInfo',	
-      component: userInfo	
+      name: 'userInfo',
+      component: userInfo
     }
-    
+
   ]
 })
