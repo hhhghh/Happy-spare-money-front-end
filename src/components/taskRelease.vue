@@ -512,8 +512,12 @@ export default {
                     }
 
                     vm.getRecentTask();
+
                     vm.getGroup(0);
-                    vm.getGroup(1);
+                    if (vm.type == 1) {
+                        vm.getGroup(1);
+                    }
+                    
 
                     
                     

@@ -96,7 +96,7 @@
                         <Button type="primary" @click="showDefault = true;showGroup = false;">默认小组</Button>
                         <Button type="primary" @click="selectOrg()" v-show="type == 1">机构</Button>
                     </div>
-                    <div class="div-group-body" v-show="showGroup"> 
+                    <div class="div-group-body" v-show="showGroup && !showDefault "> 
                         <div v-for="item in groupItems" @click="selectGroup(item.team_name, item.team_id)">
                             <div class="div-group">
                                <img class="logo" :src="item.logo"/>
