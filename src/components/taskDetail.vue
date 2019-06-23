@@ -554,6 +554,12 @@ export default {
                         });
                         vm.$router.push({name: 'login'});
                
+                    } else if (error.response.status == 402) {
+                        vm.$Notice.warning({
+                            title: 'Task Complement',
+                            desc:  "Over time"
+                        });
+                        
                     }
                 });
             }
@@ -634,7 +640,7 @@ export default {
 
                     // vm.$router.push({path: `/MainPage/taskSearch`})
                     vm.$router.go(-1);
-                } else {
+                } else if(data.code == 401){
                     vm.$Notice.warning({
                         title: 'Task Cancel',
                         desc:  msg
