@@ -101,7 +101,7 @@
                       </router-link>
                     </li>
                   </ul>
-                  <div v-if="finishedTasks.length==0" class="empty-hint">当前用户没有正在完成的任务</div>
+                  <div v-if="finishingTasks.length==0" class="empty-hint">当前用户没有正在完成的任务</div>
                 </TabPane>
 
                 <TabPane label="发布过的任务" name="publishedTasks">
@@ -404,8 +404,8 @@
   }
 
   .empty-hint {
-    height: 228px;
-    line-height: 228px;
+    height: 212px;
+    line-height: 212px;
     text-align: center;
     font-size: 16px;
     padding: 20px;
